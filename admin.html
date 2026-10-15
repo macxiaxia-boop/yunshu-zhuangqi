@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<title>管理员工具 · 云数装企</title>
+<script src="activation_codes.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #1a1d2e; color: #e8eaf0; padding: 20px; }
+  .lock { max-width: 400px; margin: 100px auto; background: #232738; padding: 40px; border-radius: 12px; }
+  .lock h1 { font-size: 20px; margin-bottom: 16px; }
+  .lock input { width: 100%; padding: 10px 12px; background: #0d111a; border: 1px solid #2a3454; border-radius: 6px; color: #e8eaf0; margin-bottom: 12px; font-size: 14px; }
+  .lock button { width: 100%; padding: 10px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .lock button:hover { background: #8B0029; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .header { background: #232738; padding: 14px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat { background: #232738; padding: 14px; border-radius: 8px; text-align: center; }
+  .stat .num { font-size: 24px; font-weight: 700; color: #B50029; }
+  .stat .label { font-size: 11px; color: #8a93b0; margin-top: 4px; }
+  .codes-table { background: #232738; padding: 16px; border-radius: 8px; }
+  .codes-table h3 { font-size: 14px; margin-bottom: 12px; }
+  .filter { display: flex; gap: 8px; margin-bottom: 12px; }
+  .filter button { padding: 6px 12px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  .filter button.active { background: #B50029; color: #fff; border-color: #B50029; }
+  .code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; max-height: 500px; overflow-y: auto; }
+  .code-item { padding: 8px 10px; background: #0d111a; border-radius: 4px; font-family: monospace; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .code-item.used { opacity: 0.5; }
+  .code-item .badge-used { color: #fbbf24; font-size: 10px; }
+  .code-item .badge-avail { color: #4ade80; font-size: 10px; }
+  .code-item .actions { font-family: sans-serif; font-size: 10px; color: #B50029; }
+  .users-list { background: #232738; padding: 16px; border-radius: 8px; margin-top: 16px; }
+  .user-row { padding: 8px 0; border-bottom: 1px solid #2a3454; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .user-row:last-child { border-bottom: none; }
+  .user-row .email { font-family: monospace; }
+  .user-row .actions button { padding: 2px 8px; margin-left: 6px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 3px; cursor: pointer; font-size: 11px; }
+  .user-row .actions button:hover { background: #B50029; border-color: #B50029; color: #fff; }
+  .user-row .actions .revoke { color: #f87171; }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lockPanel">
+  <h1>🔒 管理员登录</h1>
+  <input type="password" id="adminPwd" placeholder="管理员密码" onkeydown="if(event.key==='Enter') tryUnlock()">
+  <button onclick="tryUnlock()">进入</button>
+  <div style="margin-top:12px; font-size:11px; color:#8a93b0;">首次访问?默认密码:<code style="color:#B50029">yunshu-admin-2026</code></div>
+</div>
+
+<div class="panel" id="mainPanel">
+  <div class="header">
+    <h1>👑 云数装企 · 管理员控制台</h1>
+    <div>
+      <a href="index.html" style="color:#8a93b0;margin-right:14px;text-decoration:none;">查看前台</a>
+      <button onclick="logout()" style="padding:6px 14px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;">退出</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="statTotal">100</div><div class="label">总激活码</div></div>
+    <div class="stat"><div class="num" id="statAvail">100</div><div class="label">未发放</div></div>
+    <div class="stat"><div class="num" id="statUsed">0</div><div class="label">已发放</div></div>
+    <div class="stat"><div class="num" id="statUsers">0</div><div class="label">注册用户</div></div>
+  </div>
+
+  <div class="codes-table">
+    <h3>激活码(共 100 个) · 点击复制或标记状态</h3>
+    <div class="filter">
+      <button class="active" data-filter="all" onclick="setFilter('all')">全部</button>
+      <button data-filter="avail" onclick="setFilter('avail')">未发放</button>
+      <button data-filter="used" onclick="setFilter('used')">已发放</button>
+      <input id="searchInput" placeholder="🔍 搜索码..." style="flex:1;background:#0d111a;border:1px solid #2a3454;border-radius:4px;padding:6px 10px;color:#e8eaf0;font-size:12px;font-family:monospace;" oninput="renderCodes()">
+      <button onclick="exportCodes()">📤 导出</button>
+    </div>
+    <div class="code-list" id="codeList"></div>
+  </div>
+
+  <div class="users-list">
+    <h3>注册用户(本地浏览器,跨设备不共享)</h3>
+    <div id="userList" style="font-size:12px;color:#8a93b0;">加载中...</div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PWD = 'yunshu-admin-2026';
+const LS_USED = 'yunshu-codes-used';
+const LS_USERS = 'yunshu-users-pending';
+
+function tryUnlock() {
+  const pwd = document.getElementById('adminPwd').value;
+  if (pwd === ADMIN_PWD) {
+    document.getElementById('lockPanel').style.display = 'none';
+    document.getElementById('mainPanel').classList.add('active');
+    init();
+  } else {
+    alert('密码错误');
+  }
+}
+
+function logout() {
+  document.getElementById('lockPanel').style.display = 'block';
+  document.getElementById('mainPanel').classList.remove('active');
+}
+
+let currentFilter = 'all';
+
+function getUsed() {
+  try { return JSON.parse(localStorage.getItem(LS_USED) || '{}'); }
+  catch(e) { return {}; }
+}
+function setUsed(obj) {
+  localStorage.setItem(LS_USED, JSON.stringify(obj));
+}
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(LS_USERS) || '[]'); }
+  catch(e) { return []; }
+}
+function setUsers(arr) {
+  localStorage.setItem(LS_USERS, JSON.stringify(arr));
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter button[data-filter]').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderCodes();
+}
+
+function renderCodes() {
+  const used = getUsed();
+  const search = document.getElementById('searchInput').value.trim().toUpperCase();
+  const list = document.getElementById('codeList');
+  list.innerHTML = '';
+  ACTIVATION_CODES.forEach(code => {
+    const isUsed = !!used[code];
+    const matchesFilter = currentFilter === 'all' ||
+      (currentFilter === 'used' && isUsed) ||
+      (currentFilter === 'avail' && !isUsed);
+    const matchesSearch = !search || code.includes(search);
+    if (!matchesFilter || !matchesSearch) return;
+    const div = document.createElement('div');
+    div.className = 'code-item' + (isUsed ? ' used' : '');
+    const recipient = isUsed ? used[code].email || used[code].note : '';
+    div.innerHTML = `
+      <span onclick="copyCode('${code}')" title="点击复制" style="flex:1">${code}</span>
+      <span style="font-family:sans-serif;font-size:10px;color:${isUsed ? '#fbbf24' : '#4ade80'};margin-right:4px">${isUsed ? '已发' : '未发'}</span>
+      <span class="actions">
+        ${isUsed ?
+          `<button onclick="revokeCode('${code}')" title="撤销" style="border-color:#f87171;color:#f87171">×</button>` :
+          `<button onclick="markUsed('${code}')" title="标记已发放" style="border-color:#4ade80;color:#4ade80">✓</button>`
+        }
+      </span>
+    `;
+    if (recipient) div.title = `已发放给: ${recipient}`;
+    list.appendChild(div);
+  });
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    showToast(`已复制: ${code}`);
+  });
+}
+
+function markUsed(code) {
+  const note = prompt(`激活码 ${code} 已发放给谁?`, '');
+  if (!note) return;
+  const used = getUsed();
+  used[code] = { at: Date.now(), note, email: note.includes('@') ? note : '' };
+  setUsed(used);
+  renderCodes();
+  renderStats();
+}
+
+function revokeCode(code) {
+  if (!confirm(`撤销 ${code}?(标记为未发放)`)) return;
+  const used = getUsed();
+  delete used[code];
+  setUsed(used);
+  renderCodes();
+  renderStats();
+}
+
+function exportCodes() {
+  const used = getUsed();
+  const avail = ACTIVATION_CODES.filter(c => !used[c]);
+  const text = '【云数装企 · 激活码导出】\n\n未发放 (' + avail.length + ' 个):\n' +
+    avail.join('\n') +
+    '\n\n已发放 (' + Object.keys(used).length + ' 个):\n' +
+    Object.entries(used).map(([c, m]) => c + ' → ' + m.note).join('\n');
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'activation-codes-' + new Date().toISOString().slice(0, 10) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function renderUsers() {
+  const users = getUsers();
+  const list = document.getElementById('userList');
+  if (!users.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px">暂无注册用户(只有客户在自己浏览器注册后,这里才能看到)</div>';
+    return;
+  }
+  list.innerHTML = users.map((u, i) => `
+    <div class="user-row">
+      <span>
+        <span class="email">${u.email || '(未填)'}</span>
+        ${u.company ? ' <span style="color:#8a93b0">· ' + u.company + '</span>' : ''}
+        <span style="color:#8a93b0;font-size:11px;margin-left:8px">${new Date(u.at).toLocaleString('zh-CN')}</span>
+      </span>
+      <span class="actions">
+        <button onclick="removeUser(${i})" class="revoke" title="删除">删除</button>
+      </span>
+    </div>
+  `).join('');
+}
+
+function removeUser(i) {
+  if (!confirm('删除这条记录?')) return;
+  const users = getUsers();
+  users.splice(i, 1);
+  setUsers(users);
+  renderUsers();
+  renderStats();
+}
+
+function renderStats() {
+  const used = getUsed();
+  const users = getUsers();
+  const total = ACTIVATION_CODES.length;
+  const usedCount = Object.keys(used).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statAvail').textContent = total - usedCount;
+  document.getElementById('statUsed').textContent = usedCount;
+  document.getElementById('statUsers').textContent = users.length;
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#232738;color:#e8eaf0;padding:10px 20px;border-radius:6px;font-size:13px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.4)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = 'none', 1800);
+}
+
+function init() {
+  renderStats();
+  renderCodes();
+  renderUsers();
+}
+</script>
+</body>
+</html>
