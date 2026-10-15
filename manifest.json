@@ -1,42 +1,27 @@
 {
   "name": "云数装企报价系统",
   "short_name": "云数装企",
-  "description": "面向装企(装修企业)的全案设计施工报价工作台 SaaS — 让设计源自生活",
+  "description": "面向装企(装修企业)的全案设计施工报价 SaaS — 让装企告别 Excel 时代",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#1a1d2e",
+  "background_color": "#fafafc",
   "theme_color": "#B50029",
   "lang": "zh-CN",
   "dir": "ltr",
   "orientation": "any",
-  "categories": ["business", "productivity", "utilities"],
+  "categories": ["business", "productivity", "utilities", "lifestyle"],
   "icons": [
-    {
-      "src": "favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "favicon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "favicon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "screenshots": [
-    {
-      "src": "assets/hero.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "云数装企报价系统主界面"
-    }
+    { "src": "assets/hero.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "云数装企报价系统主界面" }
+  ],
+  "shortcuts": [
+    { "name": "立即试用", "url": "/register.html", "description": "14 天免费试用 Pro 版" },
+    { "name": "查看价格", "url": "/pricing.html", "description": "免费版 / Pro 版 / Enterprise" },
+    { "name": "进入应用", "url": "/app.html", "description": "打开报价工作台" }
   ]
 }
