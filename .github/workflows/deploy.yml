@@ -2,7 +2,7 @@ name: Deploy 云数装企报价系统 to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
     paths:
       - 'index.html'
       - 'manifest.json'
