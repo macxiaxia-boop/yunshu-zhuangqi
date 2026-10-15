@@ -2304,15 +2304,23 @@
   // ============ Welcome toast ============
   setTimeout(() => showToast('🎉 云数装企 · 报价系统 v1.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板'), 600);
 
-  // ============ Auth check (optional, demo mode allowed) ============
-  function checkAuth() {
-    try {
-      const user = JSON.parse(localStorage.getItem('yunshu-user') || 'null');
-      if (user) console.log('[auth] user:', user.email);
-      else console.log('[auth] demo mode (no login required)');
-    } catch (e) {}
-  }
-  checkAuth();
+  // ============ Auth gate (strict — must be activated) ============
+  (function authGate() {
+    let user;
+    try { user = JSON.parse(localStorage.getItem('yunshu-user') || 'null'); } catch(e) { user = null; }
+    if (!user) {
+      // 未登录
+      window.location.replace('login.html');
+      return;
+    }
+    if (!user.activated) {
+      // 未激活
+      window.location.replace('pending.html');
+      return;
+    }
+    // 通过
+    console.log('[auth] activated user:', user.email, 'code:', user.activatedCode);
+  })();
 
   // ============ Simulated payment removed — product is fully free ============
   // Restore saved project on load
