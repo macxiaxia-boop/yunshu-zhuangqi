@@ -18,32 +18,23 @@
   .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #d0d0d5; background: #fff; color: #1a1a1f; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block; }
   .btn.primary { background: #B50029; color: #fff; border-color: #B50029; }
   .cta { display: flex; gap: 10px; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
-  h1 { font-size: 42px; text-align: center; margin-bottom: 16px; }
-  .lead { text-align: center; color: #5e5e6b; font-size: 18px; max-width: 600px; margin: 0 auto 50px; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .plan { background: #fff; border: 1px solid #e1e1e5; border-radius: 12px; padding: 36px; display: flex; flex-direction: column; }
-  .plan.featured { border-color: #B50029; border-width: 2px; }
-  .badge { display: inline-block; background: #B50029; color: #fff; font-size: 11px; padding: 3px 10px; border-radius: 10px; margin-bottom: 8px; text-transform: uppercase; }
-  .name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-  .desc { color: #8e8e9a; font-size: 14px; margin-bottom: 24px; min-height: 40px; }
-  .price { margin-bottom: 24px; }
-  .price .num { font-size: 48px; font-weight: 800; }
-  .price .unit { font-size: 16px; color: #5e5e6b; }
-  .price .free { font-size: 36px; font-weight: 800; }
-  ul { list-style: none; margin-bottom: 24px; flex: 1; }
-  ul li { padding: 8px 0; color: #5e5e6b; font-size: 14px; }
-  ul li::before { content: "✓ "; color: #16a34a; font-weight: 700; }
-  ul li.no { color: #8e8e9a; }
-  ul li.no::before { content: "✕ "; color: #cbd5e1; }
-  .plan .btn { padding: 12px; text-align: center; display: block; font-weight: 600; }
-  .faq { max-width: 800px; margin: 80px auto; padding: 0 24px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 80px 24px; }
+  h1 { font-size: 48px; text-align: center; margin-bottom: 16px; }
+  .lead { text-align: center; color: #5e5e6b; font-size: 19px; max-width: 600px; margin: 0 auto 50px; }
+  .price-box { background: linear-gradient(135deg, #B50029, #8B0029); color: #fff; padding: 60px 40px; border-radius: 16px; text-align: center; margin-bottom: 60px; box-shadow: 0 12px 48px rgba(181, 0, 41, 0.25); }
+  .price-box .num { font-size: 80px; font-weight: 800; line-height: 1; margin-bottom: 12px; }
+  .price-box .sub { font-size: 18px; opacity: 0.9; margin-bottom: 24px; }
+  .price-box .tag { display: inline-block; background: rgba(255,255,255,0.18); padding: 6px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+  .price-box a { background: #fff; color: #B50029; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 16px; }
+  .features-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; max-width: 700px; margin: 0 auto; }
+  .feat { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #5e5e6b; line-height: 1.6; }
+  .feat::before { content: "✓"; color: #16a34a; font-weight: 700; flex-shrink: 0; font-size: 16px; }
+  .faq { max-width: 800px; margin: 60px auto; padding: 0 24px; }
   .faq h2 { text-align: center; font-size: 32px; margin-bottom: 32px; }
   .qa { border-bottom: 1px solid #e1e1e5; padding: 18px 0; }
   .qa-q { font-weight: 600; cursor: pointer; font-size: 16px; }
   .qa-a { color: #5e5e6b; font-size: 14px; line-height: 1.7; margin-top: 10px; display: none; }
   .qa.open .qa-a { display: block; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .plan.featured { transform: none; } }
 </style>
 </head>
 <body>
@@ -52,102 +43,62 @@
   <div class="nav-inner">
     <a href="index.html" class="brand"><div class="brand-logo">云</div><span>云数装企</span></a>
     <div class="links">
-      <a href="index.html#features">功能</a>
+      <a href="index.html">功能</a>
       <a href="pricing.html">价格</a>
-      <a href="index.html#faq">FAQ</a>
       <a href="about.html">关于</a>
     </div>
     <div class="cta">
-      <a href="login.html" class="btn">登录</a>
-      <a href="register.html" class="btn primary">免费试用</a>
+      <a href="app.html" class="btn primary">立即使用 →</a>
     </div>
   </div>
 </nav>
 
 <div class="container">
-  <h1>简单透明的价格</h1>
-  <p class="lead">从免费开始,按需升级。14 天 Pro 试用,无需信用卡。</p>
+  <h1>完全免费 · 无功能限制</h1>
+  <p class="lead">云数装企报价系统是一个开源工具 — 我们相信装企值得更好的报价体验。</p>
 
-  <div class="grid">
-    <div class="plan">
-      <div class="name">免费版</div>
-      <div class="desc">个人装企 / 试用体验</div>
-      <div class="price"><span class="free">¥0</span><span class="unit">/永久免费</span></div>
-      <ul>
-        <li>3 个项目</li>
-        <li>所有 11 模块</li>
-        <li>1 套品牌配置</li>
-        <li>本地数据存储</li>
-        <li>导出报价书 HTML</li>
-        <li class="no">团队协作</li>
-        <li class="no">云端同步</li>
-        <li class="no">多品牌工作室</li>
-      </ul>
-      <a href="register.html" class="btn">免费开始</a>
-    </div>
+  <div class="price-box">
+    <div class="tag">💡 无需注册 · 无需信用卡</div>
+    <div class="num">¥0</div>
+    <div class="sub">永久免费 · 所有功能</div>
+    <a href="app.html">🚀 立即开始使用</a>
+  </div>
 
-    <div class="plan featured">
-      <div class="badge">⭐ 推荐</div>
-      <div class="name">Pro 版</div>
-      <div class="desc">独立装企 / 小型工作室</div>
-      <div class="price"><span class="num">¥99</span><span class="unit">/月 · 年付 ¥999</span></div>
-      <ul>
-        <li>无限项目</li>
-        <li>所有 11 模块</li>
-        <li>6 主题色 + 自定义</li>
-        <li>团队克隆 ZIP</li>
-        <li>优先邮件支持</li>
-        <li>导出 PDF (高清)</li>
-        <li>客户数据云端备份</li>
-        <li>实时同步</li>
-      </ul>
-      <a href="register.html" class="btn primary">🚀 14 天免费试用</a>
-    </div>
-
-    <div class="plan">
-      <div class="name">Enterprise</div>
-      <div class="desc">中大型装企集团</div>
-      <div class="price"><span class="num">¥499</span><span class="unit">/月起 · 联系销售</span></div>
-      <ul>
-        <li>Pro 版全部功能</li>
-        <li>多品牌工作室</li>
-        <li>团队成员管理</li>
-        <li>API 接入</li>
-        <li>专属客户经理</li>
-        <li>SLA 99.9% 保障</li>
-        <li>定制 Logo + 主题色</li>
-        <li>本地化部署</li>
-      </ul>
-      <a href="mailto:sales@yunshu.cn?subject=Enterprise 询价" class="btn">联系销售</a>
-    </div>
+  <div class="features-list">
+    <div class="feat">所有 11 个报价模块</div>
+    <div class="feat">6 主题色 + 自定义</div>
+    <div class="feat">6 主题色实时切换</div>
+    <div class="feat">打印预览 + PDF 导出</div>
+    <div class="feat">键盘快捷键 + Cmd+K 命令面板</div>
+    <div class="feat">3 个示例项目快速上手</div>
+    <div class="feat">响应式(桌面 + 移动端)</div>
+    <div class="feat">PWA 支持(添加到主屏幕)</div>
+    <div class="feat">数据本地存储(不上传服务器)</div>
+    <div class="feat">团队克隆 ZIP</div>
   </div>
 </div>
 
 <div class="faq">
   <h2>常见问题</h2>
   <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">可以按月付费吗?</div>
-    <div class="qa-a">可以。Pro 版支持月付(¥99/月)或年付(¥999/年,省 ¥189)。Enterprise 联系销售定制。</div>
+    <div class="qa-q">真的完全免费吗?</div>
+    <div class="qa-a">是的。所有功能、所有用户、所有用途都免费。无功能阉割,无项目数量限制,无品牌限制。</div>
   </div>
   <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">试用结束后会自动扣费吗?</div>
-    <div class="qa-a">不会。14 天 Pro 试用结束后,自动降级到免费版(3 项目 + 1 品牌)。如需继续 Pro,手动订阅。</div>
+    <div class="qa-q">数据存在哪里?</div>
+    <div class="qa-a">默认存储在您本地浏览器(localStorage),不上传服务器。如需多端同步,可手动导出 ZIP 备份。</div>
   </div>
   <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">可以随时取消订阅吗?</div>
-    <div class="qa-a">可以。一键取消,下个计费周期不再扣费。已付费用按比例退还。</div>
+    <div class="qa-q">需要注册账号吗?</div>
+    <div class="qa-a">不需要。可以直接打开 <a href="app.html">app.html</a> 使用所有功能。注册账号仅用于云端同步(未来功能)。</div>
   </div>
   <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">免费版能用吗?</div>
-    <div class="qa-a">能用。免费版有 3 个项目额度,适合个人装企或初次体验。功能完整,只是项目和品牌有限制。</div>
+    <div class="qa-q">会持续更新吗?</div>
+    <div class="qa-a">会。所有更新在 GitHub 开源,任何人都可以免费使用最新版本。</div>
   </div>
   <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">支持发票吗?</div>
-    <div class="qa-a">支持。订阅后在账户设置里申请电子发票。</div>
-  </div>
-  <div class="qa" onclick="this.classList.toggle('open')">
-    <div class="qa-q">团队版有几人?</div>
-    <div class="qa-a">Pro 版单账号。Enterprise 支持多账号 + 角色权限(管理员/设计师/财务)。</div>
+    <div class="qa-q">可以商用吗?</div>
+    <div class="qa-a">可以。本系统供装企(装修企业)免费商用。如需定制功能,欢迎邮件联系 hello@yunshu.cn。</div>
   </div>
 </div>
 
