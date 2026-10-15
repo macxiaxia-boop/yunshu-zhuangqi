@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>等待开通 · 云数装企</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fafafc; color: #1a1a1f; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .box { width: 100%; max-width: 540px; background: #fff; border: 1px solid #e1e1e5; border-radius: 12px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); text-align: center; }
+  .status-icon { font-size: 48px; margin-bottom: 12px; }
+  h1 { font-size: 22px; margin-bottom: 8px; }
+  .lead { color: #5e5e6b; font-size: 14px; margin-bottom: 24px; line-height: 1.7; }
+  .steps { background: #f9f9fb; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: left; }
+  .step { padding: 10px 0; border-bottom: 1px solid #e1e1e5; display: flex; align-items: flex-start; gap: 12px; font-size: 13px; }
+  .step:last-child { border-bottom: none; }
+  .step .num { width: 22px; height: 22px; background: #B50029; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step .text { color: #1a1a1f; line-height: 1.6; }
+  .step .text b { color: #B50029; }
+  .qrcode-area { background: #f9f9fb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .qrcode-area .label { font-size: 13px; color: #5e5e6b; margin-bottom: 12px; }
+  .qrcode-img {
+    width: 200px; height: 200px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid #e1e1e5;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #8e8e9a;
+    font-size: 12px;
+    text-align: center;
+    padding: 8px;
+  }
+  .qrcode-img img { width: 100%; height: 100%; object-fit: contain; }
+  .amount { font-size: 30px; font-weight: 800; color: #B50029; margin: 12px 0; }
+  .contact { background: #fff5f7; border: 1px solid #B50029; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #1a1a1f; }
+  .contact b { color: #B50029; }
+  .activation-input { display: flex; gap: 8px; margin-bottom: 20px; }
+  .activation-input input { flex: 1; padding: 10px 12px; border: 1px solid #d0d0d5; border-radius: 6px; font-size: 14px; font-family: monospace; outline: none; }
+  .activation-input input:focus { border-color: #B50029; }
+  .activation-input button { padding: 10px 20px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .activation-input button:hover { background: #8B0029; }
+  .alt-actions { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+  .alt-actions a { color: #B50029; font-size: 13px; text-decoration: none; }
+  .alt-actions a:hover { text-decoration: underline; }
+  .error-msg { color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="status-icon">⏳</div>
+  <h1>正在为您开通权限</h1>
+  <p class="lead">
+    感谢您选择云数装企报价系统!<br>
+    完成支付后,请通过微信联系客服获取激活码。
+  </p>
+
+  <div class="steps">
+    <div class="step"><span class="num">1</span><span class="text">扫码支付 <b>¥200</b>(单次激活码 / 永久使用)</span></div>
+    <div class="step"><span class="num">2</span><span class="text">微信加客服,告知邮箱(您注册的邮箱)<span id="userEmail" style="color:#5e5e6b;font-size:11px"></span></span></div>
+    <div class="step"><span class="num">3</span><span class="text">客服审核 → 在下方输入<b>激活码</b> → 解锁全部功能</span></div>
+  </div>
+
+  <div class="qrcode-area">
+    <div class="label">📱 微信扫码支付 200 元</div>
+    <div class="qrcode-img" id="qrcodeImg">
+      <!-- 用户的微信收款码(请替换 src 为真实收款码图片) -->
+      <img src="assets/qrcode.jpg" alt="微信收款码" onerror="this.parentElement.innerHTML='<div>请将微信收款码图片保存为<br><code>assets/qrcode.jpg</code><br>然后刷新页面</div>'">
+    </div>
+    <div class="amount">¥200</div>
+    <div style="font-size:11px;color:#8e8e9a">支付时请备注您的邮箱,便于快速激活</div>
+  </div>
+
+  <div class="contact">
+    📞 <b>客服微信:</b> xinzh_quote (示例)<br>
+    📧 <b>客服邮箱:</b> hello@yunshu.cn<br>
+    ⏰ <b>工作时间:</b> 9:00-22:00(通常 30 分钟内激活)
+  </div>
+
+  <h3 style="font-size:14px;margin:20px 0 8px;text-align:left">已付款?输入激活码</h3>
+  <div class="activation-input">
+    <input id="codeInput" placeholder="YNSH-XXXX-XXXX-XXXX" maxlength="19" style="text-transform:uppercase">
+    <button onclick="activateCode()">激活</button>
+  </div>
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="alt-actions">
+    <a href="login.html">切换账号</a>
+    <a href="index.html">返回首页</a>
+  </div>
+</div>
+
+<script>
+(async function() {
+  // 显示用户邮箱
+  try {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    const el = document.getElementById('userEmail');
+    if (user.email) el.textContent = '(您注册邮箱:' + user.email + ')';
+  } catch (e) {}
+
+  // 加载激活码列表(用于客户端验证)
+  try {
+    const res = await fetch('activation_codes.js');
+    const txt = await res.text();
+    eval(txt); // 全局 ACTIVATION_CODES
+  } catch (e) {
+    console.error('Failed to load activation codes:', e);
+  }
+})();
+
+async function activateCode() {
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+  const errEl = document.getElementById('errorMsg');
+  errEl.textContent = '';
+
+  if (!code) {
+    errEl.textContent = '请输入激活码';
+    return;
+  }
+  if (!code.match(/^YNSH-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
+    errEl.textContent = '激活码格式不正确,应该是 YNSH-XXXX-XXXX-XXXX';
+    return;
+  }
+  if (typeof ACTIVATION_CODES === 'undefined' || !ACTIVATION_CODES.includes(code)) {
+    errEl.textContent = '激活码无效,请检查是否输入正确';
+    return;
+  }
+
+  // 检查是否已被使用(从 admin 本地存储读)
+  const used = JSON.parse(localStorage.getItem('yunshu-codes-used') || '{}');
+  if (used[code]) {
+    const when = new Date(used[code].at).toLocaleString('zh-CN');
+    errEl.textContent = '此激活码已被使用(' + when + '),请联系客服';
+    return;
+  }
+
+  // 标记使用 + 激活用户
+  used[code] = { at: Date.now(), note: 'pending.html 用户激活' };
+  localStorage.setItem('yunshu-codes-used', JSON.stringify(used));
+
+  const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+  user.activated = true;
+  user.activatedAt = Date.now();
+  user.activatedCode = code;
+  localStorage.setItem('yunshu-user', JSON.stringify(user));
+
+  // 跳转 app
+  setTimeout(() => {
+    window.location.href = 'app.html';
+  }, 800);
+}
+</script>
+</body>
+</html>
