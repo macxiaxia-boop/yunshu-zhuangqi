@@ -37,20 +37,24 @@
     <div class="brand-logo">云</div>
     <span style="font-weight:600;">云数装企</span>
   </div>
-  <div class="trial-badge">💡 完全免费 · 无需注册</div>
-  <h1>个性化配置(可选)</h1>
-  <p class="sub">数据保存在本地浏览器,不上传服务器</p>
+  <div class="trial-badge">💡 单次付费 · 终身使用</div>
+  <h1>创建账号</h1>
+  <p class="sub">注册后扫码支付 ¥200 获取激活码</p>
 
   <div class="field">
-    <label>邮箱(可选,仅用于显示)</label>
-    <input type="email" name="email" placeholder="you@example.com">
+    <label>邮箱</label>
+    <input type="email" name="email" placeholder="you@example.com" required>
+  </div>
+  <div class="field">
+    <label>设置密码(至少 4 位)</label>
+    <input type="password" name="password" placeholder="••••••••" required minlength="4">
   </div>
   <div class="field">
     <label>工作室 / 公司名称(可选)</label>
     <input type="text" name="company" placeholder="云上工作室">
   </div>
 
-  <button type="submit" class="btn">🚀 立即开始</button>
+  <button type="submit" class="btn">🚀 创建账号</button>
 
   <div class="benefits">
     <strong>所有功能免费:</strong>
@@ -66,20 +70,27 @@
     本服务完全免费开源,不上传任何数据。
   </div>
 
-  <div class="alt">想直接体验?<a href="app.html">跳过注册直接使用 →</a></div>
+  <div class="alt">已有账号?<a href="login.html">立即登录 →</a></div>
 </form>
 
 <script>
 function doRegister(form) {
-  const email = form.email.value.trim();
+  const email = form.email.value.trim().toLowerCase();
+  const pwd = form.password.value;
   const company = form.company.value.trim();
+  if (!email || pwd.length < 4) return;
+  const users = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  if (users[email]) {
+    alert('该邮箱已注册,请直接登录');
+    window.location.href = 'login.html';
+    return;
+  }
+  users[email] = { pwd, company, at: Date.now(), activated: false };
+  localStorage.setItem('yunshu-accounts', JSON.stringify(users));
   localStorage.setItem('yunshu-user', JSON.stringify({
-    email: email || 'anonymous@local',
-    company,
-    plan: 'free',
-    loginAt: Date.now()
+    email, plan: 'pending', activated: false, loginAt: Date.now()
   }));
-  window.location.href = 'app.html';
+  window.location.href = 'pending.html';
 }
 </script>
 </body>
