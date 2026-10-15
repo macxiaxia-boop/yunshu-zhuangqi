@@ -39,34 +39,29 @@
     <label>邮箱</label>
     <input type="email" name="email" placeholder="you@example.com" required>
   </div>
-  <div class="field">
-    <label>密码</label>
-    <input type="password" name="password" placeholder="••••••••" required>
-  </div>
 
   <button type="submit" class="btn">登录</button>
 
   <div class="divider">— 或 —</div>
-  <button type="button" class="btn" style="background:#fff;color:#1a1a1f;border:1px solid #d0d0d5;" onclick="doGuest()">👤 体验 Demo(无账号)</button>
+  <button type="button" class="btn" style="background:#fff;color:#1a1a1f;border:1px solid #d0d0d5;" onclick="doGuest()">👤 直接使用(无需登录)</button>
 
-  <div class="alt">还没注册?<a href="register.html">立即免费注册 →</a></div>
+  <div class="alt">想配置个性化?<a href="register.html">填个邮箱即可 →</a></div>
 
   <div class="demo-note">
-    💡 <strong>演示提示:</strong> 这是产品演示,任意邮箱密码即可登录。
-    真实版本会接入真实的账号系统。
+    💡 <strong>提示:</strong> 本服务完全免费,无需注册即可使用所有功能。
+    填邮箱仅用于在本地显示您的身份。
   </div>
 </form>
 
 <script>
 function doLogin(form) {
   const email = form.email.value.trim();
-  const pwd = form.password.value;
-  if (!email || !pwd) return;
-  localStorage.setItem('yunshu-user', JSON.stringify({ email, plan: 'pro', trialUntil: Date.now() + 14*86400000, loginAt: Date.now() }));
+  if (!email) return;
+  localStorage.setItem('yunshu-user', JSON.stringify({ email, plan: 'free', loginAt: Date.now() }));
   window.location.href = 'app.html';
 }
 function doGuest() {
-  localStorage.setItem('yunshu-user', JSON.stringify({ email: 'demo@yunshu.cn', plan: 'free', trialUntil: 0, loginAt: Date.now() }));
+  localStorage.setItem('yunshu-user', JSON.stringify({ email: 'demo@yunshu.cn', plan: 'free', loginAt: Date.now() }));
   window.location.href = 'app.html';
 }
 </script>
