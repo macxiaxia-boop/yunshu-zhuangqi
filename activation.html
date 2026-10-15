@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>激活 · 云数装企</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fafafc; color: #1a1a1f; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .box { width: 100%; max-width: 440px; background: #fff; border: 1px solid #e1e1e5; border-radius: 12px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+  .icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
+  h1 { font-size: 22px; margin-bottom: 6px; text-align: center; }
+  .sub { color: #5e5e6b; font-size: 14px; text-align: center; margin-bottom: 24px; }
+  input { width: 100%; padding: 12px 14px; border: 1px solid #d0d0d5; border-radius: 6px; font-size: 16px; font-family: monospace; outline: none; letter-spacing: 1px; }
+  input:focus { border-color: #B50029; }
+  button { width: 100%; padding: 12px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; margin-top: 14px; }
+  button:hover { background: #8B0029; }
+  .err { color: #f87171; font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; }
+  .ok { color: #16a34a; font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; }
+  .info { background: #f9f9fb; border-left: 3px solid #B50029; padding: 10px 14px; font-size: 12px; color: #5e5e6b; border-radius: 4px; margin-top: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="icon">🔑</div>
+  <h1>输入激活码</h1>
+  <p class="sub">使用您的微信扫码支付 200 元后,从客服处获得激活码</p>
+
+  <input id="codeInput" placeholder="YNSH-XXXX-XXXX-XXXX" maxlength="19" style="text-transform:uppercase" onkeydown="if(event.key==='Enter') activate()">
+  <button onclick="activate()">立即激活</button>
+
+  <div class="err" id="msg"></div>
+
+  <div class="info">
+    💡 还没支付?返回 <a href="pending.html" style="color:#B50029">支付页面</a> 查看支付方式。
+    <br>激活码为永久使用,一次激活终身免费。
+  </div>
+</div>
+
+<script>
+(async function() {
+  try {
+    const res = await fetch('activation_codes.js');
+    const txt = await res.text();
+    eval(txt);
+  } catch (e) {}
+})();
+
+function activate() {
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+  const el = document.getElementById('msg');
+  el.className = 'err';
+  el.textContent = '';
+
+  if (!code) { el.textContent = '请输入激活码'; return; }
+  if (!code.match(/^YNSH-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
+    el.textContent = '格式错误:应为 YNSH-XXXX-XXXX-XXXX';
+    return;
+  }
+  if (typeof ACTIVATION_CODES === 'undefined') {
+    el.textContent = '加载激活码列表失败,请稍后重试';
+    return;
+  }
+  if (!ACTIVATION_CODES.includes(code)) {
+    el.textContent = '激活码无效,请联系客服确认';
+    return;
+  }
+
+  const used = JSON.parse(localStorage.getItem('yunshu-codes-used') || '{}');
+  if (used[code]) {
+    el.textContent = '此激活码已被使用';
+    return;
+  }
+
+  used[code] = { at: Date.now() };
+  localStorage.setItem('yunshu-codes-used', JSON.stringify(used));
+
+  const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+  user.activated = true;
+  user.activatedAt = Date.now();
+  user.activatedCode = code;
+  localStorage.setItem('yunshu-user', JSON.stringify(user));
+
+  el.className = 'ok';
+  el.textContent = '✅ 激活成功!正在跳转...';
+  setTimeout(() => window.location.href = 'app.html', 1200);
+}
+</script>
+</body>
+</html>
