@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /app.html
+Allow: /register.html
+Allow: /login.html
+Allow: /pricing.html
+Allow: /about.html
+Allow: /terms.html
+Allow: /privacy.html
+Disallow: /yunshu-zhuangqi-v1.0.zip
+
+Sitemap: https://macxiaxia-boop.github.io/yunshu-zhuangqi/sitemap.xml
