@@ -1152,8 +1152,6 @@
   </div>
   <div class="header-actions">
     <a href="index.html" class="hbtn" title="返回首页">🏠 首页</a>
-    <button class="hbtn" id="upgradeBtn" onclick="openUpgrade()" style="background:linear-gradient(135deg,#B50029,#8B0029);color:#fff;border-color:transparent;">⭐ 升级 Pro</button>
-    <button class="hbtn" onclick="doLogout()" title="退出登录">退出</button>
     <div style="position:relative;">
       <button class="hbtn" id="projectSwitcher" onclick="toggleProjectMenu()">📁 <span id="currentProjectName">示例工程 · 未命名</span> <span style="font-size:9px;">▼</span></button>
       <div id="projectMenu" style="display:none; position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-2); border:1px solid var(--border-2); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.4); min-width:240px; z-index:60; overflow:hidden;">
@@ -2306,50 +2304,17 @@
   // ============ Welcome toast ============
   setTimeout(() => showToast('🎉 云数装企 · 报价系统 v1.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板'), 600);
 
-  // ============ Auth gate (must login to use app) ============
+  // ============ Auth check (optional, demo mode allowed) ============
   function checkAuth() {
     try {
       const user = JSON.parse(localStorage.getItem('yunshu-user') || 'null');
-      if (!user) {
-        // 未登录:直接进入 demo 模式(也可以强制跳 login)
-        // 用户原意是"可卖产品",所以 demo 也允许访问
-        console.log('[auth] demo mode');
-      } else {
-        console.log('[auth] logged in:', user.email, 'plan:', user.plan);
-      }
+      if (user) console.log('[auth] user:', user.email);
+      else console.log('[auth] demo mode (no login required)');
     } catch (e) {}
   }
   checkAuth();
 
-  // ============ Logout ============
-  function doLogout() {
-    if (confirm('确定退出登录?当前项目数据将保留在本地。')) {
-      localStorage.removeItem('yunshu-user');
-      window.location.href = 'index.html';
-    }
-  }
-
-  // ============ Upgrade modal ============
-  function openUpgrade() {
-    const modal = document.getElementById('upgradeModal');
-    if (modal) modal.classList.add('active');
-  }
-  function closeUpgrade() {
-    const modal = document.getElementById('upgradeModal');
-    if (modal) modal.classList.remove('active');
-  }
-
-  // ============ Simulated payment (demo only) ============
-  function simulatePayment() {
-    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
-    user.plan = 'pro';
-    user.subscribedAt = Date.now();
-    user.subscriptionId = 'demo_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('yunshu-user', JSON.stringify(user));
-    closeUpgrade();
-    showToast('🎉 升级成功!Pro 版已激活(演示)');
-    document.getElementById('upgradeBtn').style.display = 'none';
-  }
+  // ============ Simulated payment removed — product is fully free ============
   // Restore saved project on load
   if (currentProject !== 'empty') switchProject(currentProject);
 
@@ -2671,42 +2636,7 @@
 <!-- Floating Help Button -->
 <div onclick="openShortcuts()" title="按 ? 查看快捷键" style="position:fixed; bottom:50px; right:18px; width:36px; height:36px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold; cursor:pointer; box-shadow:0 6px 18px var(--primary-glow); z-index:50; user-select:none; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">?</div>
 
-<!-- Upgrade Modal -->
-<div class="modal-bg" id="upgradeModal">
-  <div class="modal" style="width:560px;">
-    <div class="modal-head">
-      <h3>⭐ 升级到 Pro 版</h3>
-      <div class="modal-close" onclick="closeUpgrade()">×</div>
-    </div>
-    <div style="padding:24px;">
-      <div style="text-align:center; padding:16px; background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:#fff; border-radius:8px; margin-bottom:16px;">
-        <div style="font-size:13px; opacity:0.9;">Pro 版</div>
-        <div style="font-size:40px; font-weight:800; margin:6px 0;">¥99<span style="font-size:14px; opacity:0.85;">/月</span></div>
-        <div style="font-size:13px; opacity:0.9;">或 ¥999/年(省 ¥189)</div>
-      </div>
-      <ul style="list-style:none; padding:0; margin:0 0 18px;">
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>无限项目</strong>(免费版仅 3 个)</li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>6 主题色 + 自定义品牌</strong></li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>团队克隆 ZIP</strong></li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>导出 PDF 高清版</strong></li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>客户数据云端备份</strong></li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>优先邮件支持</strong></li>
-        <li style="padding:6px 0; font-size:13px;">✓ <strong>实时多端同步</strong></li>
-      </ul>
-      <div style="padding:12px; background:var(--bg-2); border-radius:6px; font-size:12px; color:var(--text-dim); margin-bottom:18px;">
-        💡 您的 14 天免费试用已包含 Pro 版全部功能。试用结束后自动降级到免费版,数据不丢失。
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button class="hbtn" onclick="closeUpgrade()" style="flex:1;">稍后</button>
-        <button class="hbtn primary" onclick="simulatePayment()" style="flex:2; background:linear-gradient(135deg,var(--primary),var(--primary-2));">🚀 立即升级</button>
-      </div>
-      <div style="margin-top:14px; text-align:center; font-size:11px; color:var(--text-faint);">
-        💡 这是产品演示版,点击"立即升级"不会真实扣款。
-        真实部署后会接入支付宝/微信/Stripe 支付。
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Upgrade modal removed — product is fully free, no payment needed -->
 
 <!-- Command Palette (Cmd+K) -->
 <div class="cmd-palette" id="cmdPalette">
