@@ -37,49 +37,47 @@
     <div class="brand-logo">云</div>
     <span style="font-weight:600;">云数装企</span>
   </div>
-  <div class="trial-badge">🎉 14 天免费试用</div>
-  <h1>创建账号</h1>
-  <p class="sub">立即开始,无需信用卡</p>
+  <div class="trial-badge">💡 完全免费 · 无需注册</div>
+  <h1>个性化配置(可选)</h1>
+  <p class="sub">数据保存在本地浏览器,不上传服务器</p>
 
   <div class="field">
-    <label>邮箱</label>
-    <input type="email" name="email" placeholder="you@example.com" required>
+    <label>邮箱(可选,仅用于显示)</label>
+    <input type="email" name="email" placeholder="you@example.com">
   </div>
   <div class="field">
     <label>工作室 / 公司名称(可选)</label>
     <input type="text" name="company" placeholder="云上工作室">
   </div>
-  <div class="field">
-    <label>设置密码</label>
-    <input type="password" name="password" placeholder="至少 8 位" required minlength="8">
-  </div>
 
-  <button type="submit" class="btn">🚀 创建账号</button>
+  <button type="submit" class="btn">🚀 立即开始</button>
 
   <div class="benefits">
-    <strong>注册即可:</strong>
-    <li>14 天 Pro 版试用</li>
+    <strong>所有功能免费:</strong>
     <li>无限项目</li>
     <li>所有 11 模块</li>
-    <li>6 主题色 + 自定义</li>
+    <li>6 主题色</li>
+    <li>导出报价书</li>
+    <li>PWA / 移动端支持</li>
   </div>
 
   <div class="terms">
-    注册即表示同意 <a href="terms.html">用户协议</a> 和 <a href="privacy.html">隐私政策</a>。
-    我们不会发送垃圾邮件,可随时取消订阅。
+    使用即表示同意 <a href="terms.html">用户协议</a> 和 <a href="privacy.html">隐私政策</a>。
+    本服务完全免费开源,不上传任何数据。
   </div>
 
-  <div class="alt">已有账号?<a href="login.html">立即登录 →</a></div>
+  <div class="alt">想直接体验?<a href="app.html">跳过注册直接使用 →</a></div>
 </form>
 
 <script>
 function doRegister(form) {
   const email = form.email.value.trim();
   const company = form.company.value.trim();
-  const pwd = form.password.value;
-  if (!email || pwd.length < 8) return;
   localStorage.setItem('yunshu-user', JSON.stringify({
-    email, company, plan: 'pro', trialUntil: Date.now() + 14*86400000, loginAt: Date.now()
+    email: email || 'anonymous@local',
+    company,
+    plan: 'free',
+    loginAt: Date.now()
   }));
   window.location.href = 'app.html';
 }
