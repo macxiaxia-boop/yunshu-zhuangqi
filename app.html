@@ -2503,7 +2503,143 @@
 
   function toggleProjectMenu() {
     const menu = document.getElementById('projectMenu');
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    if (menu.style.display === 'block') {
+      menu.style.display = 'none';
+      return;
+    }
+    // 动态渲染项目列表(从 admin.html 的 yunshu-projects 读)
+    const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+    const list = document.getElementById('projectMenuList');
+    const entries = Object.entries(projects);
+    if (!entries.length) {
+      list.innerHTML = '<div style="padding:20px 12px;text-align:center;color:var(--text-faint);font-size:11px;">还没有项目<br>点击下方"+ 新建报价项目"</div>';
+    } else {
+      list.innerHTML = entries.map(([id, p]) => `
+        <div class="project-menu-item" data-project="${id}" onclick="selectRealProject('${id}')">
+          <div style="font-weight:500;display:flex;justify-content:space-between;align-items:center;">
+            <span>${p.name || '未命名'}</span>
+            <span style="font-size:11px;color:var(--text-dim);font-family:monospace;">¥${(p.total || 0).toFixed(0)}</span>
+          </div>
+          <div style="font-size:10px; color:var(--text-faint); margin-top:2px;display:flex;justify-content:space-between;">
+            <span>${p.clientPhone ? '业主:' + p.clientPhone : '未分配业主'}</span>
+            <span>${p.createdAt ? new Date(p.createdAt).toLocaleDateString('zh-CN') : ''}</span>
+          </div>
+        </div>`).join('');
+    }
+    menu.style.display = 'block';
+  }
+
+  function selectRealProject(projectId) {
+    const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+    const proj = projects[projectId];
+    if (!proj) return;
+    document.getElementById('projectMenu').style.display = 'none';
+    document.getElementById('currentProjectName').textContent = proj.name;
+    // 显示项目详情在主区域
+    showRealProjectDetail(proj);
+    showToast('✓ 已加载项目:' + proj.name);
+  }
+
+  function showRealProjectDetail(proj) {
+    // 在主区域展示项目报价详情(替换当前的"视图"内容)
+    const itemsHtml = (proj.items || []).map((item, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${item.name || ''}</td>
+        <td>${item.unit || '项'}</td>
+        <td style="text-align:right;font-family:monospace;">${item.qty || 1}</td>
+        <td style="text-align:right;font-family:monospace;">¥${(item.price || 0).toFixed(2)}</td>
+        <td style="text-align:right;font-family:monospace;color:#6366f1;">¥${((item.qty || 1) * (item.price || 0)).toFixed(2)}</td>
+      </tr>`).join('');
+    const main = document.querySelector('.view.active .view-body') || document.querySelector('main');
+    if (main) {
+      main.innerHTML = `
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+            <div>
+              <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">${proj.name}</h2>
+              <div style="font-size:11px;color:var(--text-faint);">ID: <code style="background:var(--bg-2);padding:1px 6px;border-radius:3px;">${proj.id}</code> · 业主: ${proj.clientPhone || '未分配'} · 创建于 ${proj.createdAt ? new Date(proj.createdAt).toLocaleDateString('zh-CN') : '-'}</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="editCurrentProject('${proj.id}')" style="padding:6px 12px;background:var(--primary);color:#fff;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:600;">✏️ 编辑</button>
+              <button onclick="shareCurrentProject('${proj.id}')" style="padding:6px 12px;background:#16a34a;color:#fff;border-radius:5px;border:none;cursor:pointer;font-size:12px;font-weight:600;">📤 分享</button>
+              <button onclick="deleteCurrentProject('${proj.id}')" style="padding:6px 12px;background:#1a1d2e;color:#f87171;border:1px solid #f87171;border-radius:5px;cursor:pointer;font-size:12px;">🗑 删除</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;padding:24px;border-radius:8px;text-align:center;margin-bottom:16px;box-shadow:0 8px 24px rgba(99,102,241,0.25);">
+          <div style="font-size:12px;opacity:0.85;">本次报价总计</div>
+          <div style="font-size:42px;font-weight:800;margin-top:6px;font-family:monospace;">¥${(proj.total || 0).toLocaleString('zh-CN')}</div>
+          <div style="font-size:11px;opacity:0.85;margin-top:4px;">含管理费及税金</div>
+        </div>
+
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px;">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:14px;">📋 项目明细(共 ${(proj.items || []).length} 项)</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--bg-2);"><th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">序号</th><th style="padding:8px;text-align:left;">项目</th><th style="padding:8px;text-align:left;">单位</th><th style="padding:8px;text-align:right;">数量</th><th style="padding:8px;text-align:right;">单价</th><th style="padding:8px;text-align:right;">小计</th></tr>
+            </thead>
+            <tbody>${itemsHtml || '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-faint);">无明细</td></tr>'}</tbody>
+            <tfoot><tr style="background:var(--bg-2);font-weight:700;"><td colspan="5" style="padding:10px;text-align:right;">总计</td><td style="padding:10px;text-align:right;color:var(--primary);font-size:16px;">¥${(proj.total || 0).toLocaleString('zh-CN')}</td></tr></tfoot>
+          </table>
+        </div>
+
+        ${proj.notes ? `<div style="background:#fffbe6;border:1px solid #fbbf24;border-radius:8px;padding:14px;margin-bottom:16px;"><b style="color:#92400e;">📝 备注:</b><div style="color:#78350f;font-size:13px;margin-top:6px;white-space:pre-wrap;">${proj.notes}</div></div>` : ''}
+
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:10px;">🚀 下一步操作</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="editCurrentProject('${proj.id}')" style="padding:10px;background:var(--primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">✏️ 编辑明细</button>
+            <button onclick="shareCurrentProject('${proj.id}')" style="padding:10px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">📤 分享给业主</button>
+            <button onclick="window.print()" style="padding:10px;background:var(--bg-2);color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;">🖨 打印 PDF</button>
+            <button onclick="exportSingleProject('${proj.id}')" style="padding:10px;background:var(--bg-2);color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;">📋 导出 HTML</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  function editCurrentProject(id) {
+    // 跳到 admin.html 的"项目管理"tab 自动填充
+    window.open('admin.html?edit=' + id, '_blank');
+    showToast('已打开编辑面板');
+  }
+
+  function shareCurrentProject(id) {
+    // 调用 admin.html 的 shareProject 函数 — 用同一个弹窗
+    const adminWin = window.open('admin.html', '_blank');
+    showToast('请在打开的管理后台点击该项目的"分享"按钮');
+  }
+
+  function deleteCurrentProject(id) {
+    if (!confirm('确认删除这个项目?')) return;
+    const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+    delete projects[id];
+    localStorage.setItem('yunshu-projects', JSON.stringify(projects));
+    // 清除该客户账号的关联
+    const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+    Object.keys(accounts).forEach(phone => {
+      if (accounts[phone].projects) accounts[phone].projects = accounts[phone].projects.filter(pid => pid !== id);
+    });
+    localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+    showToast('✓ 项目已删除');
+    // 重新加载
+    location.reload();
+  }
+
+  function exportSingleProject(id) {
+    // 导出为独立 HTML(嵌入项目数据到 URL)
+    const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+    const proj = projects[id];
+    if (!proj) return;
+    const encoded = btoa(encodeURIComponent(JSON.stringify(proj)));
+    window.open('share.html?d=' + encoded, '_blank');
+  }
+
+  function createNewProject() {
+    document.getElementById('projectMenu').style.display = 'none';
+    // 跳到 admin.html 的新建项目 tab
+    window.open('admin.html?newproject=1', '_blank');
   }
   function switchProject(key) {
     if (!PROJECTS[key]) return;
