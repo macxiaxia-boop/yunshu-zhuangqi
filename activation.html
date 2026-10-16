@@ -5,95 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#6366f1">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<title>激活 · 装报价</title>
+<title>已开通 · 装报价</title>
 <style>
-  :root { --primary: #6366f1; --primary-2: #4338ca; --bg: #fafaff; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fafaff 0%, #f0f0fa 100%); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(99,102,241,0.08); }
-  .icon-circle { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 14px; box-shadow: 0 8px 20px rgba(99,102,241,0.25); }
-  h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 6px; }
-  .sub { color: var(--text-dim); font-size: 14px; text-align: center; margin-bottom: 24px; }
-  input { width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; font-family: monospace; outline: none; letter-spacing: 1px; background: var(--panel); transition: all 0.15s; }
-  input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-  button { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 600; margin-top: 14px; box-shadow: 0 4px 12px rgba(99,102,241,0.25); transition: all 0.15s; }
-  button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.35); }
-  .err { color: #f87171; font-size: 13px; margin-top: 12px; min-height: 18px; text-align: center; }
-  .ok { color: #16a34a; font-size: 13px; margin-top: 12px; min-height: 18px; text-align: center; }
-  .info { background: var(--bg); border-left: 3px solid var(--primary); padding: 12px 16px; font-size: 13px; color: var(--text-dim); border-radius: 8px; margin-top: 16px; line-height: 1.6; }
-  .info a { color: var(--primary); }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fafaff 0%, #f0f0fa 100%); color: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .box { width: 100%; max-width: 460px; background: #fff; border: 1px solid #e8e8ef; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(99,102,241,0.08); text-align: center; }
+  .ok-circle { width: 72px; height: 72px; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 8px 20px rgba(22,163,74,0.25); }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .sub { color: #5e5e7a; font-size: 14px; margin-bottom: 24px; }
+  .info { background: #fafaff; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: #5e5e7a; line-height: 1.7; text-align: left; }
+  .info b { color: #6366f1; }
+  button { width: 100%; padding: 14px; background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  button:hover { transform: translateY(-1px); }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <div class="icon-circle">✓</div>
-  <h1>输入激活码</h1>
-  <p class="sub">使用您的微信扫码支付 ¥198 后,从客服处获得激活码</p>
-
-  <input id="codeInput" placeholder="ZBJ-XXXX-XXXX-XXXX" maxlength="18" onkeydown="if(event.key==='Enter') activate()">
-  <button onclick="activate()">立即激活</button>
-
-  <div class="err" id="msg"></div>
+  <div class="ok-circle">✓</div>
+  <h1>已开通</h1>
+  <p class="sub">您的账号已激活,可以开始使用</p>
 
   <div class="info">
-    💡 还没支付?返回 <a href="pending.html">支付页面</a> 查看支付方式。<br>
-    激活码为永久使用,一次激活终身免费。
+    💡 您的 <b>装报价</b> 账号已开通全部功能。<br>
+    所有项目数据保存在本地浏览器,可随时导出 ZIP 备份。
   </div>
+
+  <button onclick="goApp()">进入工作台 →</button>
 </div>
 
 <script>
-(async function() {
-  try {
-    const res = await fetch('activation_codes.js');
-    const txt = await res.text();
-    eval(txt);
-  } catch (e) {}
-})();
-
-function activate() {
-  const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  const el = document.getElementById('msg');
-  el.className = 'err';
-  el.textContent = '';
-  if (!code) { el.textContent = '请输入激活码'; return; }
-  if (!code.match(/^ZBJ-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
-    el.textContent = '格式错误:应为 ZBJ-XXXX-XXXX-XXXX';
-    return;
-  }
-  if (typeof ACTIVATION_CODES === 'undefined') {
-    el.textContent = '加载激活码列表失败';
-    return;
-  }
-  if (!ACTIVATION_CODES.includes(code)) {
-    el.textContent = '激活码无效,请联系客服';
-    return;
-  }
-  const used = JSON.parse(localStorage.getItem('yunshu-codes-used') || '{}');
-  if (used[code]) {
-    el.textContent = '此激活码已被使用';
-    return;
-  }
-  used[code] = { at: Date.now() };
-  localStorage.setItem('yunshu-codes-used', JSON.stringify(used));
-
+function goApp() {
   const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
-  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
-  if (user.phone && accounts[user.phone]) {
-    accounts[user.phone].activated = true;
-    accounts[user.phone].activatedAt = Date.now();
-    accounts[user.phone].activatedCode = code;
-    localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
-  }
   user.activated = true;
   user.activatedAt = Date.now();
-  user.activatedCode = code;
   localStorage.setItem('yunshu-user', JSON.stringify(user));
-
-  el.className = 'ok';
-  el.textContent = '激活成功!正在跳转...';
-  setTimeout(() => window.location.href = 'app.html', 1200);
+  window.location.href = 'app.html';
 }
+// 自动跳转
+setTimeout(goApp, 1500);
 </script>
 </body>
 </html>
