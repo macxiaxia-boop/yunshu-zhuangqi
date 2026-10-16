@@ -19,7 +19,7 @@
   .header { background: #232738; padding: 14px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2a3454; }
   .header h1 { font-size: 16px; font-weight: 700; }
   .header .actions button { padding: 6px 12px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 4px; cursor: pointer; font-size: 12px; }
-  .tabs { background: #232738; padding: 8px; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 4px; border: 1px solid #2a3454; }
+  .tabs { background: #232738; padding: 8px; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 4px; border: 1px solid #2a3454; flex-wrap: wrap; }
   .tab { padding: 8px 16px; background: transparent; color: #8a93b0; border-radius: 6px; cursor: pointer; font-size: 13px; }
   .tab.active { background: #B50029; color: #fff; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
@@ -34,6 +34,7 @@
   .item-list { background: #0d111a; padding: 10px; border-radius: 6px; }
   .item-row { padding: 10px; background: #1a1d2e; border: 1px solid #2a3454; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   .empty { padding: 30px; text-align: center; color: #5a6485; font-size: 13px; }
+  code { font-family: monospace; background: #1a1d2e; padding: 1px 6px; border-radius: 3px; color: #f87171; }
 </style>
 </head>
 <body>
@@ -58,6 +59,7 @@
   <div class="tabs">
     <div class="tab active" data-tab="clients" onclick="switchTab('clients', this)">👥 客户管理</div>
     <div class="tab" data-tab="projects" onclick="switchTab('projects', this)">📋 项目管理</div>
+    <div class="tab" data-tab="codes" onclick="switchTab('codes', this)">🔑 激活码管理</div>
   </div>
   <div class="stats">
     <div class="stat"><div class="num" id="statClients">0</div><div class="label">业主账号</div></div>
@@ -93,10 +95,22 @@
     </div>
     <div id="projectList" style="margin-top:18px;"></div>
   </div>
+
+  <div class="tab-content" data-tab-content="codes">
+    <h3 style="margin-bottom:12px;font-size:14px;">激活码管理 (100 个 · 从 <code>activation_codes.js</code> 加载)</h3>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+      <button onclick="copyAllCodes()" style="padding:6px 12px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;">📋 复制全部未发</button>
+      <button onclick="exportCodes('used')" style="padding:6px 12px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;font-size:12px;">导出已发</button>
+      <button onclick="exportCodes('unused')" style="padding:6px 12px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;font-size:12px;">导出未发</button>
+      <span style="font-size:12px;color:#5a6485;margin-left:auto;">未发 <b id="unusedCount" style="color:#16a34a;">0</b> · 已发 <b id="usedCount" style="color:#B50029;">0</b></span>
+    </div>
+    <div id="codesList" style="background:#0d111a;padding:10px;border-radius:6px;max-height:400px;overflow-y:auto;"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#B50029;color:#fff;padding:8px 18px;border-radius:6px;font-size:13px;box-shadow:0 6px 18px rgba(181,0,41,0.35);opacity:0;transition:all 0.2s;pointer-events:none;z-index:1000;font-weight:500;"></div>
 
+<script src="activation_codes.js"></script>
 <script>
 const ADMIN_PWD = 'yunshu-admin-2026';
 const KEY = { clients: 'yunshu-clients', projects: 'yunshu-projects' };
@@ -198,6 +212,56 @@ function delProject(id) {
   renderAll();
 }
 
+function renderCodes() {
+  const list = $('#codesList');
+  const used = loadJSON('yunshu-codes-used', {});
+  const codes = (typeof ACTIVATION_CODES !== 'undefined' && ACTIVATION_CODES) ? ACTIVATION_CODES : [];
+  const unused = codes.filter(c => !used[c]);
+  const usedCount = codes.length - unused.length;
+  const unusedEl = $('#unusedCount'); if (unusedEl) unusedEl.textContent = unused.length;
+  const usedEl = $('#usedCount'); if (usedEl) usedEl.textContent = usedCount;
+  if (!codes.length) { list.innerHTML = '<div class="empty">⚠️ activation_codes.js 未加载(100 码生成于 2026-10-16)· 联系开发者修复</div>'; return; }
+  list.innerHTML = codes.map(c => {
+    const isUsed = !!used[c];
+    const usedInfo = isUsed && used[c].note ? ` <span style="color:#5a6485;font-size:10px;">(${used[c].note})</span>` : '';
+    return `<div class="item-row"><div style="font-family:monospace;font-size:13px;color:${isUsed ? '#5a6485;text-decoration:line-through' : '#16a34a'};flex:1;">${c}${usedInfo}</div><div style="display:flex;gap:4px;"><button onclick="copyCode('${c}')" style="padding:2px 8px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:11px;">复制</button><button onclick="markCode('${c}')" style="padding:2px 8px;background:${isUsed ? 'transparent;color:#16a34a;border:1px solid #16a34a' : '#16a34a;color:#fff;border:none'};border-radius:3px;cursor:pointer;font-size:11px;">${isUsed ? '✓ 已发' : '标记已发'}</button></div></div>`;
+  }).join('');
+}
+
+function copyCode(c) {
+  if (navigator.clipboard) navigator.clipboard.writeText(c).then(() => showToast('✓ ' + c));
+  else showToast('复制:' + c);
+}
+
+function markCode(c) {
+  const used = loadJSON('yunshu-codes-used', {});
+  if (used[c]) { delete used[c]; showToast('↩ 已撤销'); }
+  else { used[c] = { at: Date.now(), note: '' }; showToast('✓ 已标记发放'); }
+  saveJSON('yunshu-codes-used', used);
+  renderCodes();
+}
+
+function copyAllCodes() {
+  const used = loadJSON('yunshu-codes-used', {});
+  const codes = (typeof ACTIVATION_CODES !== 'undefined') ? ACTIVATION_CODES : [];
+  const unused = codes.filter(c => !used[c]);
+  const text = unused.join('\n');
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('✓ 已复制 ' + unused.length + ' 个未发码'));
+  else showToast('共 ' + unused.length + ' 个未发(浏览器不支持自动复制)');
+}
+
+function exportCodes(mode) {
+  const used = loadJSON('yunshu-codes-used', {});
+  const codes = (typeof ACTIVATION_CODES !== 'undefined') ? ACTIVATION_CODES : [];
+  const list = mode === 'used' ? codes.filter(c => used[c]) : codes.filter(c => !used[c]);
+  const blob = new Blob([list.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'codes-' + mode + '-' + Date.now() + '.txt';
+  a.click();
+  showToast('✓ 已导出 ' + list.length + ' 个');
+}
+
 function renderAll() {
   const clients = loadJSON(KEY.clients, []);
   const projects = loadJSON(KEY.projects, {});
@@ -207,6 +271,7 @@ function renderAll() {
   $('#statTotal').textContent = '¥' + total.toFixed(0);
   renderClients();
   renderProjects();
+  renderCodes();
   renderNewItems();
 }
 </script>
