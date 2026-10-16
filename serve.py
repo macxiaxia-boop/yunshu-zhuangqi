@@ -70,6 +70,10 @@ class CloudTechHandler(SimpleHTTPRequestHandler):
         if path == '/status':
             self._serve_status()
             return
+        # 反向代理: /api/* → cloudtech API 8765
+        if path.startswith('/api') or path in ('/docs', '/openapi.json', '/redoc'):
+            self._serve_proxy(f'http://127.0.0.1:8765{path}')
+            return
         # 找应用根目录
         app_root = find_app_root(path)
         if app_root is None:
@@ -137,11 +141,24 @@ class CloudTechHandler(SimpleHTTPRequestHandler):
             port = self.server.server_address[1]
         except Exception:
             port = None
+        # 检查 8765 API 是否活
+        import urllib.request
+        api_alive = False
+        try:
+            urllib.request.urlopen('http://127.0.0.1:8765/api/stats', timeout=2)
+            api_alive = True
+        except Exception:
+            pass
         status = {
             'service': 'CloudTech 整合 serve',
-            'version': 'v2 (R31201)',
+            'version': 'v3 (R31201 + API proxy)',
             'port': port,
             'listening': '0.0.0.0:' + str(port) if port else 'unknown',
+            'api_proxy': {
+                'target': 'http://127.0.0.1:8765',
+                'alive': api_alive,
+                'paths': '/api/* /docs /openapi.json /redoc',
+            },
             'apps': [
                 {'path': '/',                  'app': 'cloudtech 整合',     'root': str(CLOUDTECH_DIST), 'index_exists': (CLOUDTECH_DIST / 'index.html').exists()},
                 {'path': '/quote/',             'app': '装报价 SaaS',         'root': str(QUOTE_DIR),      'index_exists': (QUOTE_DIR / 'index.html').exists()},
@@ -174,6 +191,24 @@ class CloudTechHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-Length', str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+        return
+
+    def _serve_proxy(self, target_url):
+        """反向代理:转发请求到 target_url(GET / HEAD)"""
+        import urllib.request
+        try:
+            req = urllib.request.Request(target_url, method=self.command)
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                body = resp.read()
+                self.send_response(resp.status)
+                # 转发 content-type
+                ctype = resp.headers.get('Content-Type', 'application/octet-stream')
+                self.send_header('Content-type', ctype)
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+        except Exception as e:
+            self.send_error(502, f'proxy error: {e}')
         return
         # 应用内路径
         if path in ('/', '/content-factory', '/quote', '/lingce',
