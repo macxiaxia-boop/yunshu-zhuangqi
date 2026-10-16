@@ -57,34 +57,96 @@
     <h1>👑 装报价 · 管理员控制台</h1>
     <div>
       <span id="currentAdminPhone" style="color:#818cf8;font-size:12px;margin-right:14px;font-family:monospace;"></span>
-      <a href="index.html" style="color:#8a93b0;margin-right:14px;text-decoration:none;">查看前台</a>
+      <a href="app.html" style="color:#8a93b0;margin-right:14px;text-decoration:none;">前台 app</a>
+      <a href="client-login.html" style="color:#8a93b0;margin-right:14px;text-decoration:none;">业主入口</a>
       <button onclick="logout()" style="padding:6px 14px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;">退出</button>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="num" id="statTotal">100</div><div class="label">总激活码</div></div>
-    <div class="stat"><div class="num" id="statAvail">100</div><div class="label">未发放</div></div>
-    <div class="stat"><div class="num" id="statUsed">0</div><div class="label">已发放</div></div>
-    <div class="stat"><div class="num" id="statUsers">0</div><div class="label">注册用户</div></div>
+  <div style="background:#232738;padding:8px;border-radius:8px;margin-bottom:16px;display:flex;gap:4px;">
+    <button class="tab-btn active" onclick="switchTab('clients', this)" style="padding:8px 14px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">👥 客户管理</button>
+    <button class="tab-btn" onclick="switchTab('projects', this)" style="padding:8px 14px;background:transparent;color:#8a93b0;border:none;border-radius:6px;cursor:pointer;font-size:13px;">📋 项目管理</button>
+    <button class="tab-btn" onclick="switchTab('accounts', this)" style="padding:8px 14px;background:transparent;color:#8a93b0;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🪪 全部账号</button>
   </div>
 
-  <div class="codes-table">
-    <h3>激活码(共 100 个) · 点击复制或标记状态</h3>
-    <div class="filter">
-      <button class="active" data-filter="all" onclick="setFilter('all')">全部</button>
-      <button data-filter="avail" onclick="setFilter('avail')">未发放</button>
-      <button data-filter="used" onclick="setFilter('used')">已发放</button>
-      <input id="searchInput" placeholder="🔍 搜索码..." style="flex:1;background:#0d111a;border:1px solid #2a3454;border-radius:4px;padding:6px 10px;color:#e8eaf0;font-size:12px;font-family:monospace;" oninput="renderCodes()">
-      <button onclick="exportCodes()">📤 导出</button>
+  <div class="stats" id="stats">
+    <div class="stat"><div class="num" id="statClients">0</div><div class="label">业主账号</div></div>
+    <div class="stat"><div class="num" id="statProjects">0</div><div class="label">报价项目</div></div>
+    <div class="stat"><div class="num" id="statTotalAmount">¥0</div><div class="label">报价总额</div></div>
+  </div>
+
+  <!-- Tab: 客户管理 -->
+  <div class="tab-panel" id="tab-clients" style="background:#232738;padding:18px;border-radius:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="font-size:14px;">👥 业主账号(您的客户)</h3>
+      <button onclick="showAddClient()" style="padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;">+ 新建业主账号</button>
     </div>
-    <div class="code-list" id="codeList"></div>
+    <div style="font-size:11px;color:#8a93b0;margin-bottom:12px;">📋 为每位装修业主创建账号,系统自动生成密码。他们可登录 client.html 查看被分配的报价。</div>
+    <div id="clientList" style="font-size:13px;color:#8a93b0;">加载中...</div>
   </div>
 
-  <div class="users-list">
-    <h3>账号管理(多租户) · 改名 / 激活 / 删除</h3>
-    <div style="font-size:11px;color:#8a93b0;margin-bottom:10px;line-height:1.6;">📋 用户注册信息存在自己浏览器 localStorage。本管理员工具只能在同一浏览器看到这些账号。改名后,用户下次登录就会看到新的工作室名。</div>
+  <!-- Tab: 项目管理 -->
+  <div class="tab-panel" id="tab-projects" style="display:none;background:#232738;padding:18px;border-radius:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="font-size:14px;">📋 报价项目</h3>
+      <button onclick="showAddProject()" style="padding:6px 14px;background:#6366f1;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;">+ 新建报价项目</button>
+    </div>
+    <div id="projectList" style="font-size:13px;color:#8a93b0;">加载中...</div>
+  </div>
+
+  <!-- Tab: 全部账号 -->
+  <div class="tab-panel" id="tab-accounts" style="display:none;background:#232738;padding:18px;border-radius:8px;">
+    <h3 style="font-size:14px;margin-bottom:12px;">🪪 全部账号(admin + client)</h3>
+    <div style="font-size:11px;color:#8a93b0;margin-bottom:10px;line-height:1.6;">改名、撤销、删除账号。客户的激活状态由您手动管理。</div>
     <div id="userList" style="font-size:12px;color:#8a93b0;">加载中...</div>
+  </div>
+</div>
+
+<!-- 新建业主账号 Modal -->
+<div class="modal-bg" id="addClientModal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-head"><h3>新建业主账号</h3><button class="modal-close" onclick="closeAddClient()">×</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;">业主手机号(登录账号)</label><input id="acPhone" placeholder="138 0000 0000" maxlength="11" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;"></div>
+      <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;">业主姓名</label><input id="acName" placeholder="张三" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;"></div>
+      <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;">初始密码(业主登录用)</label><input id="acPwd" value="nuomi1234" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;"></div>
+      <div style="background:#0d111a;border-radius:6px;padding:12px;font-size:11px;color:#818cf8;margin-top:8px;">📋 创建后,请把手机号 + 密码告诉业主,他们登录 <code style="background:#1a1d2e;padding:1px 6px;border-radius:3px;color:#16a34a">client-login.html</code> 即可看报价。</div>
+    </div>
+    <div class="modal-foot">
+      <button onclick="closeAddClient()">取消</button>
+      <button class="btn-ok" onclick="submitAddClient()">✓ 创建业主账号</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新建报价项目 Modal -->
+<div class="modal-bg" id="addProjectModal">
+  <div class="modal" style="width:620px;">
+    <div class="modal-head"><h3>新建报价项目</h3><button class="modal-close" onclick="closeAddProject()">×</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="font-size:12px;color:#8a93b0;">项目名称</label><input id="apName" placeholder="望京 SOHO 三居室" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;"></div>
+        <div><label style="font-size:12px;color:#8a93b0;">关联业主手机号</label><input id="apClientPhone" placeholder="关联到已注册业主" maxlength="11" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;"></div>
+      </div>
+      <div style="margin-top:12px;"><label style="font-size:12px;color:#8a93b0;">项目明细(每行一项)</label>
+        <div id="apItems" style="background:#0d111a;border-radius:6px;padding:10px;margin-top:4px;border:1px solid #2a3454;">
+          <div class="ap-item" style="display:grid;grid-template-columns:2fr 1fr 0.5fr 1fr 30px;gap:6px;margin-bottom:4px;">
+            <input class="api-name" placeholder="项目(如:水电改造)" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+            <input class="api-unit" placeholder="单位" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+            <input class="api-qty" placeholder="数量" type="number" value="1" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+            <input class="api-price" placeholder="单价" type="number" value="0" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+            <button onclick="this.parentElement.remove()" style="background:transparent;color:#f87171;border:none;cursor:pointer;font-size:14px;">×</button>
+          </div>
+        </div>
+        <button onclick="addItemRow()" style="margin-top:4px;padding:4px 10px;background:transparent;color:#818cf8;border:1px dashed #2a3454;border-radius:4px;cursor:pointer;font-size:11px;">+ 加一行</button>
+      </div>
+      <div style="margin-top:12px;"><label style="font-size:12px;color:#8a93b0;">备注(可选)</label><textarea id="apNotes" placeholder="如:工期内 60 天,含 3 次现场勘察" style="width:100%;padding:10px 12px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;margin-top:4px;min-height:50px;resize:vertical;"></textarea></div>
+      <div style="background:#0d111a;border-radius:6px;padding:12px;margin-top:12px;font-size:12px;color:#818cf8;">💰 自动计算: <span id="apTotal" style="font-size:18px;font-weight:800;color:#16a34a">¥0.00</span></div>
+    </div>
+    <div class="modal-foot">
+      <button onclick="closeAddProject()">取消</button>
+      <button class="btn-ok" onclick="submitAddProject()">✓ 创建项目并分配</button>
+    </div>
   </div>
 </div>
 
@@ -354,14 +416,296 @@ function deleteAccount(phone) {
 }
 
 function renderStats() {
-  const used = getUsed();
-  const users = getUsers();
-  const total = ACTIVATION_CODES.length;
-  const usedCount = Object.keys(used).length;
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statAvail').textContent = total - usedCount;
-  document.getElementById('statUsed').textContent = usedCount;
-  document.getElementById('statUsers').textContent = users.length;
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const clients = Object.values(accounts).filter(a => a.role === 'client');
+  const projectList = Object.values(projects);
+  const totalAmount = projectList.reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
+  document.getElementById('statClients').textContent = clients.length;
+  document.getElementById('statProjects').textContent = projectList.length;
+  document.getElementById('statTotalAmount').textContent = '¥' + totalAmount.toFixed(0);
+}
+
+// ============ Tabs ============
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = '#8a93b0';
+  });
+  el.style.background = '#6366f1';
+  el.style.color = '#fff';
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('tab-' + name).style.display = 'block';
+  // Render the selected tab
+  if (name === 'clients') renderClients();
+  else if (name === 'projects') renderProjects();
+  else if (name === 'accounts') renderAccounts();
+}
+
+// ============ Clients tab ============
+function renderClients() {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const clients = Object.entries(accounts).filter(([_, a]) => a.role === 'client');
+  const list = document.getElementById('clientList');
+  if (!clients.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#8a93b0;">还没有业主账号。点击"+ 新建业主账号"创建。</div>';
+    return;
+  }
+  list.innerHTML = clients.map(([phone, acc]) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2a3454;">
+      <div>
+        <div style="font-family:monospace;font-size:13px;font-weight:600;">${phone}</div>
+        <div style="font-size:11px;color:#8a93b0;">${acc.workspaceName || '未命名'} · ${(acc.projects || []).length} 个项目</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="copyLogin('${phone}','${acc.pwd}')" style="padding:3px 8px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">复制账号</button>
+        <button onclick="renameAccount('${phone}')" style="padding:3px 8px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">改名</button>
+        <button onclick="deleteAccount('${phone}')" style="padding:3px 8px;background:#1a1d2e;color:#f87171;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function copyLogin(phone, pwd) {
+  const text = '账号: ' + phone + '\n密码: ' + pwd + '\n登录: https://macxiaxia-boop.github.io/yunshu-zhuangqi/client-login.html';
+  navigator.clipboard.writeText(text).then(() => showToast('已复制 — 发给业主即可登录'));
+}
+
+// ============ Projects tab ============
+function renderProjects() {
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const list = document.getElementById('projectList');
+  const projectList = Object.entries(projects);
+  if (!projectList.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#8a93b0;">还没有报价项目。点击"+ 新建报价项目"创建。</div>';
+    return;
+  }
+  list.innerHTML = projectList.map(([id, p]) => {
+    const statusBadge = p.status === 'done' ? '<span style="color:#16a34a;font-size:10px;background:rgba(22,163,74,0.15);padding:2px 6px;border-radius:3px;">已完成</span>'
+      : p.status === 'pending' ? '<span style="color:#6366f1;font-size:10px;background:rgba(99,102,241,0.15);padding:2px 6px;border-radius:3px;">待启动</span>'
+      : '<span style="color:#16a34a;font-size:10px;background:rgba(22,163,74,0.15);padding:2px 6px;border-radius:3px;">进行中</span>';
+    return `
+    <div style="padding:14px;background:#1a1d2e;border-radius:6px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:14px;font-weight:600;">${p.name || '未命名'} ${statusBadge}</div>
+          <div style="font-size:11px;color:#8a93b0;margin-top:4px;">ID: <code style="background:#0d111a;padding:1px 6px;border-radius:3px;font-size:10px;">${id}</code> · 业主: ${p.clientPhone || '未分配'} · ${p.createdAt ? new Date(p.createdAt).toLocaleDateString('zh-CN') : ''}</div>
+          <div style="font-size:11px;color:#818cf8;margin-top:4px;">总额: <b>¥${(p.total || 0).toFixed(2)}</b> · ${(p.items || []).length} 项</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="deleteProject('${id}')" style="padding:3px 8px;background:#1a1d2e;color:#f87171;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">删除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteProject(id) {
+  if (!confirm('删除这个报价项目?业主将无法查看。')) return;
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  delete projects[id];
+  localStorage.setItem('yunshu-projects', JSON.stringify(projects));
+  // 同时从所有业主的 accounts 中移除
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  Object.keys(accounts).forEach(phone => {
+    if (accounts[phone].projects) {
+      accounts[phone].projects = accounts[phone].projects.filter(pid => pid !== id);
+    }
+  });
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  renderProjects();
+  renderStats();
+  showToast('✓ 项目已删除');
+}
+
+// ============ Accounts tab ============
+function renderAccounts() {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const list = document.getElementById('userList');
+  const all = Object.entries(accounts);
+  document.getElementById('statClients').textContent = all.filter(([_, a]) => a.role === 'client').length;
+  if (!all.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#8a93b0;">还没有账号</div>';
+    return;
+  }
+  list.innerHTML = all.map(([phone, acc]) => {
+    const role = acc.isAdmin ? '<span style="color:#818cf8;font-size:10px;background:rgba(99,102,241,0.15);padding:2px 6px;border-radius:3px;">admin</span>'
+      : acc.role === 'client' ? '<span style="color:#16a34a;font-size:10px;background:rgba(22,163,74,0.15);padding:2px 6px;border-radius:3px;">client</span>'
+      : '<span style="color:#9595ad;font-size:10px;background:#1a1d2e;padding:2px 6px;border-radius:3px;">待设置</span>';
+    const activated = acc.activated ? '<span style="color:#16a34a;font-size:10px;">✓ 已激活</span>' : '<span style="color:#fbbf24;font-size:10px;">未激活</span>';
+    return `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2a3454;">
+      <div>
+        <div style="font-family:monospace;font-size:13px;font-weight:600;">${phone} ${role} ${activated}</div>
+        <div style="font-size:11px;color:#8a93b0;">${acc.workspaceName || '未命名'} · ${(acc.projects || []).length} 个项目</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="renameAccount('${phone}')" style="padding:3px 8px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">改名</button>
+        ${!acc.isAdmin ? `<button onclick="toggleActivation('${phone}')" style="padding:3px 8px;background:#1a1d2e;color:#16a34a;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">${acc.activated ? '撤销' : '激活'}</button>` : ''}
+        <button onclick="deleteAccount('${phone}')" style="padding:3px 8px;background:#1a1d2e;color:#f87171;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleActivation(phone) {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const acc = accounts[phone];
+  if (!acc) return;
+  acc.activated = !acc.activated;
+  acc.activatedAt = acc.activated ? Date.now() : 0;
+  accounts[phone] = acc;
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  renderAccounts();
+  renderStats();
+  showToast(acc.activated ? '✓ 已激活' : '已撤销');
+}
+
+// ============ Modals: addClient / addProject ============
+function showAddClient() {
+  document.getElementById('acPhone').value = '';
+  document.getElementById('acName').value = '';
+  document.getElementById('acPwd').value = 'nuomi' + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('addClientModal').classList.add('active');
+}
+function closeAddClient() {
+  document.getElementById('addClientModal').classList.remove('active');
+}
+function submitAddClient() {
+  const phone = document.getElementById('acPhone').value.trim();
+  const name = document.getElementById('acName').value.trim();
+  const pwd = document.getElementById('acPwd').value;
+  if (!/^1[3-9][0-9]{9}$/.test(phone)) { alert('请输入正确的 11 位手机号'); return; }
+  if (!name) { alert('请填写业主姓名'); return; }
+  if (!pwd || pwd.length < 4) { alert('密码至少 4 位'); return; }
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  if (accounts[phone]) {
+    if (!confirm('该手机号已存在,改为业主账号?')) return;
+  }
+  accounts[phone] = {
+    pwd, workspaceName: name, role: 'client',
+    at: Date.now(), activated: true,
+    activatedAt: Date.now(), projects: []
+  };
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  closeAddClient();
+  renderClients();
+  renderStats();
+  showToast('✓ 业主账号已创建 — 把手机号和密码发给业主');
+}
+
+function showAddProject() {
+  document.getElementById('apName').value = '';
+  document.getElementById('apClientPhone').value = '';
+  document.getElementById('apNotes').value = '';
+  // Reset to 1 item row
+  const itemsDiv = document.getElementById('apItems');
+  itemsDiv.innerHTML = `
+    <div class="ap-item" style="display:grid;grid-template-columns:2fr 1fr 0.5fr 1fr 30px;gap:6px;margin-bottom:4px;">
+      <input class="api-name" placeholder="项目(如:水电改造)" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+      <input class="api-unit" placeholder="单位" value="项" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+      <input class="api-qty" placeholder="数量" type="number" value="1" oninput="updateApTotal()" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+      <input class="api-price" placeholder="单价" type="number" value="0" oninput="updateApTotal()" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+      <button onclick="this.parentElement.remove();updateApTotal()" style="background:transparent;color:#f87171;border:none;cursor:pointer;font-size:14px;">×</button>
+    </div>`;
+  updateApTotal();
+  document.getElementById('addProjectModal').classList.add('active');
+}
+function closeAddProject() {
+  document.getElementById('addProjectModal').classList.remove('active');
+}
+function addItemRow() {
+  const itemsDiv = document.getElementById('apItems');
+  const row = document.createElement('div');
+  row.className = 'ap-item';
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 0.5fr 1fr 30px;gap:6px;margin-bottom:4px;';
+  row.innerHTML = `
+    <input class="api-name" placeholder="项目" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+    <input class="api-unit" placeholder="单位" value="项" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+    <input class="api-qty" placeholder="数量" type="number" value="1" oninput="updateApTotal()" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+    <input class="api-price" placeholder="单价" type="number" value="0" oninput="updateApTotal()" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+    <button onclick="this.parentElement.remove();updateApTotal()" style="background:transparent;color:#f87171;border:none;cursor:pointer;font-size:14px;">×</button>`;
+  itemsDiv.appendChild(row);
+}
+function updateApTotal() {
+  let total = 0;
+  document.querySelectorAll('#apItems .ap-item').forEach(row => {
+    const qty = parseFloat(row.querySelector('.api-qty').value) || 0;
+    const price = parseFloat(row.querySelector('.api-price').value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('apTotal').textContent = '¥' + total.toFixed(2);
+}
+function submitAddProject() {
+  const name = document.getElementById('apName').value.trim();
+  const clientPhone = document.getElementById('apClientPhone').value.trim();
+  const notes = document.getElementById('apNotes').value.trim();
+  if (!name) { alert('请填写项目名称'); return; }
+  if (clientPhone && !/^1[3-9][0-9]{9}$/.test(clientPhone)) { alert('业主手机号格式错'); return; }
+
+  // Collect items
+  const items = [];
+  document.querySelectorAll('#apItems .ap-item').forEach(row => {
+    const n = row.querySelector('.api-name').value.trim();
+    const u = row.querySelector('.api-unit').value.trim();
+    const q = parseFloat(row.querySelector('.api-qty').value) || 0;
+    const p = parseFloat(row.querySelector('.api-price').value) || 0;
+    if (n && p > 0) items.push({ name: n, unit: u, qty: q, price: p });
+  });
+  if (!items.length) { alert('请至少添加一个项目明细'); return; }
+
+  const total = items.reduce((s, i) => s + i.qty * i.price, 0);
+  const projectId = 'P' + Date.now();
+
+  // Get owner info
+  const ownerPhone = document.getElementById('currentAdminPhone').textContent.trim();
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const owner = accounts[ownerPhone];
+  const ownerName = (owner && owner.workspaceName) || '装报价';
+
+  // Save project
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  projects[projectId] = {
+    id: projectId, name, clientPhone,
+    ownerPhone, ownerName,
+    items, total, notes,
+    status: 'active',
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  localStorage.setItem('yunshu-projects', JSON.stringify(projects));
+
+  // 关联到业主账号
+  if (clientPhone && accounts[clientPhone]) {
+    if (!accounts[clientPhone].projects) accounts[clientPhone].projects = [];
+    if (!accounts[clientPhone].projects.includes(projectId)) {
+      accounts[clientPhone].projects.push(projectId);
+    }
+    localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  }
+
+  closeAddProject();
+  renderProjects();
+  renderStats();
+  if (clientPhone && !accounts[clientPhone]) {
+    alert('✓ 项目已创建!\n\n⚠️ 业主手机号 ' + clientPhone + ' 还没创建账号!\n请先去「客户管理」创建业主账号,然后再关联项目。');
+  } else if (clientPhone && accounts[clientPhone]) {
+    alert('✓ 项目已创建并分配给业主!\n\n业主 ID: ' + clientPhone + '\n项目 ID: ' + projectId);
+  } else {
+    alert('✓ 项目已创建(未关联业主)。\n\n后续可在「全部账号」中关联。');
+  }
+}
+
+// ============ Legacy ============
+function renderStats() {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const clients = Object.values(accounts).filter(a => a.role === 'client');
+  const projectList = Object.values(projects);
+  const totalAmount = projectList.reduce((s, p) => s + (parseFloat(p.total) || 0), 0);
+  document.getElementById('statClients').textContent = clients.length;
+  document.getElementById('statProjects').textContent = projectList.length;
+  document.getElementById('statTotalAmount').textContent = '¥' + totalAmount.toFixed(0);
 }
 
 function showToast(msg) {
