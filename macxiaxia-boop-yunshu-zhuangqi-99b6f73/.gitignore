@@ -1,0 +1,47 @@
+# ============ 应用源码(PUSH) ============
+# index.html
+# manifest.json
+# favicon.*
+# *.md
+# start.bat
+# .github/workflows/
+# assets/
+
+# ============ 不要 PUSH(原始素材 + 备份) ============
+# 视频/转录音频
+xhs-source.mp4
+xhs-audio.mp3
+xhs-transcript.txt
+xhs-transcript-large.txt
+
+# 抽帧目录
+frames/
+frames-xhs/
+
+# 打包文件
+yunshu-zhuangqi-v1.0.zip
+xhs-quote-app-v1.zip
+faster-whitespace-*.tar.gz
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Node
+node_modules/
+.npm/
+
+# 临时文件
+*.tmp
+*.bak
+*.log

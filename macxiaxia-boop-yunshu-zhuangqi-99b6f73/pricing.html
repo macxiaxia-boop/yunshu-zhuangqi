@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6366f1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>价格 · 装报价报价系统</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fafafc; color: #1a1a1f; }
+  .nav { position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e1e1e5; z-index: 100; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .brand-logo { width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #4338ca); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+  .links { display: flex; gap: 24px; }
+  .links a { color: #5e5e6b; font-size: 14px; text-decoration: none; }
+  .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid #d0d0d5; background: #fff; color: #1a1a1f; font-size: 14px; cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; }
+  .cta { display: flex; gap: 10px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 80px 24px; }
+  h1 { font-size: 48px; text-align: center; margin-bottom: 16px; }
+  .lead { text-align: center; color: #5e5e6b; font-size: 19px; max-width: 600px; margin: 0 auto 50px; }
+  .price-box { background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; padding: 60px 40px; border-radius: 16px; text-align: center; margin-bottom: 60px; box-shadow: 0 12px 48px rgba(181, 0, 41, 0.25); }
+  .price-box .num { font-size: 80px; font-weight: 800; line-height: 1; margin-bottom: 12px; }
+  .price-box .sub { font-size: 18px; opacity: 0.9; margin-bottom: 24px; }
+  .price-box .tag { display: inline-block; background: rgba(255,255,255,0.18); padding: 6px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 20px; }
+  .price-box a { background: #fff; color: #6366f1; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 16px; }
+  .features-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; max-width: 700px; margin: 0 auto; }
+  .feat { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #5e5e6b; line-height: 1.6; }
+  .feat::before { content: "✓"; color: #16a34a; font-weight: 700; flex-shrink: 0; font-size: 16px; }
+  .faq { max-width: 800px; margin: 60px auto; padding: 0 24px; }
+  .faq h2 { text-align: center; font-size: 32px; margin-bottom: 32px; }
+  .qa { border-bottom: 1px solid #e1e1e5; padding: 18px 0; }
+  .qa-q { font-weight: 600; cursor: pointer; font-size: 16px; }
+  .qa-a { color: #5e5e6b; font-size: 14px; line-height: 1.7; margin-top: 10px; display: none; }
+  .qa.open .qa-a { display: block; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand"><div class="brand-logo">云</div><span>装报价</span></a>
+    <div class="links">
+      <a href="index.html">功能</a>
+      <a href="pricing.html">价格</a>
+      <a href="about.html">关于</a>
+    </div>
+    <div class="cta">
+      <a href="app.html" class="btn primary">立即使用 →</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>完全免费 · 无功能限制</h1>
+  <p class="lead">装报价报价系统是一个开源工具 — 我们相信装企值得更好的报价体验。</p>
+
+  <div class="price-box">
+    <div class="tag">💡 无需注册 · 无需信用卡</div>
+    <div class="num">¥0</div>
+    <div class="sub">永久免费 · 所有功能</div>
+    <a href="app.html">🚀 立即开始使用</a>
+  </div>
+
+  <div class="features-list">
+    <div class="feat">所有 11 个报价模块</div>
+    <div class="feat">6 主题色 + 自定义</div>
+    <div class="feat">6 主题色实时切换</div>
+    <div class="feat">打印预览 + PDF 导出</div>
+    <div class="feat">键盘快捷键 + Cmd+K 命令面板</div>
+    <div class="feat">3 个示例项目快速上手</div>
+    <div class="feat">响应式(桌面 + 移动端)</div>
+    <div class="feat">PWA 支持(添加到主屏幕)</div>
+    <div class="feat">数据本地存储(不上传服务器)</div>
+    <div class="feat">团队克隆 ZIP</div>
+  </div>
+</div>
+
+<div class="faq">
+  <h2>常见问题</h2>
+  <div class="qa" onclick="this.classList.toggle('open')">
+    <div class="qa-q">真的完全免费吗?</div>
+    <div class="qa-a">是的。所有功能、所有用户、所有用途都免费。无功能阉割,无项目数量限制,无品牌限制。</div>
+  </div>
+  <div class="qa" onclick="this.classList.toggle('open')">
+    <div class="qa-q">数据存在哪里?</div>
+    <div class="qa-a">默认存储在您本地浏览器(localStorage),不上传服务器。如需多端同步,可手动导出 ZIP 备份。</div>
+  </div>
+  <div class="qa" onclick="this.classList.toggle('open')">
+    <div class="qa-q">需要注册账号吗?</div>
+    <div class="qa-a">不需要。可以直接打开 <a href="app.html">app.html</a> 使用所有功能。注册账号仅用于云端同步(未来功能)。</div>
+  </div>
+  <div class="qa" onclick="this.classList.toggle('open')">
+    <div class="qa-q">会持续更新吗?</div>
+    <div class="qa-a">会。所有更新在 GitHub 开源,任何人都可以免费使用最新版本。</div>
+  </div>
+  <div class="qa" onclick="this.classList.toggle('open')">
+    <div class="qa-q">可以商用吗?</div>
+    <div class="qa-a">可以。本系统供装企(装修企业)免费商用。如需定制功能,欢迎邮件联系 hello@yunshu.cn。</div>
+  </div>
+</div>
+
+</body>
+</html>

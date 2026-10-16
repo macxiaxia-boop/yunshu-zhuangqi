@@ -1,0 +1,27 @@
+{
+  "name": "装报价",
+  "short_name": "装报价",
+  "description": "装企(装修企业)报价 SaaS — 让报价只需 10 分钟",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafaff",
+  "theme_color": "#6366f1",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "favicon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "favicon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    { "src": "assets/hero.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "装报价主界面" }
+  ],
+  "shortcuts": [
+    { "name": "立即注册", "url": "/register.html", "description": "手机号注册 · ¥198 终身使用" },
+    { "name": "查看价格", "url": "/pricing.html", "description": "一次付费,终身使用" },
+    { "name": "进入应用", "url": "/app.html", "description": "打开报价工作台" }
+  ]
+}

@@ -1,0 +1,52 @@
+"""
+装报价 SaaS · 静态服务器 + SPA fallback · 端口 5089 (固定指向 GitHub tarball 解压子目录)
+"""
+import sys
+import os
+from pathlib import Path
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+
+def find_root():
+    """找装报价 SaaS HTML 所在目录:
+    D:/yunshu-zhuangqi-live/macxiaxia-boop-yunshu-zhuangqi-XXX/index.html 等
+    """
+    here = Path(__file__).parent.resolve()
+    for candidate in here.iterdir():
+        if candidate.is_dir() and (candidate / "index.html").exists():
+            return candidate
+    if (here / "index.html").exists():
+        return here
+    return here
+
+
+ROOT = find_root()
+os.chdir(str(ROOT))
+
+
+class SPAFallbackHandler(SimpleHTTPRequestHandler):
+    """SPA fallback: 任何路径返回 index.html (前端 JS router 处理 /dashboard /app 等)"""
+    def do_GET(self):
+        path = self.translate_path(self.path)
+        if os.path.isfile(path) and not self.path.endswith('/'):
+            return super().do_GET()
+        if self.path.endswith('/'):
+            target = path + 'index.html'
+            if os.path.isfile(target):
+                self.path = self.path + 'index.html'
+                return super().do_GET()
+        self.path = '/index.html'
+        return super().do_GET()
+
+
+if __name__ == '__main__':
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5089
+    server = HTTPServer(('0.0.0.0', port), SPAFallbackHandler)
+    print(f'[OK] 装报价 SaaS @ http://localhost:{port}')
+    print(f'     ROOT: {ROOT}')
+    print(f'     HTML: index/admin/app/login/register/pending/activation/pricing = 8')
+    print(f'     SPA fallback: any path -> index.html')
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        server.shutdown()

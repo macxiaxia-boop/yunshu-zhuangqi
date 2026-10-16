@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "YUNSHU_ZHUANGQI_CLONE Configuration",
+  "description": "yunshu-zhuangqi 克隆配置包 configuration.json 结构 (schema 1)",
+  "type": "object",
+  "required": ["settings", "library", "preferences"],
+  "additionalProperties": false,
+  "properties": {
+    "settings": {
+      "type": "object",
+      "description": "系统设置 (51 字段白名单 + financial 数值 ≥ 0 + themeColor 白名单)",
+      "properties": {
+        "companyName": { "type": "string" },
+        "englishName": { "type": "string" },
+        "companyPhone": { "type": "string" },
+        "companyAddress": { "type": "string" },
+        "companyWebsite": { "type": "string" },
+        "logoData": {
+          "type": ["string", "null"],
+          "pattern": "^data:image/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\\r\\n]+$",
+          "description": "base64 内嵌 PNG/JPEG/GIF/WebP"
+        },
+        "uiTitleCn": { "type": "string" },
+        "uiTitleEn": { "type": "string" },
+        "themeColor": {
+          "type": "string",
+          "enum": ["red", "navy", "turquoise", "ochre", "purple", "lilac"]
+        },
+        "sidebarLogoColorMode": { "type": "string", "enum": ["auto", "system", "original"] },
+        "coverLogoColorMode": { "type": "string", "enum": ["auto", "system", "original"] },
+        "coverLogoScale": { "type": "number", "minimum": 50, "maximum": 300 },
+        "materialPrintScope": { "type": "string", "enum": ["current", "all"] },
+        "materialShowPrice": { "type": "boolean" },
+        "materialShowPageNumbers": { "type": "boolean" },
+        "materialShowHeader": { "type": "boolean" },
+        "materialShowFooter": { "type": "boolean" },
+        "materialHeaderText": { "type": "string" },
+        "materialFooterText": { "type": "string" },
+        "materialBookTitle": { "type": "string" },
+        "materialBookNote": { "type": "string" },
+        "materialSampleCaption": { "type": "string" },
+        "watermarkEnabled": { "type": "boolean" },
+        "watermarkType": { "type": "string", "enum": ["text", "image"] },
+        "watermarkText1": { "type": "string" },
+        "watermarkText2": { "type": "string" },
+        "watermarkImage": {
+          "type": ["string", "null"],
+          "pattern": "^data:image/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\\r\\n]+$"
+        },
+        "watermarkColor": { "type": "string" },
+        "watermarkOpacity": { "type": "number", "minimum": 0, "maximum": 100 },
+        "watermarkAngle": { "type": "number" },
+        "watermarkScale": { "type": "number", "minimum": 10, "maximum": 500 },
+        "watermarkX": { "type": "number" },
+        "watermarkY": { "type": "number" },
+        "watermarkFontSize": { "type": "number", "minimum": 6, "maximum": 200 },
+        "watermarkLetterSpacing": { "type": "number" },
+        "watermarkLineHeight": { "type": "number" },
+        "watermarkWeight": { "type": ["string", "number"] },
+        "watermarkTextAlign": { "type": "string", "enum": ["left", "center", "right"] },
+        "watermarkTile": { "type": "boolean" },
+        "notes": { "type": "string" },
+        "baseMaterials": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "waterHeatingAppendixPrint": { "type": "boolean" },
+        "managementFeeRate": { "type": "number", "minimum": 0 },
+        "materialServiceFeeRate": { "type": "number", "minimum": 0 },
+        "taxRate": { "type": "number", "minimum": 0 },
+        "designRate": { "type": "number", "minimum": 0 },
+        "discountRate": { "type": "number", "minimum": 0 }
+      }
+    },
+    "library": {
+      "type": "object",
+      "required": ["fileType", "version", "categories", "libraries", "materialTables"],
+      "properties": {
+        "fileType": { "const": "YUNSHANG_QUOTA_LIBRARY" },
+        "version": { "const": 1 },
+        "categories": {
+          "type": "array",
+          "description": "定额分类 (id 唯一, libraryType ∈ construction|material|equipment)",
+          "items": {
+            "type": "object",
+            "required": ["id", "cn", "libraryType", "library"],
+            "properties": {
+              "id": { "type": "string" },
+              "num": { "type": "string" },
+              "cn": { "type": "string" },
+              "en": { "type": "string" },
+              "group": { "type": "string" },
+              "libraryType": { "type": "string", "enum": ["construction", "material", "equipment"] },
+              "library": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name"],
+                  "properties": {
+                    "name": { "type": "string" },
+                    "unit": { "type": "string" },
+                    "price": { "type": ["number", "string", "null"] },
+                    "desc": { "type": "string" },
+                    "laborCost": { "type": "number" },
+                    "materialCost": { "type": "number" },
+                    "auxiliaryCost": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "libraries": {
+          "type": "array",
+          "description": "跨项目库"
+        },
+        "materialTables": {
+          "type": "array",
+          "description": "基装用材明细"
+        }
+      }
+    },
+    "template": {
+      "type": ["object", "null"],
+      "description": "初始模板 (工程信息必须清空, 仅留 categories)",
+      "required": ["categories"],
+      "properties": {
+        "projectInfo": { "type": "object" },
+        "categories": { "type": "array" },
+        "libCategories": { "type": "array" },
+        "materialTables": { "type": "array" },
+        "ysPlus": { "type": "object" }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "description": "界面偏好 (5 个 preference keys)",
+      "properties": {
+        "ys_studio_ui_v31_density": { "type": ["string", "null"] },
+        "ys_studio_ui_v31_color_mode": { "type": ["string", "null"] },
+        "ys_cloud_light_skin_v1": { "type": ["string", "null"] },
+        "ys-almanac-display-v1": { "type": ["string", "null"] },
+        "smart_quota_sources": { "type": ["string", "null"] }
+      }
+    },
+    "resourceFiles": {
+      "type": "array",
+      "description": "资料文件 base64 内嵌 (kind ∈ quota|logo)",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["kind", "name", "base64"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["quota", "logo"] },
+          "name": { "type": "string", "pattern": "^[A-Za-z0-9._\\-一-龥 ()]+$" },
+          "base64": { "type": "string", "pattern": "^[A-Za-z0-9+/]*={0,2}$" }
+        }
+      }
+    }
+  }
+}

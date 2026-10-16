@@ -1,0 +1,38 @@
+{
+  "fileType": "QUOTE_CHANGE_ORDERS",
+  "formatVersion": 1,
+  "savedAt": "2026-10-16T10:00:00.000Z",
+  "project": {
+    "name": "测试工程 · R-2026-001",
+    "code": "R-2026-001"
+  },
+  "rows": [
+    {
+      "id": "change-existing-1",
+      "kind": "add",
+      "name": "增加吊顶",
+      "unit": "㎡",
+      "qty": 20,
+      "price": 145,
+      "note": "客户新增"
+    },
+    {
+      "id": "change-existing-1",
+      "kind": "add",
+      "name": "重复ID测试",
+      "unit": "项",
+      "qty": 1,
+      "price": 100,
+      "note": "ID 应被重生成"
+    },
+    {
+      "id": "change-existing-2",
+      "kind": "remove",
+      "name": "减墙",
+      "unit": "㎡",
+      "qty": 5,
+      "price": 80,
+      "note": "客户减少"
+    }
+  ]
+}

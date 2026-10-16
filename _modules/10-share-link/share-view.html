@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#C04851">
+<title>装修报价单 · 查看</title>
+<style>
+/* ============ Themes (Module 09 aligned) ============ */
+:root {
+  --primary: #C04851;
+  --accent: #F5C0C0;
+  --text: #2a2a2a;
+  --muted: #888;
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --shadow: 0 8px 32px rgba(192, 72, 81, 0.15);
+}
+.theme-ocean    { --primary: #264653; --accent: #8AB0AB; --shadow: 0 8px 32px rgba(38, 70, 83, 0.15); }
+.theme-forest   { --primary: #2D5016; --accent: #A4B494; --shadow: 0 8px 32px rgba(45, 80, 22, 0.15); }
+.theme-royal    { --primary: #3D348B; --accent: #B5A8D5; --shadow: 0 8px 32px rgba(61, 52, 139, 0.15); }
+.theme-sunshine { --primary: #E07A5F; --accent: #F2CC8F; --shadow: 0 8px 32px rgba(224, 122, 95, 0.15); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(135deg, var(--accent) 0%, #fff 100%);
+  min-height: 100vh;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  padding: 16px;
+}
+.container { max-width: 480px; margin: 0 auto; }
+
+/* ============ Header ============ */
+.header {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.logo-wrap { width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.logo-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.logo-wrap .placeholder { color: var(--primary); font-size: 28px; font-weight: bold; }
+.company-name { color: var(--primary); font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.project-meta { color: var(--muted); font-size: 13px; }
+
+/* ============ Customer info card ============ */
+.customer-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed rgba(0,0,0,0.06); font-size: 14px; }
+.row:last-child { border-bottom: none; }
+.row .label { color: var(--muted); }
+.row .value { font-weight: 500; }
+
+/* ============ Total hero ============ */
+.total-hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  text-align: center;
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+.total-amount { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+.total-currency { font-size: 16px; opacity: 0.85; margin-right: 4px; vertical-align: top; line-height: 1.6; }
+.total-label { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+/* ============ Category list ============ */
+.categories {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.section-title { font-size: 15px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
+.cat-group { margin-bottom: 16px; }
+.cat-group:last-child { margin-bottom: 0; }
+.cat-name { font-size: 14px; font-weight: 600; color: var(--text); padding: 6px 10px; background: var(--accent); border-radius: 6px; margin-bottom: 8px; display: inline-block; }
+.cat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cat-table th { text-align: left; color: var(--muted); padding: 6px 4px; border-bottom: 1px solid rgba(0,0,0,0.08); font-weight: 500; font-size: 12px; }
+.cat-table td { padding: 8px 4px; border-bottom: 1px dashed rgba(0,0,0,0.06); }
+.cat-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.cat-table .item-name { color: var(--text); }
+.cat-table .item-meta { color: var(--muted); font-size: 11px; }
+.cat-table .item-price { font-weight: 500; }
+.cat-subtotal { display: flex; justify-content: space-between; padding: 8px 4px 0; font-size: 13px; color: var(--primary); font-weight: 600; }
+
+/* ============ Actions panel ============ */
+.actions-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.action-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.btn {
+  border: none;
+  padding: 12px 8px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:active { transform: scale(0.96); }
+.btn.btn-confirm { background: #28a745; color: #fff; }
+.btn.btn-reject  { background: #dc3545; color: #fff; }
+.btn.btn-comment { background: var(--primary); color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-icon { font-size: 18px; margin-right: 4px; vertical-align: -3px; }
+
+.form-card {
+  display: none;
+  border-top: 1px dashed rgba(0,0,0,0.1);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+.form-card.open { display: block; }
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-actions { display: flex; gap: 8px; }
+.form-actions .btn { flex: 1; }
+
+/* ============ Action timeline ============ */
+.timeline { margin-top: 20px; }
+.timeline-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
+.timeline-entry {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--primary);
+}
+.timeline-entry.ok   { border-left-color: #28a745; }
+.timeline-entry.no   { border-left-color: #dc3545; }
+.timeline-entry.msg  { border-left-color: var(--primary); }
+.entry-icon { font-size: 18px; }
+.entry-body { flex: 1; }
+.entry-line1 { font-size: 13px; font-weight: 600; }
+.entry-line2 { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.entry-line3 { font-size: 12px; color: #444; margin-top: 4px; padding: 6px; background: rgba(0,0,0,0.04); border-radius: 4px; }
+
+/* ============ Errors ============ */
+.error-box {
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #dc3545;
+  margin: 40px 0;
+}
+.error-icon { font-size: 36px; margin-bottom: 8px; }
+.error-text { font-size: 14px; }
+
+/* ============ Footer ============ */
+.footer { text-align: center; color: var(--muted); font-size: 11px; padding: 16px 0 8px; }
+.footer-link { color: var(--primary); text-decoration: none; }
+
+/* ============ Loading ============ */
+.loading { text-align: center; padding: 40px; color: var(--muted); }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--accent); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 99999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.toast.ok { background: rgba(40, 167, 69, 0.95); }
+.toast.no { background: rgba(220, 53, 69, 0.95); }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div class="loading"><div class="spinner"></div><div style="margin-top:12px;">加载报价单中...</div></div>
+</div>
+
+<!-- Module dependencies (in same dir for offline) -->
+<script src="share-qr.js"></script>
+<script src="share-api-mock.js"></script>
+<script src="share-actions.js"></script>
+<script src="share-create.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  // ========== Theme from URL ==========
+  function applyTheme(themeName) {
+    if (!themeName) return;
+    document.documentElement.classList.add('theme-' + themeName);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var colors = { ocean: '#264653', forest: '#2D5016', royal: '#3D348B', sunshine: '#E07A5F', default: '#C04851' };
+    if (meta && colors[themeName]) meta.setAttribute('content', colors[themeName]);
+  }
+
+  // ========== Get URL param ==========
+  function getParam(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+
+  // ========== Format amount ==========
+  function fmt(n) {
+    var v = Number(n || 0);
+    return v.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  }
+
+  // ========== Render categories ==========
+  function renderCategories(cats, totals) {
+    if (!Array.isArray(cats) || cats.length === 0) return '<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px;">暂无项目明细</div>';
+    var html = '';
+    cats.forEach(function (cat) {
+      html += '<div class="cat-group">';
+      html += '<div class="cat-name">' + escapeHtml(cat.name || '分类') + '</div>';
+      html += '<table class="cat-table"><thead><tr><th>项目</th><th style="text-align:right;">数量</th><th style="text-align:right;">单价</th><th style="text-align:right;">小计</th></tr></thead><tbody>';
+      var subtotal = 0;
+      (cat.items || []).forEach(function (it) {
+        var lineTotal = Number(it.qty || 0) * Number(it.price || 0);
+        subtotal += lineTotal;
+        html += '<tr>' +
+          '<td><div class="item-name">' + escapeHtml(it.name || '') + '</div>' +
+            (it.unit ? '<div class="item-meta">' + escapeHtml(it.unit) + '</div>' : '') + '</td>' +
+          '<td class="num">' + fmt(it.qty) + '</td>' +
+          '<td class="num">' + fmt(it.price) + '</td>' +
+          '<td class="num item-price">' + fmt(lineTotal) + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+      html += '<div class="cat-subtotal"><span>小计</span><span>¥ ' + fmt(subtotal) + '</span></div>';
+      html += '</div>';
+    });
+    if (totals && totals.grandTotal) {
+      html += '<div class="cat-subtotal" style="font-size:15px;"><span>总计</span><span>¥ ' + fmt(totals.grandTotal) + '</span></div>';
+    }
+    return html;
+  }
+
+  // ========== Render action timeline ==========
+  function renderTimeline(actions) {
+    if (!actions || actions.length === 0) return '';
+    var html = '<div class="timeline"><div class="timeline-title">📝 业主互动记录</div>';
+    actions.forEach(function (a) {
+      var label, icon, cls;
+      if (a.type === 'confirm') { label = '已确认报价'; icon = '✅'; cls = 'ok'; }
+      else if (a.type === 'reject') { label = '已拒绝报价'; icon = '❌'; cls = 'no'; }
+      else { label = '业主留言'; icon = '💬'; cls = 'msg'; }
+      html += '<div class="timeline-entry ' + cls + '">' +
+        '<div class="entry-icon">' + icon + '</div>' +
+        '<div class="entry-body">' +
+          '<div class="entry-line1">' + label + ' · ' + escapeHtml(a.customerName || '业主') + '</div>' +
+          '<div class="entry-line2">' + window.YSActions.formatTime(a.timestamp) + (a.customerPhoneMasked ? ' · ' + escapeHtml(a.customerPhoneMasked) : '') + '</div>' +
+          (a.reason ? '<div class="entry-line3">理由：' + escapeHtml(a.reason) + '</div>' : '') +
+          (a.text && a.type === 'comment' ? '<div class="entry-line3">' + escapeHtml(a.text) + '</div>' : '') +
+        '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // ========== Toast helper ==========
+  function toast(msg, kind) {
+    var t = document.createElement('div');
+    t.className = 'toast show' + (kind ? ' ' + kind : '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { document.body.removeChild(t); }, 300); }, 2200);
+  }
+
+  // ========== Render main UI ==========
+  async function loadAndRender() {
+    var shareId = getParam('shareId');
+    var theme = getParam('theme') || 'default';
+    applyTheme(theme);
+    var container = document.getElementById('app');
+    if (!shareId) {
+      container.innerHTML = '<div class="error-box"><div class="error-icon">🔗</div><div class="error-text">缺少 shareId 参数</div></div>';
+      return;
+    }
+    try {
+      var rec = await window.YSShareAPI.get(shareId);
+      var pi = rec.data.projectInfo || {};
+      var categories = rec.data.categories || [];
+      var totals = rec.data.totals || { grandTotal: rec.estimateAmount };
+      var primaryColor = pi.themeColor || '#C04851';
+      // Override CSS primary if company has its own
+      if (primaryColor && primaryColor !== '#C04851') {
+        document.documentElement.style.setProperty('--primary', primaryColor);
+      }
+
+      var html = '';
+      // Header (company + project)
+      html += '<div class="header">' +
+        '<div class="logo-wrap">' +
+          (pi.logoData ? '<img src="' + escapeHtml(pi.logoData) + '" alt="">' : '<div class="placeholder">' + escapeHtml(pi.companyName || '装').slice(0, 1) + '</div>') +
+        '</div>' +
+        '<div class="company-name">' + escapeHtml(pi.companyName || '装修公司') + '</div>' +
+        '<div class="project-meta">' + escapeHtml(pi.projectName || '') + ' · ' + escapeHtml(pi.createDate || '') + '</div>' +
+        '</div>';
+
+      // Customer info (masked phone)
+      html += '<div class="customer-card">' +
+        '<div class="row"><span class="label">业主姓名</span><span class="value">' + escapeHtml(pi.customerName || '—') + '</span></div>' +
+        '<div class="row"><span class="label">联系电话</span><span class="value">' + escapeHtml(pi.customerPhoneMasked || '—') + '</span></div>' +
+        '<div class="row"><span class="label">工程地址</span><span class="value">' + escapeHtml(pi.projectAddress || '—') + '</span></div>' +
+        '<div class="row"><span class="label">分享类型</span><span class="value">' + (rec.accessType === 'password-read' ? '🔒 仅密码可看' : '🌐 公开查看') + '</span></div>' +
+        '</div>';
+
+      // Total hero
+      html += '<div class="total-hero"><div><span class="total-currency">¥</span><span class="total-amount">' + fmt(rec.estimateAmount) + '</span></div><div class="total-label">报价总额（人民币）</div></div>';
+
+      // Categories
+      html += '<div class="categories"><div class="section-title">📋 项目明细</div>' + renderCategories(categories, totals) + '</div>';
+
+      // Actions
+      html += '<div class="actions-panel">' +
+        '<div class="section-title">🤝 业主回应</div>' +
+        '<div class="action-buttons">' +
+          '<button class="btn btn-confirm" data-act="confirm"><span class="btn-icon">✅</span>确认</button>' +
+          '<button class="btn btn-reject" data-act="reject"><span class="btn-icon">❌</span>拒绝</button>' +
+          '<button class="btn btn-comment" data-act="comment"><span class="btn-icon">💬</span>留言</button>' +
+        '</div>' +
+        '<div class="form-card" id="form-confirm">' +
+          '<div class="form-group"><label>您的姓名</label><input type="text" id="cf-name" placeholder="请输入您的姓名" maxlength="50"></div>' +
+          '<div class="form-group"><label>您的手机号</label><input type="tel" id="cf-phone" placeholder="11位手机号" maxlength="11"></div>' +
+          '<div class="form-actions"><button class="btn btn-confirm" id="cf-submit">提交确认</button></div>' +
+        '</div>' +
+        '<div class="form-card" id="form-reject">' +
+          '<div class="form-group"><label>您的姓名</label><input type="text" id="rj-name" placeholder="请输入您的姓名" maxlength="50"></div>' +
+          '<div class="form-group"><label>您的手机号</label><input type="tel" id="rj-phone" placeholder="11位手机号" maxlength="11"></div>' +
+          '<div class="form-group"><label>拒绝理由（必填）</label><textarea id="rj-reason" placeholder="请说明您希望调整的部分..." maxlength="500"></textarea></div>' +
+          '<div class="form-actions"><button class="btn btn-reject" id="rj-submit">提交拒绝</button></div>' +
+        '</div>' +
+        '<div class="form-card" id="form-comment">' +
+          '<div class="form-group"><label>您的姓名</label><input type="text" id="cm-name" placeholder="请输入您的姓名" maxlength="50"></div>' +
+          '<div class="form-group"><label>留言内容</label><textarea id="cm-text" placeholder="对报价有什么疑问？可在此留言..." maxlength="500"></textarea></div>' +
+          '<div class="form-actions"><button class="btn btn-comment" id="cm-submit">提交留言</button></div>' +
+        '</div>' +
+        renderTimeline(rec.actions) +
+        '</div>';
+
+      // Footer
+      html += '<div class="footer">本报价单由 ' + escapeHtml(pi.companyName || '装修公司') + ' 通过 <a class="footer-link" href="https://yunshu-zhuangqi.com">yunshu-zhuangqi</a> 分享 · 7 天后自动失效</div>';
+
+      container.innerHTML = html;
+      bindActionHandlers(shareId, rec);
+
+    } catch (e) {
+      var msg = String(e.message || e);
+      var label = '加载失败';
+      if (msg.indexOf('NOT_FOUND') >= 0) label = '分享链接不存在';
+      else if (msg.indexOf('EXPIRED') >= 0) label = '分享链接已过期（7天）';
+      container.innerHTML = '<div class="error-box"><div class="error-icon">⏰</div><div class="error-text">' + label + '</div></div>';
+    }
+  }
+
+  // ========== Bind handlers ==========
+  function bindActionHandlers(shareId, rec) {
+    function openForm(name) {
+      ['form-confirm', 'form-reject', 'form-comment'].forEach(function (id) {
+        document.getElementById(id).classList.toggle('open', id === name);
+      });
+    }
+    document.querySelectorAll('[data-act]').forEach(function (btn) {
+      btn.onclick = function () { openForm('form-' + btn.dataset.act); };
+    });
+
+    // Pre-fill from customer fields if available (the customer receiving this share)
+    if (rec.customerFields && rec.customerFields.name) {
+      var cfName = document.getElementById('cf-name');
+      var rjName = document.getElementById('rj-name');
+      var cmName = document.getElementById('cm-name');
+      if (cfName && !cfName.value) cfName.value = rec.customerFields.name;
+      if (rjName && !rjName.value) rjName.value = rec.customerFields.name;
+      if (cmName && !cmName.value) cmName.value = rec.customerFields.name;
+    }
+
+    document.getElementById('cf-submit').onclick = function () {
+      submitAction({
+        type: 'confirm',
+        name: val('cf-name'),
+        phone: val('cf-phone'),
+        args: { shareId: shareId, customerName: val('cf-name'), phone: val('cf-phone') }
+      });
+    };
+    document.getElementById('rj-submit').onclick = function () {
+      submitAction({
+        type: 'reject',
+        name: val('rj-name'),
+        phone: val('rj-phone'),
+        args: { shareId: shareId, customerName: val('rj-name'), phone: val('rj-phone'), reason: val('rj-reason') }
+      });
+    };
+    document.getElementById('cm-submit').onclick = function () {
+      submitAction({
+        type: 'comment',
+        name: val('cm-name'),
+        args: { shareId: shareId, customerName: val('cm-name'), text: val('cm-text') }
+      });
+    };
+  }
+
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+  function submitAction(opts) {
+    var fn = window.YSActions[opts.type];
+    fn(opts.args).then(function (r) {
+      toast('已提交 ✓', 'ok');
+      setTimeout(function () { location.reload(); }, 800);
+    }).catch(function (e) {
+      var msg = String(e.message || e);
+      var label = '提交失败：' + msg;
+      if (msg.indexOf('RATE_LIMIT') >= 0) label = '操作太频繁，请 1 小时后再试';
+      else if (msg.indexOf('VALIDATION_FAILED') >= 0) {
+        var errors = e.errors || [msg];
+        label = errors.includes('REASON_REQUIRED') ? '请填写拒绝理由' : (errors.includes('PHONE_REQUIRED') ? '请填写正确的手机号' : (errors.includes('NAME_REQUIRED') ? '请填写姓名' : '请检查输入'));
+      }
+      toast(label, 'no');
+    });
+  }
+
+  // ========== Boot ==========
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAndRender);
+  } else {
+    loadAndRender();
+  }
+})();
+</script>
+</body>
+</html>
