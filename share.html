@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="装修报价单 · 装报价 — 您的装饰公司用装报价 SaaS 生成的报价单">
+<meta property="og:title" content="装修报价单">
+<meta property="og:description" content="您收到的装修报价详情">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>报价单 · 装报价</title>
+<style>
+  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --shadow: 0 4px 12px rgba(0,0,0,0.05); --radius: 16px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.7; min-height: 100vh; padding: 24px 0; }
+  a { color: var(--primary); text-decoration: none; }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  /* Header */
+  .doc-head { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-size: 13px; color: var(--text-dim); }
+  .brand-logo { width: 28px; height: 28px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(99,102,241,0.25); }
+  .brand-text { font-weight: 600; color: var(--text); }
+  .doc-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .doc-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+  .meta-row { display: flex; gap: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .meta-item .label { font-size: 11px; color: var(--text-faint); margin-bottom: 4px; }
+  .meta-item .value { font-size: 14px; font-weight: 600; }
+  /* Quote section */
+  .section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ""; width: 3px; height: 16px; background: linear-gradient(180deg, var(--primary), var(--primary-2)); border-radius: 2px; }
+  /* Quote table */
+  .quote-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .quote-table th { background: var(--bg-2); padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-dim); font-size: 12px; }
+  .quote-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .quote-table tbody tr:hover { background: var(--bg-2); }
+  .quote-table tfoot td { background: var(--bg-2); font-weight: 700; color: var(--text); border-bottom: none; padding: 18px 16px; }
+  .quote-table .amount { text-align: right; font-family: "SF Mono", Consolas, monospace; }
+  /* Big total */
+  .total-card { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; padding: 28px; border-radius: var(--radius); text-align: center; margin-bottom: 16px; box-shadow: 0 12px 32px rgba(99,102,241,0.25); }
+  .total-card .label { font-size: 13px; opacity: 0.85; }
+  .total-card .amount { font-size: 48px; font-weight: 800; margin-top: 8px; font-family: "SF Mono", Consolas, monospace; }
+  .total-card .note { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+  /* Notes */
+  .notes-card { background: #fffbe6; border: 1px solid #fbbf24; border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .notes-card h4 { color: #92400e; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .notes-card p { color: #78350f; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+  /* Footer */
+  .doc-footer { text-align: center; padding: 32px 20px; color: var(--text-faint); font-size: 12px; }
+  .doc-footer .brand-name { color: var(--primary); font-weight: 700; margin-bottom: 4px; }
+  /* Empty / error */
+  .empty-state { text-align: center; padding: 60px 20px; background: var(--panel); border-radius: var(--radius); border: 1px solid var(--border); }
+  .empty-state h2 { font-size: 20px; color: var(--text-dim); margin: 12px 0; }
+  .empty-state p { color: var(--text-faint); font-size: 13px; }
+  .empty-mark { font-size: 48px; opacity: 0.3; }
+  /* Actions */
+  .actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
+  .actions button { padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); font-size: 13px; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+  .actions button.primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  .actions button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.15); }
+  @media (max-width: 600px) {
+    .doc-head { padding: 20px; }
+    .section { padding: 20px; }
+    .total-card .amount { font-size: 36px; }
+    .meta-row { flex-direction: column; gap: 16px; }
+    .quote-table { font-size: 13px; }
+    .quote-table th, .quote-table td { padding: 10px 12px; }
+  }
+  @media print {
+    .actions { display: none; }
+    body { background: white; padding: 0; }
+    .container { max-width: 100%; }
+    .doc-head, .section, .total-card, .notes-card { box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div id="content">加载中...</div>
+
+</div>
+
+<div class="doc-footer">
+  <div class="brand-name">装报价 · 让报价只需 10 分钟</div>
+  <div>由 <span id="footerCompany"></span> 提供</div>
+</div>
+
+<script>
+(function() {
+  // 从 URL 读 project ID
+  const params = new URLSearchParams(location.search);
+  const projectId = params.get('p');
+
+  if (!projectId) {
+    document.getElementById('content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-mark">📄</div>
+        <h2>未提供报价单 ID</h2>
+        <p>请通过您的装饰公司发送的链接访问报价单</p>
+      </div>`;
+    return;
+  }
+
+  // 读项目数据(localStorage)
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const proj = projects[projectId];
+
+  if (!proj) {
+    document.getElementById('content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-mark">🔍</div>
+        <h2>报价单不存在或已过期</h2>
+        <p>请联系您的装饰公司确认报价单状态</p>
+        <p style="margin-top:8px;font-size:11px;">ID: ${projectId}</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('footerCompany').textContent = proj.ownerName || '您的装饰公司';
+
+  // 渲染报价单
+  const itemsHtml = (proj.items || []).map((item, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${item.name || ''}</td>
+      <td>${item.unit || '项'}</td>
+      <td class="amount">${item.qty || 1}</td>
+      <td class="amount">¥${(item.price || 0).toFixed(2)}</td>
+      <td class="amount">¥${((item.qty || 1) * (item.price || 0)).toFixed(2)}</td>
+    </tr>`).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="doc-head">
+      <div class="brand">
+        <div class="brand-logo"><svg width="16" height="16" viewBox="0 0 24 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <span class="brand-text">${proj.ownerName || '装报价'}</span>
+      </div>
+      <div class="doc-title">${proj.name || '装修报价'}</div>
+      <div class="doc-sub">感谢您给我们机会为您服务,以下为本项目的报价详情</div>
+      <div class="meta-row">
+        <div class="meta-item"><div class="label">报价单 ID</div><div class="value" style="font-family:monospace;">${projectId}</div></div>
+        <div class="meta-item"><div class="label">创建日期</div><div class="value">${proj.createdAt ? new Date(proj.createdAt).toLocaleDateString('zh-CN') : '-'}</div></div>
+        <div class="meta-item"><div class="label">项目类型</div><div class="value">全案设计施工报价</div></div>
+      </div>
+    </div>
+
+    <div class="total-card">
+      <div class="label">本次报价总计</div>
+      <div class="amount">¥${(proj.total || 0).toLocaleString('zh-CN')}</div>
+      <div class="note">含管理费及税金</div>
+    </div>
+
+    <div class="actions">
+      <button onclick="window.print()">🖨 打印 / 保存 PDF</button>
+      <button onclick="contactCompany()" class="primary">📞 联系装饰公司</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">报价明细</div>
+      <table class="quote-table">
+        <thead>
+          <tr>
+            <th style="width:40px;">序号</th>
+            <th>项目名称</th>
+            <th>单位</th>
+            <th class="amount">数量</th>
+            <th class="amount">单价</th>
+            <th class="amount">小计</th>
+          </tr>
+        </thead>
+        <tbody>${itemsHtml || '<tr><td colspan="6" style="text-align:center;color:#9595ad;padding:40px;">无明细</td></tr>'}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5" style="text-align:right;">总计</td>
+            <td class="amount" style="font-size:18px;color:#6366f1;">¥${(proj.total || 0).toLocaleString('zh-CN')}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    ${proj.notes ? `
+    <div class="notes-card">
+      <h4>📝 备注 / 说明</h4>
+      <p>${proj.notes}</p>
+    </div>
+    ` : ''}
+
+    <div class="section">
+      <div class="section-title">服务承诺</div>
+      <ul style="list-style:none;color:#5e5e7a;font-size:13px;line-height:2;">
+        <li>✓ 价格透明 · 无隐藏费用</li>
+        <li>✓ 工期保证 · 按合同约定</li>
+        <li>✓ 质量保障 · 主材 1 年 / 辅材 2 年</li>
+        <li>✓ 售后无忧 · 终身维护</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;font-size:12px;color:#9595ad;line-height:1.7;">
+      本报价单由 <b style="color:#6366f1;">${proj.ownerName || '您的装饰公司'}</b> 通过 <b>装报价</b> SaaS 生成<br>
+      报价有效期:7 天 · 如有疑问请直接联系装饰公司
+    </div>
+  `;
+})();
+
+function contactCompany() {
+  // 用户可通过微信/电话联系装饰公司
+  // 这里只能弹出提示,实际手机号由装饰公司在直接沟通时告知
+  alert('请通过微信或电话联系您的装饰公司。\n\n如需装饰公司微信/电话,请询问发送报价单给您的工作人员。');
+}
+</script>
+</body>
+</html>
