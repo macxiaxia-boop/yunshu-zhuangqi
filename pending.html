@@ -3,89 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#B50029">
+<meta name="theme-color" content="#6366f1">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<title>等待开通 · 云数装企</title>
+<title>等待开通 · 装报价</title>
 <style>
+  :root { --primary: #6366f1; --primary-2: #4338ca; --bg: #fafaff; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #fafafc; color: #1a1a1f; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .box { width: 100%; max-width: 540px; background: #fff; border: 1px solid #e1e1e5; border-radius: 12px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); text-align: center; }
-  .status-icon { font-size: 48px; margin-bottom: 12px; }
-  h1 { font-size: 22px; margin-bottom: 8px; }
-  .lead { color: #5e5e6b; font-size: 14px; margin-bottom: 24px; line-height: 1.7; }
-  .steps { background: #f9f9fb; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: left; }
-  .step { padding: 10px 0; border-bottom: 1px solid #e1e1e5; display: flex; align-items: flex-start; gap: 12px; font-size: 13px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fafaff 0%, #f0f0fa 100%); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .box { width: 100%; max-width: 540px; background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(99,102,241,0.08); }
+  .icon-circle { width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 14px; box-shadow: 0 8px 20px rgba(99,102,241,0.25); }
+  h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .lead { color: var(--text-dim); font-size: 14px; text-align: center; margin-bottom: 24px; line-height: 1.7; }
+  .steps { background: var(--bg); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .step { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; font-size: 13px; }
   .step:last-child { border-bottom: none; }
-  .step .num { width: 22px; height: 22px; background: #B50029; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
-  .step .text { color: #1a1a1f; line-height: 1.6; }
-  .step .text b { color: #B50029; }
-  .qrcode-area { background: #f9f9fb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-  .qrcode-area .label { font-size: 13px; color: #5e5e6b; margin-bottom: 12px; }
-  .qrcode-img {
-    width: 200px; height: 200px;
-    margin: 0 auto;
-    background: #fff;
-    border: 1px solid #e1e1e5;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #8e8e9a;
-    font-size: 12px;
-    text-align: center;
-    padding: 8px;
-  }
-  .qrcode-img img { width: 100%; height: 100%; object-fit: contain; }
-  .amount { font-size: 30px; font-weight: 800; color: #B50029; margin: 12px 0; }
-  .contact { background: #fff5f7; border: 1px solid #B50029; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #1a1a1f; }
-  .contact b { color: #B50029; }
-  .activation-input { display: flex; gap: 8px; margin-bottom: 20px; }
-  .activation-input input { flex: 1; padding: 10px 12px; border: 1px solid #d0d0d5; border-radius: 6px; font-size: 14px; font-family: monospace; outline: none; }
-  .activation-input input:focus { border-color: #B50029; }
-  .activation-input button { padding: 10px 20px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
-  .activation-input button:hover { background: #8B0029; }
-  .alt-actions { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
-  .alt-actions a { color: #B50029; font-size: 13px; text-decoration: none; }
-  .alt-actions a:hover { text-decoration: underline; }
-  .error-msg { color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }
+  .step-num { width: 22px; height: 22px; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-text { color: var(--text); line-height: 1.6; }
+  .step-text b { color: var(--primary); }
+  .qrcode-area { background: var(--bg); border-radius: 12px; padding: 20px; margin-bottom: 18px; text-align: center; border: 1px solid var(--border); }
+  .qrcode-label { font-size: 14px; color: var(--text-dim); margin-bottom: 12px; font-weight: 500; }
+  .qrcode-img { width: 200px; height: 200px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
+  .qrcode-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+  .amount-row { margin-top: 16px; }
+  .amount { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .amount-tag { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .contact { background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(99,102,241,0.02)); border: 1px solid var(--primary); border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: var(--text); }
+  .contact b { color: var(--primary); }
+  .activation-block { background: var(--bg); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+  .activation-block h3 { font-size: 14px; margin-bottom: 10px; font-weight: 600; }
+  .activation-input { display: flex; gap: 8px; }
+  .activation-input input { flex: 1; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; font-family: monospace; outline: none; letter-spacing: 1px; background: var(--panel); }
+  .activation-input input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+  .activation-input button { padding: 12px 24px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  .activation-input button:hover { transform: translateY(-1px); }
+  .err { color: #f87171; font-size: 13px; margin-top: 10px; min-height: 18px; text-align: center; }
+  .alt-actions { display: flex; gap: 14px; justify-content: center; margin-top: 14px; font-size: 13px; }
+  .alt-actions a { color: var(--text-dim); text-decoration: none; }
+  .alt-actions a:hover { color: var(--primary); }
 </style>
 </head>
 <body>
 
 <div class="box">
-  <div class="status-icon">⏳</div>
+  <div class="icon-circle">¥</div>
   <h1>正在为您开通权限</h1>
-  <p class="lead">
-    感谢您选择云数装企报价系统!<br>
-    完成支付后,请通过微信联系客服获取激活码。
-  </p>
+  <p class="lead">完成支付后,把凭证发给客服获取 <b style="color:#6366f1">激活码</b></p>
 
   <div class="steps">
-    <div class="step"><span class="num">1</span><span class="text">扫码支付 <b>¥200</b>(单次激活码 / 永久使用)</span></div>
-    <div class="step"><span class="num">2</span><span class="text">微信加客服,告知邮箱(您注册的邮箱)<span id="userEmail" style="color:#5e5e6b;font-size:11px"></span></span></div>
-    <div class="step"><span class="num">3</span><span class="text">客服审核 → 在下方输入<b>激活码</b> → 解锁全部功能</span></div>
+    <div class="step"><span class="step-num">1</span><span class="step-text">扫码支付 <b>¥198</b>(单次付费,终身使用)</span></div>
+    <div class="step"><span class="step-num">2</span><span class="step-text">微信加客服,告知您的<span id="userPhone" style="color:#5e5e7a;font-size:11px;"></span>手机号</span></div>
+    <div class="step"><span class="step-num">3</span><span class="step-text">客服审核 → 在下方输入<b>激活码</b> → 解锁全部功能</span></div>
   </div>
 
   <div class="qrcode-area">
-    <div class="label">📱 微信扫码支付 200 元</div>
-    <div class="qrcode-img" id="qrcodeImg">
-      <!-- 用户的微信收款码(请替换 src 为真实收款码图片) -->
-      <img src="assets/qrcode.jpg" alt="微信收款码" onerror="this.parentElement.innerHTML='<div>请将微信收款码图片保存为<br><code>assets/qrcode.jpg</code><br>然后刷新页面</div>'">
+    <div class="qrcode-label">微信扫码支付 ¥198</div>
+    <div class="qrcode-img">
+      <img src="assets/qrcode.jpg" alt="微信收款码" onerror="this.parentElement.innerHTML='<div style=padding:20px;color:#888;text-align:center;font-size:12px>收款码待上传</div>'">
     </div>
-    <div class="amount">¥200</div>
-    <div style="font-size:11px;color:#8e8e9a">支付时请备注您的邮箱,便于快速激活</div>
+    <div class="amount-row">
+      <div class="amount">¥198</div>
+      <div class="amount-tag">一次性 · 终身使用</div>
+    </div>
   </div>
 
   <div class="contact">
-    📞 <b>客服微信:</b> xinzh_quote (示例)<br>
-    📧 <b>客服邮箱:</b> hello@yunshu.cn<br>
-    ⏰ <b>工作时间:</b> 9:00-22:00(通常 30 分钟内激活)
+    <div><b>客服微信:</b> xinzh_quote (示例)</div>
+    <div><b>客服邮箱:</b> hello@yunshu.cn</div>
+    <div style="margin-top:6px; font-size:11px; color:#9595ad;">工作时间 9:00-22:00 · 通常 30 分钟内激活</div>
   </div>
 
-  <h3 style="font-size:14px;margin:20px 0 8px;text-align:left">已付款?输入激活码</h3>
-  <div class="activation-input">
-    <input id="codeInput" placeholder="YNSH-XXXX-XXXX-XXXX" maxlength="19" style="text-transform:uppercase">
-    <button onclick="activateCode()">激活</button>
+  <div class="activation-block">
+    <h3>已付款?输入激活码</h3>
+    <div class="activation-input">
+      <input id="codeInput" placeholder="ZBJ-XXXX-XXXX-XXXX" maxlength="18" onkeydown="if(event.key==='Enter') activateCode()">
+      <button onclick="activateCode()">激活</button>
+    </div>
+    <div class="err" id="err"></div>
   </div>
-  <div class="error-msg" id="errorMsg"></div>
 
   <div class="alt-actions">
     <a href="login.html">切换账号</a>
@@ -95,63 +89,65 @@
 
 <script>
 (async function() {
-  // 显示用户邮箱
   try {
     const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
-    const el = document.getElementById('userEmail');
-    if (user.email) el.textContent = '(您注册邮箱:' + user.email + ')';
-  } catch (e) {}
-
-  // 加载激活码列表(用于客户端验证)
+    const el = document.getElementById('userPhone');
+    if (user.phone) el.textContent = `(${user.phone})`;
+    if (!user.phone) {
+      // 未登录,跳走
+      window.location.replace('login.html');
+    }
+  } catch (e) {
+    window.location.replace('login.html');
+  }
   try {
     const res = await fetch('activation_codes.js');
     const txt = await res.text();
-    eval(txt); // 全局 ACTIVATION_CODES
+    eval(txt);
   } catch (e) {
     console.error('Failed to load activation codes:', e);
   }
 })();
 
-async function activateCode() {
+function activateCode() {
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  const errEl = document.getElementById('errorMsg');
+  const errEl = document.getElementById('err');
   errEl.textContent = '';
-
-  if (!code) {
-    errEl.textContent = '请输入激活码';
-    return;
-  }
-  if (!code.match(/^YNSH-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
-    errEl.textContent = '激活码格式不正确,应该是 YNSH-XXXX-XXXX-XXXX';
+  if (!code) { errEl.textContent = '请输入激活码'; return; }
+  if (!code.match(/^ZBJ-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
+    errEl.textContent = '格式错误:应为 ZBJ-XXXX-XXXX-XXXX';
     return;
   }
   if (typeof ACTIVATION_CODES === 'undefined' || !ACTIVATION_CODES.includes(code)) {
-    errEl.textContent = '激活码无效,请检查是否输入正确';
+    errEl.textContent = '激活码无效,请联系客服确认';
     return;
   }
-
-  // 检查是否已被使用(从 admin 本地存储读)
   const used = JSON.parse(localStorage.getItem('yunshu-codes-used') || '{}');
   if (used[code]) {
     const when = new Date(used[code].at).toLocaleString('zh-CN');
-    errEl.textContent = '此激活码已被使用(' + when + '),请联系客服';
+    errEl.textContent = `此激活码已被使用(${when})`;
     return;
   }
-
-  // 标记使用 + 激活用户
   used[code] = { at: Date.now(), note: 'pending.html 用户激活' };
   localStorage.setItem('yunshu-codes-used', JSON.stringify(used));
 
   const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  // 激活账号
+  if (user.phone && accounts[user.phone]) {
+    accounts[user.phone].activated = true;
+    accounts[user.phone].activatedAt = Date.now();
+    accounts[user.phone].activatedCode = code;
+    localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  }
   user.activated = true;
   user.activatedAt = Date.now();
   user.activatedCode = code;
   localStorage.setItem('yunshu-user', JSON.stringify(user));
 
-  // 跳转 app
-  setTimeout(() => {
-    window.location.href = 'app.html';
-  }, 800);
+  errEl.style.color = '#16a34a';
+  errEl.textContent = '激活成功!正在跳转...';
+  setTimeout(() => window.location.href = 'app.html', 800);
 }
 </script>
 </body>
