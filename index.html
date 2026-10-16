@@ -3,358 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#B50029">
-<meta name="description" content="云数装企报价系统 — 装企(装修企业)专用全案设计施工报价 SaaS,10 分钟生成专业报价书。免费试用,无需信用卡。">
-<meta name="keywords" content="装企,装修,报价,SaaS,装饰,设计,报价单,云数,装企软件">
-<meta property="og:title" content="云数装企报价系统 — 装企报价专家">
-<meta property="og:description" content="10 分钟生成专业报价书。免费试用,无需信用卡。">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://macxiaxia-boop.github.io/yunshu-zhuangqi/">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="装报价 — 装企(装修企业)报价 SaaS,10 分钟完成全案设计施工报价。手机号注册,¥198 终身使用。">
+<meta property="og:title" content="装报价 — 装企报价专家">
+<meta property="og:description" content="装企报价 SaaS · 10 分钟完成报价 · ¥198 终身使用">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="favicon-192.png">
-<link rel="canonical" href="https://macxiaxia-boop.github.io/yunshu-zhuangqi/">
-<title>云数装企报价系统 — 装企报价专家 · 10 分钟生成专业报价书</title>
+<title>装报价 · 让报价只需 10 分钟</title>
 <style>
-  :root {
-    --primary: #B50029;
-    --primary-2: #8B0029;
-    --primary-soft: rgba(181, 0, 41, 0.08);
-    --primary-glow: rgba(181, 0, 41, 0.25);
-    --bg: #fafafc;
-    --bg-2: #f4f4f7;
-    --bg-3: #ffffff;
-    --panel: #ffffff;
-    --panel-2: #f9f9fb;
-    --border: #e1e1e5;
-    --border-2: #d0d0d5;
-    --text: #1a1a1f;
-    --text-dim: #5e5e6b;
-    --text-faint: #8e8e9a;
-    --green: #16a34a;
-    --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.08);
-  }
+  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-3: #818cf8; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --shadow: 0 10px 30px rgba(99,102,241,0.08); --shadow-lg: 0 24px 60px rgba(99,102,241,0.12); --radius: 16px; --radius-sm: 10px; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); text-decoration: none; }
   a:hover { color: var(--primary-2); }
 
-  /* ============ Top nav ============ */
-  .nav {
-    position: sticky;
-    top: 0;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    z-index: 100;
-  }
-  .nav-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-  .nav .brand-logo {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700;
-  }
-  .nav .links { display: flex; gap: 24px; }
-  .nav .links a { color: var(--text-dim); font-size: 14px; }
-  .nav .links a:hover { color: var(--text); }
-  .nav .cta { display: flex; gap: 10px; }
-  .btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid var(--border-2);
-    background: var(--panel);
-    color: var(--text);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn:hover { background: var(--panel-2); border-color: var(--text-faint); }
-  .btn.primary {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-  }
-  .btn.primary:hover {
-    background: var(--primary-2);
-    border-color: var(--primary-2);
-    color: #fff;
-  }
-  .btn.lg { padding: 14px 28px; font-size: 16px; }
+  .nav { background: var(--panel); border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .brand-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+  .brand-text { font-size: 17px; letter-spacing: -0.5px; }
+  .links { display: flex; gap: 28px; }
+  .links a { color: var(--text-dim); font-size: 14px; font-weight: 500; }
+  .links a:hover { color: var(--text); }
+  .cta { display: flex; gap: 10px; align-items: center; }
+  .btn { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 14px; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.35); color: #fff; }
+  .btn-lg { padding: 14px 28px; font-size: 16px; }
 
-  /* ============ Hero ============ */
-  .hero {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 24px 80px;
-    text-align: center;
-    position: relative;
-  }
-  .hero::before {
-    content: "";
-    position: absolute;
-    top: -200px; left: 50%;
-    transform: translateX(-50%);
-    width: 800px; height: 800px;
-    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
-    pointer-events: none;
-  }
-  .hero .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: var(--primary-soft);
-    color: var(--primary);
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 24px;
-  }
-  .hero h1 {
-    font-size: 64px;
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -1.5px;
-    margin-bottom: 20px;
-    color: var(--text);
-  }
-  .hero h1 .accent {
-    background: linear-gradient(135deg, var(--primary), #d63384);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hero .sub {
-    font-size: 19px;
-    color: var(--text-dim);
-    max-width: 640px;
-    margin: 0 auto 40px;
-  }
-  .hero .ctas { display: flex; gap: 12px; justify-content: center; margin-bottom: 60px; }
-  .hero .ctas .btn { display: inline-flex; align-items: center; gap: 6px; }
-  .hero .screenshot {
-    max-width: 1000px;
-    margin: 0 auto;
-    border-radius: 12px;
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  .hero .screenshot img { width: 100%; display: block; }
+  .hero { max-width: 1200px; margin: 0 auto; padding: 100px 24px 80px; text-align: center; position: relative; }
+  .hero::before { content: ""; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; background: var(--primary-soft); color: var(--primary); border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+  .hero h1 { font-size: 64px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 24px; }
+  .hero h1 .accent { background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 19px; color: var(--text-dim); max-width: 640px; margin: 0 auto 40px; line-height: 1.7; }
+  .hero-ctas { display: flex; gap: 14px; justify-content: center; margin-bottom: 60px; }
+  .hero-screenshot { max-width: 1080px; margin: 0 auto; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
 
-  /* ============ Social proof ============ */
-  .proof {
-    background: var(--bg-2);
-    padding: 32px 24px;
-    text-align: center;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-  }
-  .proof-inner { max-width: 1100px; margin: 0 auto; }
-  .proof-text { font-size: 14px; color: var(--text-faint); margin-bottom: 14px; }
-  .proof-stats { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; }
-  .proof-stat { text-align: center; }
-  .proof-stat .num {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--primary);
-    line-height: 1.1;
-  }
-  .proof-stat .label { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .features { max-width: 1200px; margin: 0 auto; padding: 100px 24px; }
+  .section-title { text-align: center; margin-bottom: 60px; }
+  .section-title h2 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
+  .section-title p { font-size: 17px; color: var(--text-dim); max-width: 560px; margin: 0 auto; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .feature { padding: 32px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; }
+  .feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--primary); }
+  .feature-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--primary-soft), rgba(99,102,241,0.16)); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; margin-bottom: 18px; }
+  .feature h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feature p { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
 
-  /* ============ Features ============ */
-  .features {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 24px;
-  }
-  .section-title {
-    text-align: center;
-    margin-bottom: 60px;
-  }
-  .section-title h2 {
-    font-size: 42px;
-    font-weight: 700;
-    letter-spacing: -1px;
-    margin-bottom: 16px;
-  }
-  .section-title .sub {
-    font-size: 18px;
-    color: var(--text-dim);
-    max-width: 560px;
-    margin: 0 auto;
-  }
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  .feature {
-    padding: 32px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    transition: all 0.2s;
-  }
-  .feature:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
-  .feature .icon {
-    width: 48px; height: 48px;
-    background: var(--primary-soft);
-    color: var(--primary);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    margin-bottom: 16px;
-  }
-  .feature h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-  .feature p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+  .pricing-section { background: var(--bg-2); padding: 100px 24px; }
+  .pricing-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+  .price-card { background: var(--panel); border: 2px solid var(--primary); border-radius: var(--radius); padding: 48px 40px; box-shadow: var(--shadow-lg); position: relative; }
+  .price-card .badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 4px 16px; border-radius: 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+  .price-card .name { font-size: 18px; color: var(--text-dim); margin-bottom: 8px; }
+  .price-card .price { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin-bottom: 8px; }
+  .price-card .price .num { font-size: 64px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+  .price-card .price .unit { font-size: 18px; color: var(--text-dim); }
+  .price-card .tag { color: var(--primary); font-size: 14px; font-weight: 600; margin-bottom: 24px; }
+  .price-card ul { text-align: left; margin-bottom: 32px; list-style: none; }
+  .price-card li { padding: 6px 0; font-size: 14px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+  .price-card li::before { content: "✓"; color: var(--primary); font-weight: 700; font-size: 16px; }
 
-  /* ============ Pricing ============ */
-  .pricing {
-    background: var(--bg-2);
-    padding: 100px 24px;
-  }
-  .pricing-inner { max-width: 1200px; margin: 0 auto; }
-  .pricing-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 40px;
-  }
-  .plan {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-  }
-  .plan.featured { border-color: var(--primary); border-width: 2px; transform: scale(1.02); }
-  .plan .name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-  .plan .desc { font-size: 13px; color: var(--text-faint); margin-bottom: 24px; min-height: 40px; }
-  .plan .price { display: flex; align-items: baseline; gap: 6px; margin-bottom: 24px; }
-  .plan .price .num { font-size: 40px; font-weight: 700; color: var(--text); }
-  .plan .price .unit { font-size: 14px; color: var(--text-dim); }
-  .plan .price .free { font-size: 14px; color: var(--text-dim); }
-  .plan ul { list-style: none; margin-bottom: 24px; flex: 1; }
-  .plan ul li {
-    padding: 8px 0;
-    font-size: 14px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .plan ul li::before {
-    content: "✓";
-    color: var(--green);
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .plan ul li.disabled { color: var(--text-faint); }
-  .plan ul li.disabled::before { content: "✕"; color: var(--text-faint); }
-  .plan .btn { width: 100%; padding: 12px; font-size: 15px; }
-  .plan .badge-pop {
-    display: inline-block;
-    background: var(--primary);
-    color: #fff;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  /* ============ FAQ ============ */
-  .faq {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 100px 24px;
-  }
-  .faq-item {
-    border-bottom: 1px solid var(--border);
-    padding: 24px 0;
-  }
-  .faq-q { font-size: 17px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-  .faq-q::after { content: "+"; color: var(--text-dim); font-size: 24px; }
+  .faq-section { max-width: 760px; margin: 0 auto; padding: 100px 24px; }
+  .faq-item { padding: 22px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .faq-q { font-size: 17px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .faq-q::after { content: "+"; color: var(--text-dim); font-size: 24px; font-weight: 300; transition: transform 0.15s; }
   .faq-item.open .faq-q::after { content: "−"; }
-  .faq-a {
-    font-size: 15px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    margin-top: 12px;
-    display: none;
-  }
+  .faq-a { display: none; padding-top: 12px; color: var(--text-dim); font-size: 14px; line-height: 1.8; }
   .faq-item.open .faq-a { display: block; }
 
-  /* ============ Final CTA ============ */
-  .final-cta {
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    padding: 80px 24px;
-    text-align: center;
-    color: #fff;
-  }
-  .final-cta h2 { font-size: 40px; font-weight: 700; margin-bottom: 16px; }
-  .final-cta .sub { font-size: 18px; opacity: 0.9; margin-bottom: 32px; max-width: 560px; margin-left: auto; margin-right: auto; }
-  .final-cta .btn { background: #fff; color: var(--primary); border-color: #fff; font-weight: 600; }
-  .final-cta .btn:hover { background: #fff; opacity: 0.95; }
+  .final-cta { background: linear-gradient(135deg, var(--primary), var(--primary-2)); padding: 80px 24px; text-align: center; color: #fff; position: relative; overflow: hidden; }
+  .final-cta::before { content: ""; position: absolute; top: -100%; right: -10%; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+  .final-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; position: relative; }
+  .final-cta p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; position: relative; }
+  .final-cta .btn-primary { background: #fff; color: var(--primary); position: relative; }
+  .final-cta .btn-primary:hover { background: rgba(255,255,255,0.95); color: var(--primary-2); }
 
-  /* ============ Footer ============ */
-  footer.landing-footer {
-    background: var(--bg-3);
-    border-top: 1px solid var(--border);
-    padding: 60px 24px 30px;
-  }
-  .footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 48px;
-    margin-bottom: 40px;
-  }
-  .footer-col h4 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  footer.landing-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 60px 24px 30px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
   .footer-col ul { list-style: none; }
-  .footer-col ul li { padding: 4px 0; font-size: 13px; }
-  .footer-col ul li a { color: var(--text-dim); }
-  .footer-col ul li a:hover { color: var(--primary); }
-  .footer-brand p { font-size: 13px; color: var(--text-dim); margin-top: 14px; max-width: 280px; }
-  .footer-bottom {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--text-faint);
-    text-align: center;
-  }
+  .footer-col li { padding: 5px 0; font-size: 13px; }
+  .footer-col a { color: var(--text-dim); }
+  .footer-col a:hover { color: var(--primary); }
+  .footer-brand p { font-size: 13px; color: var(--text-dim); margin-top: 14px; max-width: 280px; line-height: 1.6; }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-faint); text-align: center; }
 
   @media (max-width: 900px) {
     .hero h1 { font-size: 40px; }
-    .hero .sub { font-size: 16px; }
-    .features-grid, .pricing-grid { grid-template-columns: 1fr; }
-    .plan.featured { transform: none; }
+    .hero-sub { font-size: 16px; }
+    .features-grid { grid-template-columns: 1fr; }
     .footer-inner { grid-template-columns: 1fr 1fr; }
     .nav .links { display: none; }
   }
@@ -362,12 +103,11 @@
 </head>
 <body>
 
-<!-- ============ Top Nav ============ -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="brand">
-      <div class="brand-logo">云</div>
-      <span>云数装企</span>
+      <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <span class="brand-text">装报价</span>
     </a>
     <div class="links">
       <a href="#features">功能</a>
@@ -376,166 +116,141 @@
       <a href="about.html">关于</a>
     </div>
     <div class="cta">
-      <a href="app.html" class="btn primary">立即使用</a>
+      <a href="login.html" class="btn">登录</a>
+      <a href="register.html" class="btn btn-primary">免费试用</a>
     </div>
   </div>
 </nav>
 
-<!-- ============ Hero ============ -->
 <section class="hero">
-  <div class="badge">✨ 装企(装修企业)专用报价 SaaS</div>
-  <h1>
-    <span class="accent">10 分钟</span>生成专业报价书<br>
-    让装企告别 Excel 时代
-  </h1>
-  <p class="sub">
-    云数装企报价系统 — 为装企量身打造的全案设计施工报价工具。
-    支持 8 大工程模块、6 主题色、品牌克隆、一键打印。
-    <strong>完全免费,无功能限制,无需注册。</strong>
-  </p>
-  <div class="ctas">
-    <a href="app.html" class="btn primary lg">🚀 立即使用</a>
-    <a href="pricing.html" class="btn lg">了解更多 →</a>
+  <div class="hero-badge">装企报价 · 一键生成</div>
+  <h1>报价只需<br><span class="accent">10 分钟</span></h1>
+  <p class="hero-sub">装报价 — 专为装企打造的全案设计施工报价工具。<br>支持 11 大模块、6 主题色、一键打印。¥198 终身使用。</p>
+  <div class="hero-ctas">
+    <a href="register.html" class="btn btn-primary btn-lg">立即注册</a>
+    <a href="login.html" class="btn btn-lg">已有账号</a>
   </div>
-  <div class="screenshot">
-    <img src="assets/hero.png" alt="云数装企报价系统主界面">
+  <div class="hero-screenshot">
+    <img src="assets/hero.png" alt="装报价主界面" style="width:100%;display:block;">
   </div>
 </section>
 
-<!-- ============ Social Proof ============ -->
-<section class="proof">
-  <div class="proof-inner">
-    <div class="proof-text">装企信赖的选择</div>
-    <div class="proof-stats">
-      <div class="proof-stat">
-        <div class="num">10 分钟</div>
-        <div class="label">完成一份报价书</div>
-      </div>
-      <div class="proof-stat">
-        <div class="num">6+</div>
-        <div class="label">主题色个性化</div>
-      </div>
-      <div class="proof-stat">
-        <div class="num">11 模块</div>
-        <div class="label">全流程覆盖</div>
-      </div>
-      <div class="proof-stat">
-        <div class="num">0 学习</div>
-        <div class="label">打开即用</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ Features ============ -->
 <section class="features" id="features">
   <div class="section-title">
-    <h2>为什么装企选择云数</h2>
-    <p class="sub">从设计、报价到打印,云数装企报价系统覆盖装企全流程</p>
+    <h2>为什么选装报价</h2>
+    <p>从设计、报价到打印,装报价覆盖装企全流程</p>
   </div>
   <div class="features-grid">
     <div class="feature">
-      <div class="icon">📋</div>
+      <div class="feature-icon">A</div>
       <h3>11 大模块</h3>
-      <p>封面 / 总价表 / 基础装修(8 子项) / 主材软装 / 增减项 / 物料全书 / 定额库中心 / 系统设置 — 装企全流程不遗漏。</p>
+      <p>封面、总价表、基础装修、主材软装、增减项、物料全书、定额库中心、系统设置 — 装企全流程。</p>
     </div>
     <div class="feature">
-      <div class="icon">🎨</div>
+      <div class="feature-icon">B</div>
       <h3>6 主题色</h3>
-      <p>胭脂 / 黛青 / 松石绿 / 赭石 / 烟紫 / 暖香 — 一键切换工作室品牌色,每份报价单都自带您的品牌。</p>
+      <p>胭脂红、黛青、松石绿、赭石、烟紫、暖香 — 一键切换品牌色,每份报价单自带您的风格。</p>
     </div>
     <div class="feature">
-      <div class="icon">🖨</div>
+      <div class="feature-icon">C</div>
       <h3>一键打印</h3>
-      <p>6 页 A4 PDF 预览,自定义水印、页眉抬头 — 直接打印给客户,无需再排版。</p>
+      <p>6 页 A4 PDF 预览,自定义水印、页眉抬头 — 直接打印,无需排版。</p>
     </div>
     <div class="feature">
-      <div class="icon">⌨️</div>
+      <div class="feature-icon">D</div>
       <h3>键盘优先</h3>
       <p>数字键 1-8 快速跳转模块,Ctrl+K 调出命令面板,? 查看快捷键 — 比鼠标更高效。</p>
     </div>
     <div class="feature">
-      <div class="icon">📤</div>
+      <div class="feature-icon">E</div>
       <h3>团队克隆</h3>
-      <p>导出 ZIP 一键克隆整套工作室配置(费率/Logo/模板) — 新员工快速上手。</p>
+      <p>导出 ZIP 一键克隆整套工作室配置 — 新员工快速上手,工作室品牌统一。</p>
     </div>
     <div class="feature">
-      <div class="icon">📊</div>
+      <div class="feature-icon">F</div>
       <h3>增减项管理</h3>
       <p>项目执行中变更?增减项单独统计,最终报价自动更新,客户对账清晰。</p>
     </div>
   </div>
 </section>
 
-<!-- ============ Pricing ============ -->
-<section class="pricing" id="pricing">
+<section class="pricing-section" id="pricing">
   <div class="pricing-inner">
     <div class="section-title">
-      <h2>完全免费 · 无功能限制</h2>
-      <p class="sub">我们相信装企值得更好的报价体验</p>
+      <h2>透明定价</h2>
+      <p>一次付费,终身使用</p>
     </div>
-    <div style="background: linear-gradient(135deg, #B50029, #8B0029); color: #fff; padding: 60px 40px; border-radius: 16px; text-align: center; box-shadow: 0 12px 48px rgba(181, 0, 41, 0.25);">
-      <div style="display: inline-block; background: rgba(255,255,255,0.18); padding: 6px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 20px;">💡 无需注册 · 无需信用卡</div>
-      <div style="font-size: 80px; font-weight: 800; line-height: 1; margin-bottom: 12px;">¥0</div>
-      <div style="font-size: 18px; opacity: 0.9; margin-bottom: 28px;">永久免费 · 所有功能开放</div>
-      <a href="app.html" class="btn lg" style="background: #fff; color: #B50029; border-color: #fff; font-weight: 700;">🚀 立即使用</a>
+    <div class="price-card">
+      <div class="badge">终身授权</div>
+      <div class="name">装报价 · 完整功能</div>
+      <div class="price">
+        <span class="num">¥198</span>
+        <span class="unit">/ 终身</span>
+      </div>
+      <div class="tag">单次付费,无功能限制,永久使用</div>
+      <ul>
+        <li>11 大报价模块</li>
+        <li>6 主题色 + 自定义品牌</li>
+        <li>3 示例项目 + 无限新建</li>
+        <li>打印预览 + PDF 导出</li>
+        <li>键盘快捷键 + Cmd+K 命令面板</li>
+        <li>PWA 支持,可安装到桌面</li>
+        <li>响应式(桌面 + 移动端)</li>
+        <li>本地存储 + 工作室品牌定制</li>
+      </ul>
+      <a href="register.html" class="btn btn-primary btn-lg" style="width:100%;">立即注册</a>
     </div>
   </div>
 </section>
 
-<!-- ============ FAQ ============ -->
-<section class="faq" id="faq">
+<section class="faq-section" id="faq">
   <div class="section-title">
     <h2>常见问题</h2>
   </div>
-  <div class="faq-list">
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">需要安装软件吗?</div>
-      <div class="faq-a">不需要。云数装企报价系统是纯 Web 应用,任何浏览器打开就能用,数据自动保存在本地。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">支持手机/平板吗?</div>
-      <div class="faq-a">支持。系统采用响应式设计,在手机、平板、桌面都有良好体验。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">可以打印给客户吗?</div>
-      <div class="faq-a">可以。一键导出 6 页 A4 报价书 PDF,自带水印和品牌抬头,直接发给客户。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">真的完全免费吗?</div>
-      <div class="faq-a">是的。所有功能、所有用户、所有用途都免费。无功能阉割,无项目数量限制,无品牌限制。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">数据安全吗?</div>
-      <div class="faq-a">数据存储在您本地浏览器(localStorage),不上传服务器。可随时导出 ZIP 手动备份。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">需要注册账号吗?</div>
-      <div class="faq-a">不需要。可以直接使用所有功能。注册账号是可选的,用于未来云端同步功能。</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">可以商用吗?</div>
-      <div class="faq-a">可以。本系统供装企(装修企业)免费商用。如需定制功能,欢迎邮件联系 hello@yunshu.cn。</div>
-    </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">怎么注册?</div>
+    <div class="faq-a">填手机号 + 密码即可注册。扫码微信收款码付 ¥198,把凭证发给客服,客服 30 分钟内激活。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">支持手机/平板吗?</div>
+    <div class="faq-a">支持。响应式设计,手机、平板、桌面都有良好体验。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¥198 是一次性还是包月?</div>
+    <div class="faq-a">一次性付费,终身使用。无月费、无年费、无功能阉割。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">可以打印给客户吗?</div>
+    <div class="faq-a">可以。导出 6 页 A4 PDF,自带水印和工作室品牌抬头,直接发给客户。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">能改工作室名吗?</div>
+    <div class="faq-a">可以。注册时可填工作室名。开通后管理员也能帮您改名(改后立即生效)。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">数据存在哪里?</div>
+    <div class="faq-a">本地浏览器存储(localStorage),不上传服务器。随时可导出 ZIP 备份。</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">可以团队协作吗?</div>
+    <div class="faq-a">当前版本支持本地导出/导入,适合单人/工作室使用。云端协作在路线图中。</div>
   </div>
 </section>
 
-<!-- ============ Final CTA ============ -->
 <section class="final-cta">
   <h2>10 分钟生成专业报价书</h2>
-  <p class="sub">告别 Excel 报价时代 · 立即开始免费试用</p>
-  <a href="register.html" class="btn lg">🚀 免费试用</a>
+  <p>¥198 终身使用 · 让装企告别 Excel 时代</p>
+  <a href="register.html" class="btn btn-primary btn-lg">立即注册</a>
 </section>
 
-<!-- ============ Footer ============ -->
 <footer class="landing-footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <div class="brand" style="font-size:16px;">
-        <div class="brand-logo">云</div>
-        <span>云数装企</span>
-      </div>
-      <p>面向装企(装修企业)的全案设计施工报价工具 — 完全免费开源。</p>
+      <a href="/" class="brand">
+        <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <span class="brand-text">装报价</span>
+      </a>
+      <p>装企(装修企业)报价 SaaS · 一次付费终身使用</p>
     </div>
     <div class="footer-col">
       <h4>产品</h4>
@@ -548,8 +263,8 @@
     <div class="footer-col">
       <h4>资源</h4>
       <ul>
-        <li><a href="about.html">关于我们</a></li>
-        <li><a href="https://github.com/macxiaxia-boop/yunshu-zhuangqi" target="_blank">GitHub 源码</a></li>
+        <li><a href="about.html">关于</a></li>
+        <li><a href="USER_GUIDE.md">老板手册</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -560,9 +275,7 @@
       </ul>
     </div>
   </div>
-  <div class="footer-bottom">
-    © 2026 云数装企报价系统 · Made by 云数 Studio · 让设计源自生活 · 完全免费开源
-  </div>
+  <div class="footer-bottom">© 2026 装报价 · Made with ❤️ · 一次付费 · 终身使用</div>
 </footer>
 
 </body>
