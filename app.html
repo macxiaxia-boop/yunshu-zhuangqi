@@ -2613,15 +2613,17 @@
   }
 
   function editCurrentProject(id) {
-    // 跳到 admin.html 的"项目管理"tab 自动填充
-    window.open('admin.html?edit=' + id, '_blank');
-    showToast('已打开编辑面板');
+    const proj = JSON.parse(localStorage.getItem('yunshu-projects') || '{}')[id];
+    if (!proj) return;
+    openEditModal(id, proj);
   }
 
   function shareCurrentProject(id) {
-    // 调用 admin.html 的 shareProject 函数 — 用同一个弹窗
-    const adminWin = window.open('admin.html', '_blank');
-    showToast('请在打开的管理后台点击该项目的"分享"按钮');
+    const proj = JSON.parse(localStorage.getItem('yunshu-projects') || '{}')[id];
+    if (!proj) return;
+    // 直接下载,不是跳转
+    exportProjectHTML(proj);
+    exportProjectJSON(proj);
   }
 
   function deleteCurrentProject(id) {
@@ -2641,12 +2643,206 @@
   }
 
   function exportSingleProject(id) {
-    // 导出为独立 HTML(嵌入项目数据到 URL)
     const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
     const proj = projects[id];
     if (!proj) return;
-    const encoded = btoa(encodeURIComponent(JSON.stringify(proj)));
-    window.open('share.html?d=' + encoded, '_blank');
+    exportProjectHTML(proj);
+    exportProjectJSON(proj);
+  }
+
+  // ============ 导出:HTML 文件下载 ============
+  function exportProjectHTML(proj) {
+    const itemsHtml = (proj.items || []).map((item, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${item.name || ''}</td>
+        <td>${item.unit || '项'}</td>
+        <td style="text-align:right">${item.qty || 1}</td>
+        <td style="text-align:right">¥${(item.price || 0).toFixed(2)}</td>
+        <td style="text-align:right;font-weight:700;color:#6366f1;">¥${((item.qty || 1) * (item.price || 0)).toFixed(2)}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${proj.name} · 报价单</title>
+<style>body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1a1a2e;line-height:1.7;}
+h1{font-size:24px;border-bottom:3px solid #6366f1;padding-bottom:10px;}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;}
+th{background:#f0f3ff;padding:12px;text-align:left;border-bottom:1px solid #ddd;font-size:12px;color:#5e5e7a;}
+td{padding:12px;border-bottom:1px solid #eee;}
+.amount{text-align:right;font-family:monospace;}
+.total{background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;padding:20px;border-radius:10px;text-align:center;margin:20px 0;}
+.total .n{font-size:36px;font-weight:800;margin-top:6px;font-family:monospace;}
+.notes{background:#fffbe6;border:1px solid #fbbf24;border-radius:8px;padding:14px;margin:14px 0;color:#78350f;}
+.footer{text-align:center;color:#9595ad;font-size:11px;margin-top:30px;padding-top:14px;border-top:1px solid #eee;}
+</style></head><body>
+<h1>${proj.name}</h1>
+<div style="color:#5e5e7a;font-size:13px;margin-bottom:14px;">📋 报价单 ID: <code>${proj.id}</code> · 业主: ${proj.clientPhone || '未分配'} · 创建日期: ${proj.createdAt ? new Date(proj.createdAt).toLocaleDateString('zh-CN') : '-'}</div>
+<div class="total">本次报价总计<div class="n">¥${(proj.total || 0).toLocaleString('zh-CN')}</div></div>
+<table><thead><tr><th>序号</th><th>项目</th><th>单位</th><th class="amount">数量</th><th class="amount">单价</th><th class="amount">小计</th></tr></thead>
+<tbody>${itemsHtml || '<tr><td colspan="6" style="text-align:center;color:#888;padding:30px;">无明细</td></tr>'}</tbody>
+<tfoot><tr style="background:#f0f3ff;font-weight:700;"><td colspan="5" style="text-align:right;">总计</td><td class="amount" style="color:#6366f1;font-size:16px;">¥${(proj.total || 0).toLocaleString('zh-CN')}</td></tr></tfoot></table>
+${proj.notes ? `<div class="notes">📝 <b>备注:</b><br>${proj.notes}</div>` : ''}
+<div class="footer">由 <b>${proj.ownerName || '装报价'}</b> 通过 装报价 SaaS 生成 · ${new Date().toLocaleString('zh-CN')}</div>
+</body></html>`;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `报价单_${proj.name}_${proj.id}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ============ 导出:JSON 文件下载(给 H5 用) ============
+  function exportProjectJSON(proj) {
+    const data = {
+      id: proj.id,
+      name: proj.name,
+      clientPhone: proj.clientPhone || '',
+      ownerName: proj.ownerName || '',
+      ownerPhone: proj.ownerPhone || '',
+      items: proj.items || [],
+      total: proj.total || 0,
+      notes: proj.notes || '',
+      status: proj.status || 'active',
+      createdAt: proj.createdAt || Date.now(),
+      updatedAt: Date.now()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `报价单_${proj.name}_${proj.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ============ 编辑 Modal ============
+  function openEditModal(id, proj) {
+    // 创建 modal 容器
+    let modal = document.getElementById('editProjModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'editProjModal';
+      modal.className = 'modal-bg';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;';
+      modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div style="background:#232738;border-radius:12px;max-width:760px;width:100%;max-height:90vh;display:flex;flex-direction:column;border:1px solid #2a3454;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="padding:14px 20px;border-bottom:1px solid #2a3454;display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="font-size:15px;font-weight:700;color:#e8eaf0;">✏️ 编辑报价单 · ${proj.name}</h3>
+          <button onclick="document.getElementById('editProjModal').style.display='none'" style="background:transparent;color:#8a93b0;border:none;font-size:20px;cursor:pointer;">×</button>
+        </div>
+        <div style="padding:18px 20px;overflow-y:auto;flex:1;">
+          <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;display:block;margin-bottom:4px;">项目名称</label>
+            <input id="editProjName" value="${(proj.name || '').replace(/"/g, '&quot;')}" style="width:100%;padding:10px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;font-size:14px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div><label style="font-size:12px;color:#8a93b0;display:block;margin-bottom:4px;">业主手机号</label>
+              <input id="editClientPhone" value="${proj.clientPhone || ''}" style="width:100%;padding:10px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;font-size:14px;"></div>
+            <div><label style="font-size:12px;color:#8a93b0;display:block;margin-bottom:4px;">状态</label>
+              <select id="editStatus" style="width:100%;padding:10px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;font-size:14px;">
+                <option value="active" ${proj.status === 'active' ? 'selected' : ''}>进行中</option>
+                <option value="pending" ${proj.status === 'pending' ? 'selected' : ''}>待启动</option>
+                <option value="done" ${proj.status === 'done' ? 'selected' : ''}>已完成</option>
+              </select></div>
+          </div>
+          <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;display:block;margin-bottom:6px;">项目明细 · 改完自动计算总额</label>
+            <div id="editItems" style="background:#0d111a;border-radius:6px;padding:10px;border:1px solid #2a3454;"></div>
+            <button onclick="addEditItem()" style="margin-top:6px;padding:5px 12px;background:transparent;color:#818cf8;border:1px dashed #2a3454;border-radius:4px;cursor:pointer;font-size:11px;">+ 加一项</button>
+          </div>
+          <div style="margin-bottom:12px;"><label style="font-size:12px;color:#8a93b0;display:block;margin-bottom:4px;">备注</label>
+            <textarea id="editNotes" style="width:100%;padding:10px;background:#0d111a;border:1px solid #2a3454;border-radius:6px;color:#e8eaf0;font-size:13px;min-height:60px;resize:vertical;">${proj.notes || ''}</textarea></div>
+          <div style="background:#0d111a;border-radius:6px;padding:12px;font-size:14px;color:#16a34a;font-weight:700;text-align:right;">总额: <span id="editTotal">¥${(proj.total || 0).toFixed(2)}</span></div>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #2a3454;display:flex;justify-content:flex-end;gap:8px;">
+          <button onclick="document.getElementById('editProjModal').style.display='none'" style="padding:8px 16px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:6px;cursor:pointer;font-size:13px;">取消</button>
+          <button onclick="saveEditProject('${id}')" style="padding:8px 16px;background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">✓ 保存修改</button>
+        </div>
+      </div>
+    `;
+    // 渲染初始 items
+    window._editState = { id, items: JSON.parse(JSON.stringify(proj.items || [])) };
+    renderEditItems();
+    // 绑定 inputs
+    ['editProjName', 'editClientPhone', 'editNotes', 'editStatus'].forEach(k => {
+      const el = document.getElementById(k);
+      if (el) el.addEventListener('input', updateEditTotal);
+    });
+    modal.style.display = 'flex';
+  }
+
+  function renderEditItems() {
+    const container = document.getElementById('editItems');
+    if (!container) return;
+    if (!window._editState.items.length) {
+      container.innerHTML = '<div style="text-align:center;color:#5e5e7a;font-size:12px;padding:14px;">还没有明细,点击"+ 加一项"开始</div>';
+      updateEditTotal();
+      return;
+    }
+    container.innerHTML = window._editState.items.map((item, i) => `
+      <div style="display:grid;grid-template-columns:2fr 0.8fr 0.6fr 0.8fr 28px;gap:6px;margin-bottom:6px;">
+        <input class="edit-item-name" data-idx="${i}" value="${(item.name || '').replace(/"/g, '&quot;')}" placeholder="项目名称" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+        <input class="edit-item-unit" data-idx="${i}" value="${(item.unit || '').replace(/"/g, '&quot;')}" placeholder="单位" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+        <input class="edit-item-qty" data-idx="${i}" type="number" value="${item.qty || 1}" placeholder="数量" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+        <input class="edit-item-price" data-idx="${i}" type="number" value="${item.price || 0}" placeholder="单价" style="padding:6px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:12px;">
+        <button onclick="removeEditItem(${i})" style="background:transparent;color:#f87171;border:none;cursor:pointer;font-size:14px;">×</button>
+      </div>`).join('');
+    container.querySelectorAll('input').forEach(el => el.addEventListener('input', updateEditTotal));
+    updateEditTotal();
+  }
+
+  function addEditItem() {
+    window._editState.items.push({ name: '', unit: '项', qty: 1, price: 0 });
+    renderEditItems();
+  }
+
+  function removeEditItem(i) {
+    window._editState.items.splice(i, 1);
+    renderEditItems();
+  }
+
+  function updateEditTotal() {
+    const items = (window._editState && window._editState.items) || [];
+    let total = 0;
+    items.forEach((it, i) => {
+      const qtyEl = document.querySelector('.edit-item-qty[data-idx="' + i + '"]');
+      const priceEl = document.querySelector('.edit-item-price[data-idx="' + i + '"]');
+      const qty = qtyEl ? (parseFloat(qtyEl.value) || 0) : (it.qty || 0);
+      const price = priceEl ? (parseFloat(priceEl.value) || 0) : (it.price || 0);
+      it.qty = qty; it.price = price;
+      total += qty * price;
+    });
+    const el = document.getElementById('editTotal');
+    if (el) el.textContent = '¥' + total.toFixed(2);
+  }
+
+  function saveEditProject(id) {
+    const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+    const proj = projects[id];
+    if (!proj) return;
+    // 收集最新 items(从 _editState)
+    const items = (window._editState.items || []).filter(it => (it.name || '').trim()).map(it => ({
+      name: (it.name || '').trim(),
+      unit: (it.unit || '项').trim(),
+      qty: parseFloat(it.qty) || 1,
+      price: parseFloat(it.price) || 0
+    }));
+    proj.name = document.getElementById('editProjName').value.trim();
+    proj.clientPhone = document.getElementById('editClientPhone').value.trim();
+    proj.status = document.getElementById('editStatus').value;
+    proj.notes = document.getElementById('editNotes').value.trim();
+    proj.items = items;
+    proj.total = items.reduce((s, it) => s + it.qty * it.price, 0);
+    proj.updatedAt = Date.now();
+    projects[id] = proj;
+    localStorage.setItem('yunshu-projects', JSON.stringify(projects));
+    document.getElementById('editProjModal').style.display = 'none';
+    showToast('✓ 保存成功!总额 ¥' + proj.total.toFixed(2));
+    // 刷新详情
+    selectRealProject(id);
   }
 
   function createNewProject() {
