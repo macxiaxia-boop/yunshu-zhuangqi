@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YUNSHU 协作 · 三方实时报价</title>
+<style>
+  :root { --primary:#C04851; --bg:#fafafa; --line:#e5e7eb; --muted:#6b7280; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; background:var(--bg); color:#111; }
+  header { background:#fff; border-bottom:1px solid var(--line); padding:12px 18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { margin:0; font-size:16px; font-weight:600; }
+  header .meta { color:var(--muted); font-size:12px; }
+  header .meta code { background:#f3f4f6; padding:1px 6px; border-radius:4px; }
+  header button { padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; font-size:12px; }
+  header button:hover { border-color:var(--primary); color:var(--primary); }
+  .role-pill { padding:2px 8px; border-radius:10px; font-size:11px; background:#f3f4f6; color:var(--muted); }
+  .role-editor { background:#dcfce7; color:#166534; }
+  .role-viewer { background:#fef3c7; color:#92400e; }
+  main { display:grid; grid-template-columns: 1fr 1.4fr 280px; height:calc(100vh - 50px); }
+  .panel { background:#fff; border-right:1px solid var(--line); overflow:auto; padding:14px; }
+  .panel:last-child { border-right:none; border-left:1px solid var(--line); }
+  .panel h2 { margin:0 0 10px; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .field { margin-bottom:10px; }
+  .field label { display:block; font-size:11px; color:var(--muted); margin-bottom:3px; }
+  .field input, .field textarea { width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:5px; font-size:13px; font-family:inherit; }
+  .field input:focus { outline:none; border-color:var(--primary); }
+  .field input:disabled { background:#f9fafb; color:var(--muted); }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { background:#f9fafb; text-align:left; padding:6px; font-weight:500; color:var(--muted); border-bottom:1px solid var(--line); }
+  td { padding:5px 6px; border-bottom:1px dashed #f1f1f1; }
+  td input { width:100%; border:none; background:transparent; padding:2px 4px; font-size:12px; }
+  td input:focus { outline:1px solid var(--primary); background:#fff; }
+  .peer { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; margin-bottom:6px; transition:background .2s; }
+  .peer:hover { background:#f9fafb; }
+  .peer.offline { opacity:.45; }
+  .peer-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .peer-dot.self { box-shadow:0 0 0 2px #fff, 0 0 0 4px currentColor; }
+  .peer-meta { flex:1; min-width:0; }
+  .peer-name { font-weight:500; font-size:13px; }
+  .peer-status { font-size:11px; color:var(--muted); }
+  .log { font:11px/1.6 ui-monospace,monospace; color:#374151; }
+  .log-entry { padding:3px 0; border-bottom:1px dotted var(--line); }
+  .log-entry .opid { color:var(--muted); }
+  .log-entry .ver { color:var(--primary); font-weight:500; }
+  .add-row { display:inline-block; padding:3px 8px; border:1px dashed var(--line); border-radius:5px; cursor:pointer; font-size:11px; color:var(--muted); }
+  .add-row:hover { border-color:var(--primary); color:var(--primary); }
+  .totals { margin-top:14px; padding:10px; background:#f9fafb; border-radius:6px; font-size:13px; }
+  .totals .gt { font-size:18px; font-weight:600; color:var(--primary); }
+  .empty { color:var(--muted); font-size:12px; text-align:center; padding:30px 10px; }
+  .status-bar { position:fixed; bottom:6px; left:10px; font-size:11px; color:var(--muted); background:rgba(255,255,255,.85); padding:2px 8px; border-radius:10px; }
+  .status-bar .ok { color:#16a34a; }
+  .status-bar .warn { color:#ea580c; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; height:auto; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>🤝 协作报价</h1>
+  <span class="meta">Room <code id="roomId">-</code></span>
+  <span class="meta">用户 <strong id="meName">-</strong></span>
+  <span id="meRole" class="role-pill">-</span>
+  <button id="copyLink">复制邀请链接</button>
+  <button id="addRowBtn">+ 新增行</button>
+  <span style="flex:1"></span>
+  <span id="connStatus" class="meta">连接中…</span>
+</header>
+<main>
+  <section class="panel" id="leftPanel">
+    <h2>项目信息</h2>
+    <div class="field"><label>项目名称</label><input id="f_projectName" disabled></div>
+    <div class="field"><label>公司名称</label><input id="f_companyName" disabled></div>
+    <div class="field"><label>项目地址</label><input id="f_projectAddress" disabled></div>
+    <div class="field"><label>客户姓名</label><input id="f_customerName" disabled></div>
+    <div class="field"><label>客户电话</label><input id="f_customerPhone" disabled></div>
+    <div class="field"><label>创建日期</label><input id="f_createDate" disabled></div>
+    <h2 style="margin-top:20px;">权限</h2>
+    <div id="roleHelp" class="meta">viewer 角色只读，无法编辑字段或新增行</div>
+  </section>
+
+  <section class="panel" id="midPanel">
+    <h2>实时报价（中间视图）</h2>
+    <div id="categories"></div>
+    <div class="totals">
+      <div>小计: <strong id="subTotal">0</strong></div>
+      <div class="gt">总计: <span id="grandTotal">0</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>在线用户</h2>
+    <div id="peers"><div class="empty">暂无在线用户</div></div>
+
+    <h2 style="margin-top:20px;">操作日志（最新 50 条）</h2>
+    <div class="log" id="log"></div>
+  </section>
+</main>
+
+<div class="status-bar" id="statusBar">v0 · 初始化</div>
+
+<!-- Module scripts (order matters) -->
+<script src="./collab-room.js"></script>
+<script src="./collab-sync.js"></script>
+<script src="./transport-broadcastchannel.js"></script>
+<script src="./transport-sw-message.js"></script>
+<script src="./collab-presence.js"></script>
+<script src="./collab-cursor.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // ---- Parse query ----
+  var params = new URLSearchParams(window.location.search);
+  var roomId = params.get('roomId') || '';
+  var token = params.get('token') || '';
+  var userName = params.get('name') || ('用户' + Math.floor(Math.random() * 1000));
+  var desiredRole = params.get('role') || 'editor';
+
+  if (!window.YSCollab || !window.YSCollabSync) {
+    document.body.innerHTML = '<div style="padding:40px;">Module 11 加载失败。</div>';
+    return;
+  }
+
+  // ---- Create or join ----
+  var room = null;
+  var me = null;
+
+  if (!roomId) {
+    // New room (demo bootstrap)
+    var created = window.YSCollab.createRoom({ projectId: 'demo-' + Date.now(), projectName: '协作报价示例', ownerName: userName });
+    roomId = created.roomId;
+    token = created.ownerToken;
+    window.history.replaceState({}, '', '?roomId=' + roomId + '&token=' + token + '&name=' + encodeURIComponent(userName) + '&role=' + desiredRole);
+    room = created._room;
+    me = { userId: 'u_owner', userName: userName, role: 'editor', userColor: window.YSCollabCursor.randomColor() };
+  } else {
+    if (!window.YSCollab.isValidRoomId(roomId)) {
+      document.body.innerHTML = '<div style="padding:40px;">无效的房间ID。</div>';
+      return;
+    }
+    if (!window.YSCollab.isValidToken(token)) {
+      document.body.innerHTML = '<div style="padding:40px;">无效的 token。</div>';
+      return;
+    }
+    // For demo: if room not in memory, create ephemeral one (so two tabs can demo)
+    var joinResult = tryJoinOrBootstrap();
+    if (!joinResult) return;
+    room = joinResult.room;
+    me = joinResult.me;
+  }
+
+  document.getElementById('roomId').textContent = roomId;
+  document.getElementById('meName').textContent = me.userName;
+  var roleEl = document.getElementById('meRole');
+  roleEl.textContent = me.role;
+  roleEl.className = 'role-pill role-' + me.role;
+
+  // ---- Broadcast transport ----
+  var transport = window.YSCollabTransportBroadcast.create(roomId);
+  var transportReady = Promise.resolve();
+
+  // Optional SW (graceful fallback)
+  var swTransport = null;
+  if (window.YSCollabTransportSW && window.YSCollabTransportSW.isSupported()) {
+    transportReady = window.YSCollabTransportSW.registerInline(roomId).then(function (r) {
+      swTransport = r.transport;
+    }).catch(function () { swTransport = null; });
+  }
+
+  transport.onMessage = function (msg) {
+    if (!msg || !msg.kind) return;
+    if (msg.kind === 'op' && msg.op) {
+      var applied = window.YSCollabSync.applyOp(room, msg.op);
+      if (applied) {
+        renderAll();
+      }
+    } else if (msg.kind === 'hello' && msg.userId && msg.userId !== me.userId) {
+      // Echo our snapshot to help peer catch up
+      try {
+        var ops = window.YSCollabSync.history(room, 100);
+        transport.post({ kind: 'snapshot', toUser: msg.userId, ops: ops, snapshot: room.snapshot });
+      } catch (e) {}
+    } else if (msg.kind === 'snapshot' && msg.toUser === me.userId) {
+      try { window.YSCollabSync.replayOps(room, msg.ops || []); renderAll(); } catch (e) {}
+    }
+  };
+
+  // Announce
+  transport.post({ kind: 'hello', userId: me.userId, userName: me.userName });
+
+  // ---- Presence ----
+  var presence = window.YSCollabPresence.start(room, me, transport, {
+    listeners: { onPeers: renderPeers }
+  });
+
+  // ---- UI bindings ----
+  var editable = (me.role === 'editor');
+  document.querySelectorAll('#leftPanel input').forEach(function (el) { el.disabled = !editable; });
+  if (editable) bindFields();
+  document.getElementById('addRowBtn').onclick = function () {
+    if (!editable) return;
+    var cat = room.snapshot.categories[0];
+    if (!cat) return;
+    window.YSCollabSync.addRow(room, me.userId, cat.id, { name: '新项目', unit: 'm²', qty: 1, price: 0, note: '' });
+    var op = lastOp();
+    if (op) transport.post({ kind: 'op', op: op });
+    renderAll();
+  };
+
+  document.getElementById('copyLink').onclick = function () {
+    var url = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { setStatus('已复制邀请链接', 'ok'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); setStatus('已复制邀请链接', 'ok'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  };
+
+  // ---- Cursor tracking (throttled) ----
+  var sendCursor = window.YSCollabCursor.makeThrottledSender(function (rowId, column) {
+    window.YSCollabPresence.updateCursor(me, rowId, column);
+  });
+  document.addEventListener('mousemove', function (ev) {
+    // Crude: derive row from nearest input
+    var t = ev.target;
+    var rowId = null, col = null;
+    if (t && t.dataset && t.dataset.rowId) { rowId = t.dataset.rowId; col = ev.offsetX; }
+    sendCursor(rowId, col);
+  });
+
+  // ---- Initial render ----
+  renderAll();
+  renderPeers(window.YSCollabPresence.peers(room, me.userId));
+  setStatus('已就绪', 'ok');
+
+  // ---- Functions ----
+  function tryJoinOrBootstrap() {
+    // For pure frontend mock we don't have a shared backend; each tab creates its own room seed.
+    // Both tabs must agree on snapshot. Strategy: first tab bootstraps, second tab bootstraps
+    // with same roomId via demo seed mechanism (here: each tab creates its own ephemeral copy).
+    var seed = window.YSCollab.createRoom({ projectId: roomId, projectName: '协作报价示例', ownerName: 'demo' });
+    seed._room.roomId = roomId; // align IDs so peer-side filter matches
+    room = seed._room;
+    var join = window.YSCollab.joinRoom(seed._room, { userName: userName, role: desiredRole, token: token });
+    me = { userId: join.userId, userName: join.userName, role: join.role, userColor: join.userColor };
+    return { room: room, me: me };
+  }
+
+  function lastOp() {
+    var ops = room.operations || [];
+    return ops[ops.length - 1];
+  }
+
+  function bindFields() {
+    var fields = [
+      ['f_projectName', 'projectInfo.projectName'],
+      ['f_companyName', 'projectInfo.companyName'],
+      ['f_projectAddress', 'projectInfo.projectAddress'],
+      ['f_customerName', 'projectInfo.customerName'],
+      ['f_customerPhone', 'projectInfo.customerPhone'],
+      ['f_createDate', 'projectInfo.createDate']
+    ];
+    fields.forEach(function (pair) {
+      var el = document.getElementById(pair[0]);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        window.YSCollabSync.setField(room, me.userId, pair[1], el.value);
+        var op = lastOp();
+        if (op) transport.post({ kind: 'op', op: op });
+        renderAll();
+      });
+    });
+  }
+
+  function renderAll() {
+    var info = room.snapshot.projectInfo || {};
+    setVal('f_projectName', info.projectName);
+    setVal('f_companyName', info.companyName);
+    setVal('f_projectAddress', info.projectAddress);
+    setVal('f_customerName', info.customerName);
+    setVal('f_customerPhone', info.customerPhone);
+    setVal('f_createDate', info.createDate);
+
+    var subTotal = 0;
+    var cats = room.snapshot.categories || [];
+    var html = '';
+    cats.forEach(function (cat) {
+      var items = cat.items || [];
+      html += '<h3 style="margin:14px 0 6px;font-size:13px;color:#374151;">' + escapeHtml(cat.name) + ' <span style="color:#9ca3af;font-weight:normal;font-size:11px;">' + items.length + ' 项</span></h3>';
+      html += '<table><thead><tr><th style="width:30%">名称</th><th style="width:10%">单位</th><th style="width:12%">数量</th><th style="width:14%">单价</th><th style="width:14%">小计</th><th>备注</th></tr></thead><tbody>';
+      if (items.length === 0) {
+        html += '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:8px;">空</td></tr>';
+      }
+      items.forEach(function (it) {
+        var line = (Number(it.qty) || 0) * (Number(it.price) || 0);
+        subTotal += line;
+        var rowId = it.id;
+        html += '<tr>';
+        html += '<td><input data-row-id="' + rowId + '" data-field="name" value="' + escapeHtml(it.name) + '" ' + (editable ? '' : 'disabled') + '></td>';
+        html += '<td><input data-row-id="' + rowId + '" data-field="unit" value="' + escapeHtml(it.unit) + '" ' + (editable ? '' : 'disabled') + '></td>';
+        html += '<td><input data-row-id="' + rowId + '" data-field="qty" type="number" value="' + it.qty + '" ' + (editable ? '' : 'disabled') + '></td>';
+        html += '<td><input data-row-id="' + rowId + '" data-field="price" type="number" value="' + it.price + '" ' + (editable ? '' : 'disabled') + '></td>';
+        html += '<td style="color:#374151;">' + line.toFixed(2) + '</td>';
+        html += '<td><input data-row-id="' + rowId + '" data-field="note" value="' + escapeHtml(it.note) + '" ' + (editable ? '' : 'disabled') + '></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+    });
+    document.getElementById('categories').innerHTML = html;
+
+    // Bind row input changes
+    if (editable) {
+      document.querySelectorAll('#categories input[data-row-id]').forEach(function (input) {
+        input.addEventListener('change', function () {
+          var rid = input.dataset.rowId;
+          var fld = input.dataset.field;
+          var val = input.value;
+          if (fld === 'qty' || fld === 'price') val = Number(val) || 0;
+          window.YSCollabSync.updateRow(room, me.userId, rid, (function (o2) { var x = {}; x[fld] = val; return x; })({}));
+          var op = lastOp();
+          if (op) transport.post({ kind: 'op', op: op });
+          renderAll();
+        });
+      });
+    }
+
+    document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+    document.getElementById('grandTotal').textContent = subTotal.toFixed(2);
+
+    // Log (latest 50, exclude cursor)
+    var ops = (room.operations || []).filter(function (o) { return o.type !== 'cursor'; }).slice(-50).reverse();
+    var logHtml = '';
+    ops.forEach(function (o) {
+      logHtml += '<div class="log-entry"><span class="ver">v' + o.version + '</span> ' +
+        o.userId + ' · ' + o.type +
+        (o.payload && o.payload.path ? ' → ' + o.payload.path : '') +
+        (o.payload && o.payload.rowId ? ' · ' + o.payload.rowId.slice(0,8) : '') +
+        ' <span class="opid">' + o.opId.slice(0, 16) + '</span></div>';
+    });
+    document.getElementById('log').innerHTML = logHtml || '<div class="empty">暂无操作</div>';
+  }
+
+  function renderPeers(peers) {
+    if (!peers || peers.length === 0) {
+      document.getElementById('peers').innerHTML = '<div class="empty">暂无在线用户</div>';
+      return;
+    }
+    var html = '';
+    peers.forEach(function (p) {
+      var cls = p.online ? '' : 'offline';
+      var dotCls = p.isSelf ? 'peer-dot self' : 'peer-dot';
+      html += '<div class="peer ' + cls + '">';
+      html += '<span class="' + dotCls + '" style="background:' + p.userColor + ';color:' + p.userColor + '"></span>';
+      html += '<div class="peer-meta"><div class="peer-name">' + escapeHtml(p.userName) + (p.isSelf ? ' (我)' : '') + '</div>';
+      html += '<div class="peer-status">' + (p.online ? '在线' : '离线') + ' · ' + p.role + '</div></div>';
+      html += '</div>';
+    });
+    document.getElementById('peers').innerHTML = html;
+  }
+
+  function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v == null ? '' : v; }
+  function setStatus(msg, kind) {
+    var bar = document.getElementById('statusBar');
+    var css = kind === 'ok' ? 'ok' : (kind === 'warn' ? 'warn' : '');
+    bar.innerHTML = '<span class="' + css + '">' + msg + '</span>';
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  window.addEventListener('beforeunload', function () { presence.stop(); transport.close(); });
+})();
+</script>
+</body>
+</html>
