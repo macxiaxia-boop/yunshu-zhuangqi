@@ -45,3 +45,6 @@ node_modules/
 *.tmp
 *.bak
 *.log
+# 状态报告类（非 R31202 产出）
+STATUS_REPORT.json
+backup_status.py
