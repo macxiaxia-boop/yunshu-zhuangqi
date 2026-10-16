@@ -94,13 +94,11 @@
   if (dataParam) {
     // 路径 1: 完整数据(URL hash encoding,跨设备可用)
     try {
-      // 处理 UTF-8 安全(中文 URL 编码)
-      const decoded = decodeURIComponent(dataParam);
-      const json = atob(decoded);
+      // 处理 UTF-8 安全(atob → decodeURIComponent)
+      const json = decodeURIComponent(atob(dataParam));
       proj = JSON.parse(json);
     } catch (e) {
-      // Try without URI decode
-      try { proj = JSON.parse(atob(dataParam)); } catch (e2) { /* fall through */ }
+      console.error('share.html decode error:', e);
     }
   }
 
