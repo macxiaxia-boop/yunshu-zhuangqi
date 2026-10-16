@@ -183,12 +183,41 @@ function createProject() {
   showToast('✓ 项目已创建 (ID: ' + id + ')');
 }
 
+function buildShareUrl(p) {
+  var minimal = {
+    name: p.name,
+    items: p.items || [],
+    total: p.total,
+    notes: p.notes || ''
+  };
+  var json = JSON.stringify(minimal);
+  var b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  var baseUrl = location.origin + location.pathname.replace(/\/[^\/]*$/, '/') + 'share.html';
+  if (b64.length > 2000) {
+    showToast('项目数据过大,请使用本地复制或截图分享');
+    return baseUrl + '?p=' + p.id;
+  }
+  return baseUrl + '#d=' + b64;
+}
+
+function shareProject(id) {
+  var projects = loadJSON(KEY.projects, {});
+  var p = projects[id];
+  if (!p) { showToast('项目不存在'); return; }
+  var url = buildShareUrl(p);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() { showToast('✓ 分享链接已复制'); }).catch(function() { prompt('分享链接:', url); });
+  } else {
+    prompt('分享链接:', url);
+  }
+}
+
 function renderProjects() {
   const list = $('#projectList');
   const projects = loadJSON(KEY.projects, {});
   const entries = Object.entries(projects);
   if (!entries.length) { list.innerHTML = '<div class="empty">还没有报价项目</div>'; return; }
-  list.innerHTML = entries.map(([id, p]) => `<div class="item-row"><div><b>${p.name}</b> · ${p.items.length} 项 · <span style="color:#16a34a;font-weight:700;">¥${p.total.toFixed(2)}</span><br><span style="color:#5a6485;font-size:11px;">ID: ${id}</span></div><button onclick="delProject('${id}')" style="padding:2px 6px;background:transparent;color:#f87171;border:none;cursor:pointer;font-size:11px;">删除</button></div>`).join('');
+  list.innerHTML = entries.map(([id, p]) => `<div class="item-row"><div><b>${p.name}</b> · ${p.items.length} 项 · <span style="color:#16a34a;font-weight:700;">¥${p.total.toFixed(2)}</span><br><span style="color:#5a6485;font-size:11px;">ID: ${id}</span></div><div style="display:flex;gap:6px;"><button onclick="shareProject('${id}')" style="padding:2px 8px;background:#6366f1;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:11px;">分享</button><button onclick="delProject('${id}')" style="padding:2px 6px;background:transparent;color:#f87171;border:1px solid #f87171;border-radius:3px;cursor:pointer;font-size:11px;">删除</button></div></div>`).join('');
 }
 
 function delProject(id) {

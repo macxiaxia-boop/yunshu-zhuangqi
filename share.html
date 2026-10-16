@@ -63,6 +63,17 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
     return m ? decodeURIComponent(m[1]) : null;
   }
+  function getProjectFromHash() {
+    var hash = location.hash;
+    var m = hash.match(/[#&]d=([^&]+)/);
+    if (!m) return null;
+    try {
+      var b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      var json = decodeURIComponent(escape(atob(b64)));
+      return JSON.parse(json);
+    } catch(e) { return null; }
+  }
   function fmt(n) { return Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function getWorkspaceName() {
     try {
@@ -91,16 +102,13 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
     document.getElementById('brandName').textContent = workspaceName;
     var logoChar = workspaceName.charAt(0) || '装';
     document.getElementById('brandLogo').textContent = logoChar;
-    if (!id) {
-      content.innerHTML = '<div class="card empty"><h1>未指定项目</h1><p>请通过完整的分享链接访问</p></div>';
-      return;
-    }
-    var project = loadProject(id);
+    // 优先从 URL hash 读取(跨设备模式),fallback 到 localStorage
+    var project = getProjectFromHash() || (id ? loadProject(id) : null);
     if (!project) {
       content.innerHTML =
         '<div class="card empty">' +
         '<h1>项目未找到</h1>' +
-        '<p>此链接对应的项目可能已被删除</p>' +
+        '<p>此链接对应的项目可能已被删除或失效</p>' +
         '<p style="font-size:13px;margin-top:20px;color:#999">如需帮助请联系您的装修公司</p>' +
         '</div>';
       return;
