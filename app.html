@@ -1694,6 +1694,7 @@
           <div class="field"><span class="label">编制人员</span><span class="value">待填写</span></div>
           <div class="spacer"></div>
           <button class="hbtn primary">保存</button>
+          <button class="hbtn" onclick="openTemplateLib()" title="项目模板库">📋 模板库</button>
           <button class="hbtn">刷新</button>
           <div class="field"><span class="label">TODAY · 周三 农历九月初五</span></div>
           <div class="field"><span class="date">2026.10.14</span></div>
@@ -2592,7 +2593,7 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
             <button onclick="editCurrentProject('${proj.id}')" style="padding:10px;background:var(--primary);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">✏️ 编辑明细</button>
             <button onclick="shareCurrentProject('${proj.id}')" style="padding:10px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">📤 分享给业主</button>
-            <button onclick="window.print()" style="padding:10px;background:var(--bg-2);color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;">🖨 打印 PDF</button>
+            <button onclick="exportPDF('${proj.id}')" style="padding:10px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">📮 PDF 导出</button>
             <button onclick="exportSingleProject('${proj.id}')" style="padding:10px;background:var(--bg-2);color:var(--text);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;">📋 导出 HTML</button>
           </div>
         </div>`;
@@ -2736,6 +2737,22 @@
   </tbody>
 </table>
 <div class="footer">装报价 · 装报价 · V1.0</div>
+
+<!-- Template Library Modal (v0.3.0) -->
+<div class="modal-bg" id="templateModal">
+  <div class="modal" style="width:600px; max-height:80vh;">
+    <div class="modal-head">
+      <h3>📋 项目模板库</h3>
+      <div class="modal-close" onclick="closeTemplateLib()">×</div>
+    </div>
+    <div style="padding:14px 18px; border-bottom:1px solid var(--border); background:var(--bg-2);">
+      <button class="hbtn primary" onclick="saveCurrentAsTemplate()" style="font-size:12px;">+ 保存当前为模板</button>
+      <span style="font-size:11px;color:var(--text-faint);margin-left:10px;">将当前项目保存为可复用模板</span>
+    </div>
+    <div id="templateList" style="padding:14px 18px; max-height:460px; overflow-y:auto;"></div>
+  </div>
+</div>
+
 </body></html>`;
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -2769,6 +2786,119 @@
       if (map[e.key]) switchView(map[e.key]);
     }
   });
+
+// ===== Template Library v0.3.0 =====
+var TEMPLATE_KEY = 'yunshu-app-templates';
+
+function openTemplateLib() {
+  var modal = document.getElementById('templateModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  renderTemplateList();
+}
+function closeTemplateLib() {
+  var modal = document.getElementById('templateModal');
+  if (modal) modal.style.display = 'none';
+}
+function getTemplates() {
+  try { return JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveTemplates(arr) { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(arr)); }
+
+function saveCurrentAsTemplate() {
+  var projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  var entries = Object.entries(projects);
+  if (!entries.length) { showToast('请先在管理后台创建至少一个项目'); return; }
+  var lastEntry = entries[entries.length - 1];
+  var proj = lastEntry[1];
+  var name = prompt('输入模板名称:', proj.name || '我的模板');
+  if (!name) return;
+  var templates = getTemplates();
+  var newTpl = { id: Date.now(), name: name, items: proj.items || [], notes: proj.notes || '', createdAt: new Date().toLocaleString('zh-CN') };
+  templates.unshift(newTpl);
+  saveTemplates(templates);
+  renderTemplateList();
+  showToast('✓ 模板「' + name + '」已保存');
+}
+
+function applyTemplate(tplId) {
+  var templates = getTemplates();
+  var tpl = templates.find(function(t) { return t.id === tplId; });
+  if (!tpl) return;
+  var projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  var newId = 'proj_' + Date.now();
+  var newProj = {
+    id: newId,
+    name: tpl.name + ' (副本)',
+    items: tpl.items.map(function(it) { return { name: it.name, price: it.price||0, qty: it.qty||1, unit: it.unit||'项', amount: it.amount||((it.qty||1)*(it.price||0)) }; }),
+    notes: tpl.notes||'',
+    total: 0,
+    createdAt: new Date().toISOString()
+  };
+  newProj.total = newProj.items.reduce(function(s,it){ return s+(it.amount||0); }, 0);
+  projects[newId] = newProj;
+  localStorage.setItem('yunshu-projects', JSON.stringify(projects));
+  closeTemplateLib();
+  showToast('✓ 模板已应用为新项目「' + newProj.name + '」');
+  selectRealProject(newId);
+}
+
+function deleteTemplate(tplId) {
+  if (!confirm('确认删除此模板?')) return;
+  var templates = getTemplates().filter(function(t){ return t.id !== tplId; });
+  saveTemplates(templates);
+  renderTemplateList();
+  showToast('模板已删除');
+}
+
+function renderTemplateList() {
+  var container = document.getElementById('templateList');
+  if (!container) return;
+  var templates = getTemplates();
+  if (!templates.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-faint);font-size:13px;">暂无模板<br><span style="font-size:11px;margin-top:6px;display:block;">点击上方「保存当前为模板」创建第一个模板</span></div>';
+    return;
+  }
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+  templates.forEach(function(t) {
+    html += '<div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:14px;">';
+    html += '<div style="font-weight:600;font-size:13px;margin-bottom:4px;color:var(--text);">' + (t.name||'未命名') + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;">创建于 ' + (t.createdAt||'') + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">含 ' + (t.items||[]).length + ' 个明细项</div>';
+    html += '<div style="display:flex;gap:6px;">';
+    html += '<button onclick="applyTemplate(' + t.id + ')" style="flex:1;padding:5px 8px;background:var(--primary);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;">📋 使用</button>';
+    html += '<button onclick="deleteTemplate(' + t.id + ')" style="padding:5px 8px;background:var(--bg-3);color:#f87171;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:11px;">🗑</button>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+(function initDefaultTemplate() {
+  var templates = getTemplates();
+  if (templates.length > 0) return;
+  var defaultTpl = {
+    id: 999001,
+    name: '标准两室一厅',
+    items: [
+      { name: '客厅地砖铺贴(800x800)', unit: '㎡', qty: 35, price: 85, amount: 2975 },
+      { name: '厨房墙砖铺贴(300x600)', unit: '㎡', qty: 22, price: 95, amount: 2090 },
+      { name: '卫生间防水(乙纳布+漆料)', unit: '项', qty: 2, price: 1200, amount: 2400 },
+      { name: '卫生间墙地砖铺贴', unit: '项', qty: 2, price: 1800, amount: 3600 },
+      { name: '全屋水电改造(点位数)', unit: '个', qty: 68, price: 68, amount: 4624 },
+      { name: '墙面刮腰子+义业漆', unit: '㎡', qty: 220, price: 38, amount: 8360 },
+      { name: '卧室复合木地板铺贴', unit: '㎡', qty: 40, price: 120, amount: 4800 }
+    ],
+    notes: '含管理费8%、税金3%。工期45个工作日。保修4年、终身维护。',
+    createdAt: '2026-01-01'
+  };
+  saveTemplates([defaultTpl]);
+})();
+
+function exportPDF(projectId) {
+  window.open('share.html?p=' + projectId + '&print=1', '_blank');
+}
+
 </script>
 
 <!-- Shortcuts Modal -->
