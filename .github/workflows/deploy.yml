@@ -1,8 +1,8 @@
-name: Deploy 云数装企报价系统 to GitHub Pages
+name: Deploy 装报价 to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
     paths:
       - 'index.html'
       - 'manifest.json'
@@ -14,6 +14,17 @@ on:
       - 'DEV.md'
       - 'DEPLOY.md'
       - '.github/workflows/deploy.yml'
+      - 'share.html'
+      - 'admin.html'
+      - 'app.html'
+      - 'login.html'
+      - 'register.html'
+      - 'pending.html'
+      - 'activation.html'
+      - 'pricing.html'
+      - 'about.html'
+      - 'terms.html'
+      - 'privacy.html'
   workflow_dispatch:  # 允许手动触发
 
 # GitHub Pages 部署权限
@@ -53,6 +64,6 @@ jobs:
       - name: 部署成功通知
         if: success()
         run: |
-          echo "✅ 云数装企报价系统部署成功!"
+          echo "✅ 装报价部署成功!"
           echo "🌐 访问地址: ${{ steps.deployment.outputs.page_url }}"
           echo "📅 部署时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
