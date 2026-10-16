@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>空间算量 · yunshu-zhuangqi</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f4f4f1; color: #222; overflow: hidden; }
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* top bar */
+.topbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #2b2b2b; color: #fff; border-bottom: 1px solid #111; flex-wrap: wrap; }
+.topbar h1 { margin: 0 8px 0 0; font-size: 14px; font-weight: 600; }
+.topbar .group { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #3a3a3a; border-radius: 4px; }
+.topbar label { font-size: 12px; opacity: .85; }
+.topbar input[type=number], .topbar input[type=text], .topbar select {
+  background: #1f1f1f; color: #fff; border: 1px solid #555; border-radius: 3px;
+  padding: 3px 6px; font-size: 12px; min-width: 60px;
+}
+.topbar button {
+  background: #4a6fa5; color: #fff; border: none; border-radius: 3px;
+  padding: 4px 10px; font-size: 12px; cursor: pointer;
+}
+.topbar button:hover { background: #5a82ba; }
+.topbar button.active { background: #c14a4a; }
+.topbar button.warn { background: #c1843a; }
+.topbar .spacer { flex: 1; }
+.topbar .stat { font-size: 12px; color: #ddd; padding: 0 8px; }
+
+/* main */
+.main { flex: 1; display: grid; grid-template-columns: 220px 1fr 260px; min-height: 0; }
+.panel { background: #fff; padding: 10px; overflow: auto; border-right: 1px solid #ddd; }
+.panel.right { border-right: 0; border-left: 1px solid #ddd; }
+.panel h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #444; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+.panel .hint { font-size: 11px; color: #888; margin: 4px 0; line-height: 1.5; }
+.panel .op-list { display: flex; flex-direction: column; gap: 4px; }
+.panel .op-list button { background: #f0f0f0; color: #222; border: 1px solid #ddd; padding: 6px 10px; font-size: 12px; text-align: left; cursor: pointer; border-radius: 3px; }
+.panel .op-list button.active { background: #c14a4a; color: #fff; border-color: #c14a4a; }
+.panel .op-list button:hover:not(.active) { background: #e0e0e0; }
+.panel .scale-status { font-size: 11px; color: #666; padding: 4px 8px; background: #f7f7f4; border-radius: 3px; }
+.panel .scale-status.ok { color: #2a7a2a; background: #e8f5e8; }
+.panel .scale-status.bad { color: #c14a4a; background: #fae8e8; }
+
+/* canvas */
+.canvas-wrap { position: relative; overflow: hidden; background: #e8e8e4; }
+.spatial-canvas { width: 100%; height: 100%; display: block; }
+.canvas-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; color: #888; font-size: 13px; text-align: center; }
+
+/* room list */
+.room-list { list-style: none; padding: 0; margin: 0; }
+.room-list li { background: #f7f7f4; border: 1px solid #e0e0dc; border-radius: 3px; padding: 6px 8px; margin-bottom: 4px; font-size: 12px; }
+.room-list li .name { font-weight: 600; color: #2a4a8a; }
+.room-list li .meta { color: #666; font-size: 11px; margin-top: 2px; }
+.room-list li .del { float: right; background: none; border: none; color: #c14a4a; cursor: pointer; font-size: 11px; }
+.room-list li .edit { background: none; border: none; color: #4a6fa5; cursor: pointer; font-size: 11px; margin-left: 4px; }
+.room-list li input { font-size: 12px; padding: 2px 4px; width: 100%; margin-top: 2px; }
+.room-list .empty { color: #888; font-size: 12px; font-style: italic; padding: 8px 0; }
+.totals { margin-top: 8px; padding: 6px 8px; background: #f0f0ec; border-radius: 3px; font-size: 12px; }
+.totals div { padding: 2px 0; }
+.totals .num { color: #c14a4a; font-weight: 600; }
+.push-btn { width: 100%; margin-top: 8px; padding: 8px; background: #4a7a4a; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+.push-btn:hover { background: #5a8a5a; }
+.push-btn:disabled { background: #aaa; cursor: not-allowed; }
+.toggle { display: flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12px; }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+  .panel { max-height: 30vh; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ====== Top toolbar ====== -->
+  <div class="topbar">
+    <h1>空间算量</h1>
+
+    <div class="group">
+      <button id="btn-upload">上传户型图</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none">
+    </div>
+
+    <div class="group">
+      <label>模式:</label>
+      <select id="mode-select">
+        <option value="point">点选(对角)</option>
+        <option value="box">框选(拖拽)</option>
+        <option value="polygon">多边形描点</option>
+        <option value="scale">比例尺标定</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label>网格:</label>
+      <select id="grid-select">
+        <option value="off">关</option>
+        <option value="10">10mm</option>
+        <option value="50">50mm</option>
+        <option value="100">100mm</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <button id="btn-detect-walls">识别墙体</button>
+      <button id="btn-clear" class="warn">清空</button>
+    </div>
+
+    <div class="spacer"></div>
+    <span class="stat" id="stat-zoom">100%</span>
+    <span class="stat" id="stat-rooms">房间: 0</span>
+    <span class="stat" id="stat-area">总面积: 0.00㎡</span>
+  </div>
+
+  <!-- ====== Main grid ====== -->
+  <div class="main">
+
+    <!-- Left: operations panel -->
+    <div class="panel">
+      <h3>当前操作</h3>
+      <div class="op-list" id="op-list">
+        <button data-op="point" class="active">① 点选两个对角</button>
+        <button data-op="box">② 框选(拖拽矩形)</button>
+        <button data-op="polygon">③ 多边形描点</button>
+        <button data-op="scale">📏 比例尺标定</button>
+      </div>
+      <div class="hint" id="op-hint">
+        在图上点击第一个角点 → 再点击对角点 → 自动生成房间。
+      </div>
+
+      <h3 style="margin-top:14px">比例尺</h3>
+      <div class="scale-status bad" id="scale-status">未标定</div>
+      <div class="hint">标定方法：<br>1. 切到「比例尺」模式<br>2. 点击已知长度两端<br>3. 在弹出框输入实际长度(mm)</div>
+
+      <h3 style="margin-top:14px">快捷键</h3>
+      <div class="hint">
+        • 滚轮:缩放<br>
+        • 空格+拖拽:平移<br>
+        • 双击:闭合多边形<br>
+        • Delete:删除选中房间
+      </div>
+    </div>
+
+    <!-- Center: canvas -->
+    <div class="canvas-wrap" id="canvas-wrap">
+      <div class="canvas-hint" id="canvas-hint">请先上传户型图</div>
+    </div>
+
+    <!-- Right: room list -->
+    <div class="panel right">
+      <h3>房间列表</h3>
+      <ul class="room-list" id="room-list">
+        <li class="empty">暂无房间</li>
+      </ul>
+      <div class="totals">
+        <div>总面积: <span class="num" id="t-area">0.00</span> ㎡</div>
+        <div>总墙长: <span class="num" id="t-wall">0.00</span> m</div>
+        <div>房间数: <span class="num" id="t-count">0</span></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="auto-map" checked> 推报价时自动映射(墙面/地面/吊顶)</label>
+      <button class="push-btn" id="btn-push" disabled>推送到报价</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====== Scripts ====== -->
+<script src="./spatial-core.js"></script>
+<script src="./spatial-canvas.js"></script>
+<script src="./rooms-export.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const SC = window.SpatialCore;
+  const SCanvas = window.SpatialCanvas;
+  const RE = window.RoomsExport;
+
+  // ---- state ----
+  const state = {
+    measurements: [],     // [{ id, name, shape, area, lengthMm, widthMm, perimeterMm, source:{type,coords}, vertices? }]
+    draft: null,           // { type, p1, points, cur }
+    mode: 'point',         // point | box | polygon | scale
+    scale: 0,              // m/px, 0 if unset
+    scaleRecord: null,
+    imageDataUrl: null,
+    selectedRoomId: null,
+    autoMap: true
+  };
+
+  // ---- elements ----
+  const el = {
+    wrap: document.getElementById('canvas-wrap'),
+    fileInput: document.getElementById('file-input'),
+    btnUpload: document.getElementById('btn-upload'),
+    btnDetectWalls: document.getElementById('btn-detect-walls'),
+    btnClear: document.getElementById('btn-clear'),
+    btnPush: document.getElementById('btn-push'),
+    modeSelect: document.getElementById('mode-select'),
+    gridSelect: document.getElementById('grid-select'),
+    opList: document.getElementById('op-list'),
+    opHint: document.getElementById('op-hint'),
+    scaleStatus: document.getElementById('scale-status'),
+    roomList: document.getElementById('room-list'),
+    canvasHint: document.getElementById('canvas-hint'),
+    statZoom: document.getElementById('stat-zoom'),
+    statRooms: document.getElementById('stat-rooms'),
+    statArea: document.getElementById('stat-area'),
+    tArea: document.getElementById('t-area'),
+    tWall: document.getElementById('t-wall'),
+    tCount: document.getElementById('t-count'),
+    autoMap: document.getElementById('auto-map')
+  };
+
+  // ---- viewport + canvas ----
+  const viewport = SCanvas.createViewport();
+  viewport._cv = SCanvas.createCanvas(el.wrap);
+  viewport._scale = state.scale;
+  SCanvas.fitCanvasToContainer(viewport._cv);
+  const loop = SCanvas.createRenderLoop(viewport, function () { return state; });
+  SCanvas.attachInteractions(viewport, loop, {
+    onZoom: function () {
+      el.statZoom.textContent = Math.round(viewport.zoom) + '%';
+    },
+    onPan: function () {}
+  });
+  loop.start();
+
+  // ---- load persisted scale ----
+  const persisted = SC.loadScale();
+  if (persisted) {
+    state.scale = persisted.realPerPixel;
+    state.scaleRecord = persisted;
+    viewport._scale = state.scale;
+    updateScaleUI();
+  }
+
+  // ---- helpers ----
+  function updateScaleUI() {
+    if (state.scale > 0) {
+      el.scaleStatus.className = 'scale-status ok';
+      el.scaleStatus.textContent = '1px = ' + (state.scale * 1000).toFixed(2) + 'mm';
+    } else {
+      el.scaleStatus.className = 'scale-status bad';
+      el.scaleStatus.textContent = '未标定';
+    }
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    el.modeSelect.value = mode;
+    const buttons = el.opList.querySelectorAll('button[data-op]');
+    for (const b of buttons) b.classList.toggle('active', b.getAttribute('data-op') === mode);
+    const hints = {
+      point: '在图上点击第一个角点 → 再点击对角点 → 自动生成房间。',
+      box: '按住鼠标拖拽出矩形 → 释放生成房间。',
+      polygon: '多次点击描点 → 双击或按 Enter 闭合 → 生成房间。',
+      scale: '点击已知长度两端 → 弹框输入实际 mm 数。'
+    };
+    el.opHint.textContent = hints[mode] || '';
+    state.draft = null;
+    loop.invalidate();
+  }
+
+  function updateRoomList() {
+    const items = state.measurements;
+    el.statRooms.textContent = '房间: ' + items.length;
+    if (items.length === 0) {
+      el.roomList.innerHTML = '<li class="empty">暂无房间</li>';
+      el.btnPush.disabled = true;
+    } else {
+      el.roomList.innerHTML = '';
+      for (const r of items) {
+        const li = document.createElement('li');
+        li.dataset.id = r.id;
+        if (r.id === state.selectedRoomId) li.style.borderColor = '#c14a4a';
+        li.innerHTML =
+          '<span class="del" data-act="del">×</span>' +
+          '<span class="edit" data-act="edit">编辑</span>' +
+          '<div class="name">' + escapeHtml(r.name) + ' (' + (r.shape === 'polygon' ? '多边形' : '矩形') + ')</div>' +
+          '<div class="meta">' +
+            'L=' + (r.lengthMm / 1000).toFixed(2) + 'm ' +
+            'W=' + (r.widthMm / 1000).toFixed(2) + 'm ' +
+            'S=' + (r.area || 0).toFixed(2) + '㎡</div>';
+        el.roomList.appendChild(li);
+      }
+      el.btnPush.disabled = false;
+    }
+    const totalArea = SC.sumArea(items);
+    const totalWall = SC.sumWallLength(items) / SC.MM_PER_M;
+    el.tArea.textContent = totalArea.toFixed(2);
+    el.tWall.textContent = totalWall.toFixed(2);
+    el.tCount.textContent = items.length;
+    el.statArea.textContent = '总面积: ' + totalArea.toFixed(2) + '㎡';
+    loop.invalidate();
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function newMeasurementId() {
+    return 'm' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e6).toString(36);
+  }
+
+  function defaultNameFor(idx) {
+    const pool = ['客厅', '主卧', '次卧', '厨房', '卫生间', '书房', '餐厅', '阳台'];
+    return pool[idx % pool.length];
+  }
+
+  function addMeasurement(m) {
+    m.id = newMeasurementId();
+    if (!m.name) m.name = defaultNameFor(state.measurements.length);
+    state.measurements.push(m);
+    updateRoomList();
+  }
+
+  function removeMeasurement(id) {
+    state.measurements = state.measurements.filter(function (r) { return r.id !== id; });
+    updateRoomList();
+  }
+
+  function selectRoom(id) {
+    state.selectedRoomId = id;
+    updateRoomList();
+  }
+
+  // ---- canvas mouse handlers ----
+  viewport._cv.addEventListener('click', function (e) {
+    if (!viewport.image) return;
+    const rect = viewport._cv.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    const ip = SCanvas.screenToImage(viewport, sx, sy);
+    handleClick(ip);
+  });
+
+  viewport._cv.addEventListener('dblclick', function (e) {
+    if (state.mode === 'polygon' && state.draft && state.draft.points && state.draft.points.length >= 3) {
+      finalizePolygon();
+    }
+  });
+
+  viewport._cv.addEventListener('mousedown', function (e) {
+    if (state.mode !== 'box') return;
+    if (!viewport.image) return;
+    const rect = viewport._cv.getBoundingClientRect();
+    state.draft = {
+      type: 'box',
+      p1: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+      cur: null
+    };
+    loop.invalidate();
+  });
+
+  viewport._cv.addEventListener('mousemove', function (e) {
+    if (!state.draft) return;
+    if (state.draft.type === 'box') {
+      const rect = viewport._cv.getBoundingClientRect();
+      state.draft.cur = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      loop.invalidate();
+    } else if (state.draft.type === 'polygon') {
+      const rect = viewport._cv.getBoundingClientRect();
+      state.draft.cur = SCanvas.screenToImage(viewport, e.clientX - rect.left, e.clientY - rect.top);
+      loop.invalidate();
+    }
+  });
+
+  global.addEventListener('mouseup', function (e) {
+    if (!state.draft) return;
+    if (state.draft.type === 'box' && state.draft.p1 && state.draft.cur) {
+      const rect = viewport._cv.getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const p1Img = SCanvas.screenToImage(viewport, state.draft.p1.x, state.draft.p1.y);
+      const p2Img = SCanvas.screenToImage(viewport, sx, sy);
+      state.draft = null;
+      finalizeRectangle('box', p1Img, p2Img);
+    }
+  });
+
+  global.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && state.mode === 'polygon' && state.draft && state.draft.points && state.draft.points.length >= 3) {
+      finalizePolygon();
+    } else if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedRoomId) {
+      // Don't intercept if user is typing in input
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
+      removeMeasurement(state.selectedRoomId);
+      state.selectedRoomId = null;
+    }
+  });
+
+  function handleClick(ip) {
+    if (state.mode === 'point') {
+      if (!state.draft) state.draft = { type: 'point', p1: ip };
+      else {
+        finalizeRectangle('point', state.draft.p1, ip);
+        state.draft = null;
+      }
+    } else if (state.mode === 'polygon') {
+      if (!state.draft) state.draft = { type: 'polygon', points: [ip], cur: ip };
+      else {
+        state.draft.points.push(ip);
+      }
+    } else if (state.mode === 'scale') {
+      if (!state.draft) state.draft = { type: 'line', p1: { x: ip.x, y: ip.y }, cur: { x: ip.x, y: ip.y } };
+      else {
+        promptScale(state.draft.p1, { x: ip.x, y: ip.y });
+        state.draft = null;
+      }
+    }
+    loop.invalidate();
+  }
+
+  function finalizeRectangle(sourceType, p1, p2) {
+    if (!(state.scale > 0)) {
+      alert('请先标定比例尺');
+      return;
+    }
+    if (!p1 || !p2) return;
+    const m = sourceType === 'box' ? SC.measureBox(p1, p2, state.scale) : SC.measureRectangle(p1, p2, state.scale);
+    if (m.areaM2 <= 0) {
+      alert('面积过小或为零，请重试');
+      return;
+    }
+    addMeasurement({
+      name: '',
+      shape: 'rectangle',
+      lengthMm: m.lengthMm,
+      widthMm: m.widthMm,
+      area: m.areaM2,
+      perimeterMm: m.perimeterMm,
+      coords: [[p1.x, p1.y], [p2.x, p2.y]]
+    });
+  }
+
+  function finalizePolygon() {
+    if (!(state.scale > 0)) {
+      alert('请先标定比例尺');
+      return;
+    }
+    const points = state.draft.points;
+    const m = SC.measurePolygon(points, state.scale);
+    if (m.areaM2 <= 0) {
+      alert('面积过小或为零，请重试');
+      return;
+    }
+    addMeasurement({
+      name: '',
+      shape: 'polygon',
+      lengthMm: 0,
+      widthMm: 0,
+      area: m.areaM2,
+      perimeterMm: m.perimeterMm,
+      coords: points.map(function (p) { return [p.x, p.y]; })
+    });
+    state.draft = null;
+  }
+
+  function promptScale(p1, p2) {
+    const dx = p2.x - p1.x, dy = p2.y - p1.y;
+    const pxDist = Math.hypot(dx, dy);
+    if (!(pxDist > 0)) return;
+    const input = prompt('请输入这段线的实际长度 (mm)：', '1000');
+    if (input == null) return;
+    const mm = parseFloat(input);
+    if (!(mm > 0)) {
+      alert('长度必须 > 0');
+      return;
+    }
+    const rpp = SC.setScale(pxDist, mm);
+    if (!rpp) {
+      alert('标定失败');
+      return;
+    }
+    state.scale = rpp;
+    state.scaleRecord = SC.buildScaleRecord(rpp, pxDist, mm);
+    SC.persistScale(state.scaleRecord);
+    viewport._scale = state.scale;
+    updateScaleUI();
+  }
+
+  // ---- upload ----
+  el.btnUpload.addEventListener('click', function () { el.fileInput.click(); });
+  el.fileInput.addEventListener('change', function (e) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      const dataUrl = ev.target.result;
+      state.imageDataUrl = dataUrl;
+      const img = new Image();
+      img.onload = function () {
+        SCanvas.setImage(viewport, img);
+        viewport._scale = state.scale;
+        el.canvasHint.style.display = 'none';
+        loop.invalidate();
+      };
+      img.onerror = function () { alert('图片加载失败'); };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(f);
+  });
+
+  // ---- mode buttons ----
+  el.opList.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-op]');
+    if (!btn) return;
+    setMode(btn.getAttribute('data-op'));
+  });
+  el.modeSelect.addEventListener('change', function () { setMode(el.modeSelect.value); });
+
+  // ---- grid ----
+  el.gridSelect.addEventListener('change', function () {
+    const v = el.gridSelect.value;
+    if (v === 'off') {
+      viewport.showGrid = false;
+    } else {
+      viewport.showGrid = true;
+      viewport.gridStepMm = parseInt(v, 10);
+    }
+    loop.invalidate();
+  });
+
+  // ---- wall detection (PoC) ----
+  el.btnDetectWalls.addEventListener('click', function () {
+    if (state.measurements.length === 0) {
+      alert('请先创建房间');
+      return;
+    }
+    const walls = SC.detectWalls(state.measurements, state.scale);
+    alert('已识别墙体:\n总墙长 = ' + (walls.totalWallLengthMm / 1000).toFixed(2) + ' m\n' +
+      '段数 = ' + walls.segments.length);
+  });
+
+  // ---- clear ----
+  el.btnClear.addEventListener('click', function () {
+    if (state.measurements.length === 0) return;
+    if (!confirm('清空所有测量？')) return;
+    state.measurements = [];
+    state.selectedRoomId = null;
+    updateRoomList();
+  });
+
+  // ---- room list interactions ----
+  el.roomList.addEventListener('click', function (e) {
+    const li = e.target.closest('li');
+    if (!li) return;
+    const id = li.dataset.id;
+    const act = e.target.getAttribute('data-act');
+    if (act === 'del') {
+      removeMeasurement(id);
+    } else if (act === 'edit') {
+      const m = state.measurements.find(function (r) { return r.id === id; });
+      if (!m) return;
+      const newName = prompt('房间名称:', m.name);
+      if (newName != null) {
+        m.name = SC.sanitizeRoomName(newName) || '未命名';
+        updateRoomList();
+      }
+    } else {
+      selectRoom(id);
+    }
+  });
+
+  // ---- auto-map toggle ----
+  el.autoMap.addEventListener('change', function () {
+    state.autoMap = el.autoMap.checked;
+  });
+
+  // ---- push to quote ----
+  el.btnPush.addEventListener('click', function () {
+    if (state.measurements.length === 0) return;
+    const result = RE.exportAndPush(state.measurements, {
+      autoMap: state.autoMap,
+      imageDataUrl: state.imageDataUrl
+    });
+    alert('已推送:\n' +
+      '房间: ' + result.data.rooms.length + '\n' +
+      '总面积: ' + result.data.totalArea.toFixed(2) + '㎡\n' +
+      '总墙长: ' + (result.data.totalWallLength / 1000).toFixed(2) + 'm\n' +
+      '方式: ' + result.sent._sentVia + '\n' +
+      '自动映射条目: ' + result.sent.autoMapped.length);
+  });
+
+  // ---- resize handler ----
+  global.addEventListener('resize', function () {
+    SCanvas.fitCanvasToContainer(viewport._cv);
+    loop.invalidate();
+  });
+
+  // ---- initial render ----
+  updateScaleUI();
+  updateRoomList();
+  setMode('point');
+})();
+</script>
+</body>
+</html>

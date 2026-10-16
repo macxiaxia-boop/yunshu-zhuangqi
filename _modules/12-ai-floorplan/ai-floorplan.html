@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>🤖 AI 户型识别 · V3 模块 · yunshu-zhuangqi</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#f7f9f8;--ink:#1a1f1c;--accent:#A23C43;--ok:#1b8a3a;--fail:#c0392b;--warn:#d39c00;--line:#e8e6e1;--chrome:#fff;--blue:#3a76d3}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+header{padding:14px 24px;background:var(--chrome);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center}
+header h1{margin:0;font-size:18px;font-weight:600}
+header h1 small{font-weight:400;color:#888;font-size:12px;margin-left:8px}
+.api-status{display:flex;gap:8px;align-items:center;font-size:12px}
+.api-status .badge{padding:4px 10px;border-radius:14px;font-weight:500}
+.api-status .badge.ok{background:#e7f5ea;color:var(--ok)}
+.api-status .badge.no{background:#fbeae8;color:var(--fail)}
+.api-status .badge.warn{background:#fff8e0;color:var(--warn)}
+.usage{font-size:11px;color:#666;text-align:right}
+main{padding:24px;max-width:1200px;margin:0 auto;display:grid;gap:20px}
+.step{background:var(--chrome);border:1px solid var(--line);border-radius:12px;padding:20px}
+.step h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+.step h2 .num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.dropzone{border:2px dashed var(--line);border-radius:8px;padding:40px;text-align:center;cursor:pointer;transition:.2s}
+.dropzone:hover,.dropzone.drag{border-color:var(--accent);background:#fcf3f3}
+.dropzone .icon{font-size:36px;color:#bbb}
+.preview{margin-top:12px;display:flex;gap:12px;align-items:flex-start}
+.preview img{max-width:200px;max-height:200px;border:1px solid var(--line);border-radius:6px}
+.preview .info{font-size:13px;color:#666;flex:1}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.row label{font-size:13px;color:#666;display:flex;align-items:center;gap:6px}
+select,input[type=text],input[type=password],textarea{padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:13px;background:#fff}
+select:focus,input:focus{outline:none;border-color:var(--accent)}
+button{padding:10px 18px;border:1px solid var(--line);border-radius:6px;background:var(--chrome);color:var(--ink);cursor:pointer;font-size:13px;font-family:inherit;transition:.15s}
+button:hover{border-color:var(--accent);background:#fafafa}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.primary:hover{background:#8a3137}
+button:disabled{opacity:.5;cursor:not-allowed}
+.json-preview{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:12px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.item-table{width:100%;border-collapse:collapse;font-size:13px}
+.item-table th,.item-table td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+.item-table th{background:#f7f9f8;font-weight:600}
+.item-table tfoot{font-weight:600;background:#fafafa}
+.progress{height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-top:12px}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--accent),#e88);transition:width .3s}
+.alert{padding:10px 14px;border-radius:6px;font-size:12px;margin-top:8px}
+.alert.info{background:#e8f0fa;color:var(--blue);border:1px solid #c6dbef}
+.alert.warn{background:#fff8e0;color:var(--warn);border:1px solid #f0deb0}
+.alert.fail{background:#fbeae8;color:var(--fail);border:1px solid #e8c5c1}
+.alert.ok{background:#e7f5ea;color:var(--ok);border:1px solid #c5e2cd}
+.muted{color:#888;font-size:12px}
+.hidden{display:none}
+hr{border:none;border-top:1px solid var(--line);margin:16px 0}
+.kbd{font-family:ui-monospace,Menlo,monospace;background:#f5f5f5;padding:1px 6px;border-radius:3px;border:1px solid #ddd;font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🤖 AI 户型识别 <small>V3 · R31202 · 🅱️ yunshu-zhuangqi</small></h1>
+<div class="api-status">
+  <span class="badge" id="badge">未检查</span>
+  <button onclick="openKeyModal()">⚙ 设置 Key</button>
+</div>
+<div class="usage" id="usage">调用 0 次 · ¥0.00</div>
+</header>
+
+<main>
+<!-- Step 1: Upload -->
+<section class="step" id="step1">
+<h2><span class="num">1</span>上传户型图</h2>
+<div class="dropzone" id="drop" onclick="document.getElementById('file').click()">
+  <div class="icon">📷</div>
+  <div>点击 / 拖拽 / 粘贴 户型图 (PNG/JPG/WebP · 最大 5MB)</div>
+  <div class="muted">支持 2D 平面图、带尺寸图、3D 渲染、手绘草图</div>
+</div>
+<input type="file" id="file" accept="image/*" class="hidden" onchange="onFile(event)">
+<div class="preview hidden" id="preview">
+  <img id="previewImg">
+  <div class="info">
+    <div><strong id="fileName">—</strong></div>
+    <div class="muted" id="fileSize">—</div>
+    <div class="muted" id="imageHash">—</div>
+    <div class="muted" id="cacheHit" class="muted"></div>
+  </div>
+</div>
+</section>
+
+<!-- Step 2: Template + Model -->
+<section class="step" id="step2">
+<h2><span class="num">2</span>选择提示词模板 + 模型</h2>
+<div class="row">
+  <label>提示词模板
+    <select id="tpl"></select>
+  </label>
+  <label>模型
+    <select id="model"></select>
+  </label>
+  <span class="muted">预计成本: <strong id="estCost">—</strong></span>
+</div>
+<div style="margin-top:10px">
+  <label class="muted">补充要求(可选):</label>
+  <textarea id="customNote" rows="2" placeholder="例如:户型为三室两厅,需要识别承重墙..." style="width:100%"></textarea>
+</div>
+</section>
+
+<!-- Step 3: Analyze -->
+<section class="step" id="step3">
+<h2><span class="num">3</span>调用 AI 识别</h2>
+<div class="row">
+  <button class="primary" id="btnAnalyze" onclick="doAnalyze()" disabled>🚀 开始识别</button>
+  <button onclick="loadFromCache()" id="btnLoadCache" disabled>📦 从缓存读取</button>
+  <button onclick="clearCache()">🗑 清缓存</button>
+  <span class="muted" id="analyzeStatus">未启动</span>
+</div>
+<div class="progress"><div id="progBar" style="width:0%"></div></div>
+<div id="analyzeAlert" class="hidden"></div>
+</section>
+
+<!-- Step 4: Result + Quote -->
+<section class="step hidden" id="step4">
+<h2><span class="num">4</span>AI 识别结果 → 报价</h2>
+<div class="row" style="justify-content:space-between">
+  <div>
+    <strong id="aiSummary">—</strong>
+    <div class="muted" id="aiMeta">—</div>
+  </div>
+  <div>
+    <button onclick="editRates()">⚙ 调整单价</button>
+    <button class="primary" onclick="pushToOurs()">📤 推送到 ours 报价</button>
+  </div>
+</div>
+<hr>
+<h3 style="margin:8px 0;font-size:14px">📋 AI 原始 JSON</h3>
+<pre class="json-preview" id="aiJson">—</pre>
+<hr>
+<h3 style="margin:8px 0;font-size:14px">💰 自动生成报价项 (24 项)</h3>
+<table class="item-table" id="quoteTable">
+<thead><tr><th>编号</th><th>分类</th><th>项目</th><th>数量</th><th>单位</th><th>单价(元)</th><th>小计(元)</th></tr></thead>
+<tbody></tbody>
+<tfoot><tr><td colspan="6">总计</td><td id="grandTotal">—</td></tr></tfoot>
+</table>
+</section>
+
+<!-- Test panel -->
+<section class="step">
+<h2><span class="num">✓</span>模块自检 <small class="muted">(12 测试)</small></h2>
+<div class="row">
+  <button onclick="runTests()">▶ 跑测试</button>
+  <span class="muted" id="testSummary">未运行</span>
+</div>
+<div class="json-preview" id="testLog">—</div>
+</section>
+</main>
+
+<!-- Key modal -->
+<div class="hidden" id="keyModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center">
+<div style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%">
+<h3 style="margin:0 0 12px">⚙ 设置 Anthropic API Key</h3>
+<p class="muted" style="margin:0 0 12px">在 <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> 获取。Key 仅存于 sessionStorage,关闭浏览器即失效。</p>
+<input type="password" id="keyInput" placeholder="sk-ant-..." style="width:100%;margin-bottom:12px">
+<div class="row" style="justify-content:flex-end">
+  <button onclick="closeKeyModal()">取消</button>
+  <button class="primary" onclick="saveKey()">保存</button>
+</div>
+</div>
+</div>
+
+<!-- Scripts (order matters) -->
+<script src="./ai-config.js"></script>
+<script src="./ai-prompt-templates.js"></script>
+<script src="./ai-cache.js"></script>
+<script src="./ai-error-recovery.js"></script>
+<script src="./ai-vision.js"></script>
+<script src="./quote-from-ai.js"></script>
+<script src="./ai.test.js"></script>
+
+<script>
+// ---- App state ----
+var state = {
+  imageDataUrl: null,
+  imageHash: null,
+  aiResult: null,
+  quote: null
+};
+
+// ---- Init ----
+(function init(){
+  // Populate template select
+  var tplSel = document.getElementById('tpl');
+  YSAIPrompts.listTemplates().forEach(function(t){
+    var o = document.createElement('option');
+    o.value = t.id;
+    o.textContent = t.label;
+    tplSel.appendChild(o);
+  });
+  // Populate model select
+  var modelSel = document.getElementById('model');
+  YSAI.listModels().forEach(function(m){
+    var o = document.createElement('option');
+    o.value = m.id;
+    o.textContent = m.label + ' (~¥' + m.avgCostCNY + '/张)';
+    o.dataset.cost = m.avgCostCNY;
+    modelSel.appendChild(o);
+  });
+  refreshApiStatus();
+  refreshUsage();
+})();
+
+function refreshApiStatus(){
+  var b = document.getElementById('badge');
+  if (YSAI.hasKey()) {
+    b.textContent = '✓ Key 已就绪';
+    b.className = 'badge ok';
+  } else {
+    b.textContent = '✗ 未配置 Key';
+    b.className = 'badge no';
+  }
+}
+
+function refreshUsage(){
+  var u = YSAI.getUsage();
+  document.getElementById('usage').textContent =
+    '调用 ' + (u.totalCalls||0) + ' 次 · ¥' + (u.totalCNY||0).toFixed(4) +
+    ' · 输入 ' + (u.totalInputTokens||0) + ' / 输出 ' + (u.totalOutputTokens||0);
+}
+
+function openKeyModal(){ document.getElementById('keyModal').style.display='flex'; document.getElementById('keyInput').focus(); }
+function closeKeyModal(){ document.getElementById('keyModal').style.display='none'; }
+function saveKey(){
+  var k = document.getElementById('keyInput').value.trim();
+  if (!k) { alert('请粘贴 API key'); return; }
+  try {
+    YSAI.setApiKey(k);
+    refreshApiStatus();
+    closeKeyModal();
+    document.getElementById('keyInput').value = '';
+  } catch (e) { alert('保存失败: ' + e.message); }
+}
+
+// ---- File handling ----
+function onFile(ev){
+  var f = ev.target.files[0];
+  if (!f) return;
+  handleFile(f);
+}
+
+['dragover','dragenter'].forEach(function(evt){
+  document.getElementById('drop').addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); document.getElementById('drop').classList.add('drag'); });
+});
+['dragleave','drop'].forEach(function(evt){
+  document.getElementById('drop').addEventListener(evt, function(e){ e.preventDefault(); e.stopPropagation(); document.getElementById('drop').classList.remove('drag'); });
+});
+document.getElementById('drop').addEventListener('drop', function(e){
+  var f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+
+window.addEventListener('paste', function(e){
+  var items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (var i=0;i<items.length;i++){
+    if (items[i].kind==='file' && items[i].type.indexOf('image/')===0){
+      handleFile(items[i].getAsFile());
+      break;
+    }
+  }
+});
+
+function handleFile(file){
+  if (file.size > 5 * 1024 * 1024) { alert('图片超过 5MB'); return; }
+  YSAIVision.fileToDataUrl(file).then(function(url){
+    state.imageDataUrl = url;
+    document.getElementById('preview').classList.remove('hidden');
+    document.getElementById('previewImg').src = url;
+    document.getElementById('fileName').textContent = file.name || '粘贴图片';
+    document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1) + ' KB';
+    document.getElementById('btnAnalyze').disabled = !YSAI.hasKey();
+    // Hash + cache check
+    return YSAICache.lookupByImage(url);
+  }).then(function(c){
+    if (c && c.hash) state.imageHash = c.hash;
+    document.getElementById('imageHash').textContent = state.imageHash ? 'Hash: ' + state.imageHash.slice(0,12) + '...' : '';
+    document.getElementById('btnLoadCache').disabled = !(c && c.hit);
+    document.getElementById('cacheHit').textContent = c && c.hit ? '✓ 缓存命中 (age ' + Math.round(c.ageMs/60000) + ' 分钟)' : '○ 缓存未命中';
+  }).catch(function(err){
+    alert('读取失败: ' + err.message);
+  });
+}
+
+// ---- Analysis ----
+function loadFromCache(){
+  if (!state.imageHash) return alert('请先上传图片');
+  var entry = YSAICache.get(state.imageHash);
+  if (!entry) return alert('缓存已过期');
+  state.aiResult = entry.entry.data;
+  state.quote = YSQuote.fromAI({ aiResult: state.aiResult });
+  renderStep4();
+  alert('已从缓存读取 (节省一次 API 调用)');
+}
+
+function clearCache(){
+  if (confirm('确认清空所有 AI 识别缓存?')) {
+    YSAICache.clear();
+    document.getElementById('cacheHit').textContent = '○ 缓存已清空';
+    document.getElementById('btnLoadCache').disabled = true;
+  }
+}
+
+function doAnalyze(){
+  if (!state.imageDataUrl) return alert('请先上传户型图');
+  if (!YSAI.hasKey()) { openKeyModal(); return; }
+
+  var opts = {
+    imageDataUrl: state.imageDataUrl,
+    templateId: document.getElementById('tpl').value,
+    customNote: document.getElementById('customNote').value,
+    model: document.getElementById('model').value
+  };
+
+  var btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+  document.getElementById('analyzeStatus').textContent = '调用中...';
+  document.getElementById('progBar').style.width = '20%';
+  showAlert('analyzeAlert', 'info', '正在调用 Anthropic API,请稍候(典型 5-15 秒)...');
+
+  var startTs = Date.now();
+
+  YSAIError.withRetry(function(){
+    return YSAIVision.analyzeAndParse(opts);
+  }, {
+    maxRetries: 3,
+    retryDelayMs: 5000,
+    onAttempt: function(n){
+      document.getElementById('progBar').style.width = (20 + n * 20) + '%';
+      document.getElementById('analyzeStatus').textContent = '第 ' + n + ' 次尝试...';
+    }
+  })
+  .then(function(parsed){
+    state.aiResult = parsed;
+    document.getElementById('progBar').style.width = '100%';
+    document.getElementById('analyzeStatus').textContent = '✓ 完成 (' + ((Date.now()-startTs)/1000).toFixed(1) + 's)';
+    showAlert('analyzeAlert', 'ok', '识别完成!共 ' + parsed.rooms.length + ' 个房间, ' + parsed.walls.length + ' 段墙, ' + parsed.doors.length + ' 类门, ' + parsed.windows.length + ' 类窗。');
+
+    // Cache the result
+    if (state.imageHash) {
+      YSAICache.put(state.imageHash, parsed, { ts: Date.now(), model: opts.model });
+    }
+    refreshUsage();
+
+    // Auto-generate quote
+    state.quote = YSQuote.fromAI({ aiResult: parsed });
+    renderStep4();
+  })
+  .catch(function(err){
+    document.getElementById('progBar').style.width = '100%';
+    document.getElementById('analyzeStatus').textContent = '✗ 失败';
+    var desc = YSAIError.describeError(err);
+    if (desc.action === 'prompt-rekey') {
+      showAlert('analyzeAlert', 'fail', desc.message);
+      openKeyModal();
+    } else if (desc.action === 'queue') {
+      YSAIError.enqueue(opts);
+      showAlert('analyzeAlert', 'warn', desc.message + ' (已加入离线队列)');
+    } else {
+      showAlert('analyzeAlert', 'fail', desc.message + (desc.code ? ' [' + desc.code + ']' : ''));
+    }
+    refreshApiStatus();
+  })
+  .then(function(){ btn.disabled = false; });
+}
+
+function showAlert(id, kind, msg){
+  var el = document.getElementById(id);
+  el.className = 'alert ' + kind;
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+
+function renderStep4(){
+  document.getElementById('step4').classList.remove('hidden');
+  var ai = state.aiResult;
+  document.getElementById('aiSummary').textContent =
+    ai.rooms.length + ' 个房间 · ' + ai.walls.length + ' 段墙 · ' +
+    ai.doors.reduce(function(s,d){return s+(d.count||0);},0) + ' 樘门 · ' +
+    ai.windows.reduce(function(s,w){return s+(w.count||0);},0) + ' 樘窗';
+  document.getElementById('aiMeta').textContent =
+    'Model: ' + (ai.model||'—') +
+    ' · 输入 ' + (ai.usage?ai.usage.inputTokens:0) + ' tokens' +
+    ' · 输出 ' + (ai.usage?ai.usage.outputTokens:0) + ' tokens' +
+    ' · 成本 ¥' + (ai.cost?ai.cost.cny.toFixed(4):'0');
+  document.getElementById('aiJson').textContent = JSON.stringify(ai, null, 2);
+
+  // Quote table
+  var tb = document.querySelector('#quoteTable tbody');
+  tb.innerHTML = '';
+  state.quote.items.forEach(function(it, idx){
+    var row = document.createElement('tr');
+    row.innerHTML =
+      '<td>' + (idx+1) + '</td>' +
+      '<td><span class="muted">' + it.categoryId.replace('cat_','').replace('_','·') + '</span></td>' +
+      '<td>' + it.name + '<br><span class="muted" style="font-size:11px">' + (it.description||'') + '</span></td>' +
+      '<td>' + it.quantity + '</td>' +
+      '<td>' + it.unit + '</td>' +
+      '<td>' + it.unitPrice.toFixed(2) + '</td>' +
+      '<td>' + it.total.toFixed(2) + '</td>';
+    tb.appendChild(row);
+  });
+  document.getElementById('grandTotal').textContent = '¥' + state.quote.totals.grandTotal.toFixed(2) + ' (含 5% 管理费)';
+}
+
+function editRates(){
+  if (!state.quote) return;
+  var cur = state.quote.rates;
+  var prompt = '调整单价 (元) — 当前默认值:\n' +
+    '综合装修: ' + cur.default_room_rate + '\n' +
+    '墙面粉刷: ' + cur.wall_paint_rate + '\n' +
+    '地砖铺贴: ' + cur.floor_tile_rate + '\n' +
+    '门安装: ' + cur.door_install_rate + '\n' +
+    '窗安装: ' + cur.window_install_rate + '\n\n' +
+    '输入 JSON 覆盖,例如 {"default_room_rate":1000}';
+  var raw = window.prompt(prompt, JSON.stringify({}));
+  if (!raw) return;
+  try {
+    var newRates = JSON.parse(raw);
+    state.quote = YSQuote.adjustRates(state.quote, newRates);
+    renderStep4();
+  } catch (e) { alert('JSON 解析失败: ' + e.message); }
+}
+
+function pushToOurs(){
+  if (!state.quote) return;
+  var ours = YSQuote.toOursQuote(state.quote);
+  // Try to integrate with parent app via postMessage
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'YSAI_quote_ready', payload: ours }, '*');
+    }
+  } catch(e){}
+  // Also persist to localStorage as fallback
+  try {
+    var pending = JSON.parse(localStorage.getItem('ysai.pendingQuote') || '[]');
+    pending.push(ours);
+    if (pending.length > 5) pending = pending.slice(-5);
+    localStorage.setItem('ysai.pendingQuote', JSON.stringify(pending));
+  } catch(e){}
+  alert('已推送到 ours 报价!\n\n总额: ¥' + state.quote.totals.grandTotal.toFixed(2) + '\n项目数: ' + state.quote.items.length + '\n\n如果父页面有 YSApp,会自动接收。');
+}
+
+// ---- Test runner ----
+function runTests(){
+  document.getElementById('testSummary').textContent = '运行中...';
+  Promise.resolve().then(function(){
+    return YSAITest.runAll();
+  }).then(function(summary){
+    var log = summary.results.map(function(r){
+      var mark = r.status==='PASS'?'[OK]':'[FAIL]';
+      return mark + ' ' + r.name + (r.detail?' — '+r.detail:'');
+    }).join('\n');
+    document.getElementById('testLog').textContent = log || '无结果';
+    document.getElementById('testSummary').textContent =
+      summary.pass + ' PASS / ' + summary.fail + ' FAIL / ' + summary.total + ' 总计';
+    refreshApiStatus();
+    refreshUsage();
+  });
+}
+
+// Cost estimator live update
+document.getElementById('model').addEventListener('change', function(){
+  var opt = this.options[this.selectedIndex];
+  var cost = opt.dataset.cost || '0';
+  document.getElementById('estCost').textContent = '~¥' + cost + '/张';
+});
+document.getElementById('model').dispatchEvent(new Event('change'));
+</script>
+
+</body>
+</html>

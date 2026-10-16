@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智能助手 · yunshu-zhuangqi</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #1f2937;
+    --text-2: #6b7280;
+    --border: #e5e7eb;
+    --tab-active-bg: #2563eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+         background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  header { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+           color: white; padding: 20px 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  header h1 { font-size: 22px; font-weight: 600; }
+  header p { opacity: 0.9; font-size: 13px; margin-top: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; background: var(--card); border-radius: 8px;
+          padding: 6px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .tab { flex: 1; padding: 12px; border: none; background: transparent;
+         cursor: pointer; border-radius: 6px; font-size: 14px;
+         color: var(--text-2); transition: all 0.2s; font-weight: 500; }
+  .tab.active { background: var(--tab-active-bg); color: white; }
+  .tab:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Cards */
+  .card { background: var(--card); border-radius: 8px; padding: 24px;
+          margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card h2 { font-size: 16px; margin-bottom: 12px; color: var(--text); }
+  .card .hint { color: var(--text-2); font-size: 13px; margin-bottom: 16px; }
+
+  /* Buttons */
+  .btn { padding: 8px 16px; border: 1px solid var(--border); background: white;
+         border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text); }
+  .btn:hover { background: #f9fafb; }
+  .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-success { background: var(--success); color: white; border-color: var(--success); }
+  .btn-danger { background: white; color: var(--danger); border-color: var(--danger); }
+  .btn-danger:hover { background: #fef2f2; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* File upload */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 8px;
+                 padding: 40px 20px; text-align: center; transition: all 0.2s;
+                 cursor: pointer; }
+  .upload-zone:hover { border-color: var(--primary); background: #f0f7ff; }
+  .upload-zone.dragging { border-color: var(--primary); background: #e0f0ff; }
+  .upload-zone .icon { font-size: 48px; margin-bottom: 12px; }
+  .upload-zone .hint-text { color: var(--text-2); font-size: 13px; margin-top: 8px; }
+  .file-list { margin-top: 16px; }
+  .file-item { display: flex; align-items: center; justify-content: space-between;
+               padding: 10px 14px; background: #f9fafb; border-radius: 6px;
+               margin-bottom: 8px; font-size: 13px; }
+  .file-item .name { font-weight: 500; }
+  .file-item .meta { color: var(--text-2); font-size: 12px; }
+  .file-item .remove { color: var(--danger); cursor: pointer; padding: 2px 8px; }
+
+  /* Progress */
+  .progress { width: 100%; height: 8px; background: var(--border); border-radius: 4px;
+              overflow: hidden; margin: 12px 0; }
+  .progress-bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+  .progress-text { text-align: center; color: var(--text-2); font-size: 12px; }
+
+  /* Mapping table */
+  .mapping-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .mapping-table th, .mapping-table td { padding: 10px 12px; text-align: left;
+                                          border-bottom: 1px solid var(--border); }
+  .mapping-table th { background: #f9fafb; font-weight: 600; }
+  .status-mapped { color: var(--success); }
+  .status-pending { color: var(--warning); }
+  .status-rejected { color: var(--danger); }
+
+  /* Summary */
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr);
+                  gap: 12px; margin: 16px 0; }
+  .summary-card { padding: 14px; background: #f9fafb; border-radius: 6px; }
+  .summary-card .label { font-size: 12px; color: var(--text-2); }
+  .summary-card .value { font-size: 22px; font-weight: 600; margin-top: 4px; }
+
+  /* Warnings */
+  .warn-list { max-height: 240px; overflow-y: auto; border: 1px solid var(--border);
+               border-radius: 6px; }
+  .warn-item { padding: 8px 12px; border-bottom: 1px solid var(--border);
+               font-size: 12px; display: flex; align-items: center; gap: 8px; }
+  .warn-item:last-child { border-bottom: none; }
+  .warn-tag { padding: 2px 6px; border-radius: 3px; font-size: 11px;
+              background: #fef3c7; color: #92400e; }
+
+  /* Footer actions */
+  .actions { display: flex; gap: 12px; justify-content: flex-end;
+             margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* Done screen */
+  .done-card { text-align: center; padding: 40px 20px; }
+  .done-icon { font-size: 64px; margin-bottom: 16px; }
+  .done-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .done-sub { color: var(--text-2); }
+
+  /* Log */
+  .log { max-height: 200px; overflow-y: auto; background: #1f2937;
+         color: #d1d5db; padding: 12px; border-radius: 6px;
+         font-family: "SF Mono", Consolas, monospace; font-size: 12px; }
+  .log-line { padding: 2px 0; }
+
+  .hidden { display: none; }
+  .row-flex { display: flex; gap: 12px; align-items: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>智能助手 · yunshu-zhuangqi 装企报价</h1>
+  <p>多文件多 Sheet 批量导入 → 智能识别 9 基装 / 15 主材 → 人工核对 → 写入报价</p>
+</header>
+
+<div class="container">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="import">1. 导入文件</button>
+    <button class="tab" data-tab="review" disabled>2. 核对</button>
+    <button class="tab" data-tab="commit" disabled>3. 完成</button>
+  </div>
+
+  <!-- TAB 1: IMPORT -->
+  <div id="tab-import" class="tab-pane">
+    <div class="card">
+      <h2>选择 Excel / CSV 文件</h2>
+      <div class="hint">支持多选（按住 Ctrl/Cmd）。每个文件对应一个 Sheet。文件 > 25MB 请先拆分。</div>
+      <div class="upload-zone" id="dropZone">
+        <div class="icon">📥</div>
+        <div><b>点击选择文件</b> 或拖拽到此处</div>
+        <div class="hint-text">支持 .csv / .tsv / .txt（xlsx 请先另存为 CSV UTF-8）</div>
+        <input type="file" id="fileInput" multiple accept=".csv,.tsv,.txt,.xlsx" style="display:none">
+      </div>
+      <div class="file-list" id="fileList"></div>
+      <div class="progress hidden" id="progress">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-text" id="progressText"></div>
+      <div class="actions">
+        <button class="btn btn-danger" id="clearBtn">清空</button>
+        <button class="btn btn-primary" id="toMapBtn" disabled>下一步：字段映射 →</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>操作日志</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: REVIEW -->
+  <div id="tab-review" class="tab-pane hidden">
+    <div class="card">
+      <h2>Sheet → 分类映射</h2>
+      <div class="hint">系统自动按 sheet 名称归一化匹配（去掉前缀 01/、/空格）。⚠️ 表示待手动指定。</div>
+      <table class="mapping-table" id="sheetMapTable">
+        <thead>
+          <tr>
+            <th>文件</th><th>Sheet 名</th><th>匹配分类</th>
+            <th>字段识别</th><th>状态</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>导入概览</h2>
+      <div class="summary-grid" id="summary"></div>
+      <div id="warnSection" class="hidden">
+        <h3 style="font-size:14px;margin:16px 0 8px;">缺失项警告（<span id="warnCount">0</span>）</h3>
+        <div class="warn-list" id="warnList"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger" id="cancelBtn">取消</button>
+        <button class="btn" id="backBtn">← 返回导入</button>
+        <button class="btn btn-success" id="commitBtn">确认写入报价 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: COMMIT -->
+  <div id="tab-commit" class="tab-pane hidden">
+    <div class="card done-card">
+      <div class="done-icon">✅</div>
+      <div class="done-title">导入完成</div>
+      <div class="done-sub" id="doneMsg"></div>
+      <div class="actions" style="justify-content:center;margin-top:24px;">
+        <button class="btn" id="newImportBtn">新建另一次导入</button>
+        <button class="btn btn-primary" id="jumpBtn">跳转到报价页 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 引入模块（纯原生 JS） -->
+<script src="src/assistant-sheets.js"></script>
+<script src="src/import-conflict.js"></script>
+<script src="src/assistant-core.js"></script>
+<script>
+(function() {
+  const $ = (id) => document.getElementById(id);
+  const tabs = document.querySelectorAll('.tab');
+  const panes = {
+    import: $('tab-import'),
+    review: $('tab-review'),
+    commit: $('tab-commit'),
+  };
+
+  const core = new AssistantCore({
+    onProgress: (p, msg) => {
+      $('progress').classList.remove('hidden');
+      $('progressBar').style.width = p + '%';
+      $('progressText').textContent = msg || '';
+      if (p >= 100) setTimeout(() => $('progress').classList.add('hidden'), 600);
+    },
+    onLog: (p, msg) => {
+      if (!msg) return;
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      $('log').appendChild(line);
+      $('log').scrollTop = $('log').scrollHeight;
+    },
+  });
+
+  let currentTab = 'import';
+  function switchTab(name) {
+    currentTab = name;
+    tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === name));
+    Object.entries(panes).forEach(([k, el]) => el.classList.toggle('hidden', k !== name));
+  }
+
+  tabs.forEach((t) => {
+    t.addEventListener('click', () => {
+      const name = t.dataset.tab;
+      if (t.disabled) return;
+      switchTab(name);
+    });
+  });
+
+  // ===== Upload =====
+  const dropZone = $('dropZone');
+  const fileInput = $('fileInput');
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault(); dropZone.classList.add('dragging');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragging');
+    addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+
+  function addFiles(fileList) {
+    const arr = Array.from(fileList);
+    if (arr.length === 0) return;
+    const list = $('fileList');
+    arr.forEach((f) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `
+        <div>
+          <div class="name">${f.name}</div>
+          <div class="meta">${(f.size / 1024).toFixed(1)} KB</div>
+        </div>
+        <div class="remove">移除</div>
+      `;
+      item.querySelector('.remove').addEventListener('click', () => item.remove());
+      list.appendChild(item);
+    });
+    $('toMapBtn').disabled = false;
+  }
+
+  $('clearBtn').addEventListener('click', () => {
+    $('fileList').innerHTML = '';
+    $('fileInput').value = '';
+    $('toMapBtn').disabled = true;
+    $('log').innerHTML = '';
+  });
+
+  $('toMapBtn').addEventListener('click', async () => {
+    try {
+      const files = $('fileInput').files;
+      if (!files.length || files.length === 0) {
+        // try DataTransfer alternative
+        const inputs = Array.from(document.querySelectorAll('.file-item')).map((el) => {
+          return { name: el.querySelector('.name').textContent };
+        });
+        alert('请重新选择文件后再继续');
+        return;
+      }
+      await core.importFiles(files);
+      core.mapAll();
+      const review = core.review();
+      renderSheetMapping();
+      renderSummary(review);
+      tabs[1].disabled = false;
+      switchTab('review');
+      tabs[0].classList.remove('active');
+      tabs[1].classList.add('active');
+    } catch (e) {
+      alert('导入失败：' + e.message);
+    }
+  });
+
+  function renderSheetMapping() {
+    const tbody = $('sheetMapTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    const mappings = core.state.sheetMappings || [];
+    mappings.forEach((m) => {
+      const tr = document.createElement('tr');
+      let statusHtml = '';
+      let catText = '';
+      if (m.categoryId) {
+        statusHtml = '<span class="status-mapped">✓ 已映射</span>';
+        const cat = AssistantSheets.CATEGORY_ALIASES.find((c) => c.id === m.categoryId);
+        catText = cat ? `${cat.id} ${cat.cn ? cat.cn[0] : cat.en}` : m.categoryId;
+      } else {
+        statusHtml = '<span class="status-pending">⚠ 待映射</span>';
+        catText = '（未识别）';
+      }
+      tr.innerHTML = `
+        <td>${m.fileName}</td>
+        <td>${m.sheetName}</td>
+        <td>${catText}</td>
+        <td>${m.mappedFields}/${m.totalFields}</td>
+        <td>${statusHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderSummary(review) {
+    $('summary').innerHTML = `
+      <div class="summary-card"><div class="label">导入项目数</div><div class="value">${review.total}</div></div>
+      <div class="summary-card"><div class="label">合并去重后</div><div class="value">${review.merged}</div></div>
+      <div class="summary-card"><div class="label">重复项</div><div class="value">${review.duplicateCount}</div></div>
+      <div class="summary-card"><div class="label">总金额估算</div><div class="value">¥${review.totalAmount.toFixed(2)}</div></div>
+    `;
+    if (review.warningCount > 0) {
+      $('warnSection').classList.remove('hidden');
+      $('warnCount').textContent = review.warningCount;
+      const list = $('warnList');
+      list.innerHTML = '';
+      core.state.warnings.slice(0, 100).forEach((w) => {
+        const item = document.createElement('div');
+        item.className = 'warn-item';
+        const tags = w.issues.map((i) => `<span class="warn-tag">${i}</span>`).join('');
+        item.innerHTML = `<span>${w.item.name || '(无名)'}</span>${tags}`;
+        list.appendChild(item);
+      });
+    } else {
+      $('warnSection').classList.add('hidden');
+    }
+  }
+
+  $('backBtn').addEventListener('click', () => switchTab('import'));
+  $('cancelBtn').addEventListener('click', async () => {
+    if (confirm('确定取消？所有导入项将丢弃。')) {
+      await core.cancel();
+      location.reload();
+    }
+  });
+
+  $('commitBtn').addEventListener('click', async () => {
+    try {
+      // 模拟数据：真实接入应从全局 store 拿
+      const data = (window.parent && window.parent.__yunshuData) || {
+        projectInfo: { code: 'test', name: '测试工程' },
+        libCategories: [],
+      };
+      const result = await core.commit(data, { projectId: data.projectInfo.code });
+      $('doneMsg').textContent = `已添加 ${result.totalAdded} 项到 ${result.results.length} 个分类。备份 ID：${result.backupId}`;
+      tabs[2].disabled = false;
+      switchTab('commit');
+    } catch (e) {
+      alert('提交失败：' + e.message);
+    }
+  });
+
+  $('newImportBtn').addEventListener('click', () => location.reload());
+  $('jumpBtn').addEventListener('click', () => {
+    const cats = core.getJumpTarget();
+    if (cats.length > 0) {
+      location.href = 'quotation.html?category=' + cats[0];
+    } else {
+      location.href = 'quotation.html';
+    }
+  });
+})();
+</script>
+</body>
+</html>

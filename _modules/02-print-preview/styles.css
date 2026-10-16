@@ -1,0 +1,343 @@
+/* styles.css — print preview window
+ * Theme: 胭脂 #A23C43 (red, default) via --accent
+ */
+
+:root {
+  --accent: #A23C43;
+  --accent-soft: rgba(162, 60, 67, 0.1);
+  --bg: #f4f5f7;
+  --paper-bg: #fff;
+  --paper-zoom: 1;
+  --text: #222;
+  --text-muted: #888;
+  --border: #d6d8dd;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --radius: 4px;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---- toolbar ---- */
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  display: flex; flex-wrap: wrap; gap: 8px 12px;
+  align-items: center;
+  box-shadow: var(--shadow);
+}
+.toolbar .group {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fafbfc;
+}
+.toolbar label {
+  font-size: 11px; color: var(--text-muted);
+}
+.toolbar select,
+.toolbar input[type="number"],
+.toolbar input[type="text"] {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 12px;
+  background: #fff;
+  color: var(--text);
+}
+.toolbar button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.toolbar button:hover { filter: brightness(0.92); }
+.toolbar button.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.toolbar .title {
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: 8px;
+}
+
+/* ---- main layout ---- */
+.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* ---- thumb nav ---- */
+.nav {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+.nav h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.thumb {
+  display: flex; gap: 6px;
+  padding: 6px;
+  margin-bottom: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.thumb:hover { background: var(--accent-soft); }
+.thumb.active { background: var(--accent-soft); border-color: var(--accent); }
+.thumb .num {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  flex-shrink: 0;
+}
+.thumb .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  align-self: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- main paper area ---- */
+.stage {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  overflow-x: auto;
+}
+.papers {
+  display: flex; flex-direction: column; gap: 16px;
+  align-items: center;
+  transform-origin: top center;
+  transform: scale(var(--paper-zoom, 1));
+  margin-bottom: calc((var(--paper-zoom, 1) - 1) * 100vh);
+}
+
+/* ---- paper (page) ---- */
+.paper {
+  background: var(--paper-bg);
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm;
+  box-shadow: var(--shadow);
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+  font-size: 11pt;
+  color: #111;
+}
+.paper.excluded { visibility: hidden; }
+.paper.cover-page .cover-inner {
+  text-align: center;
+  padding: 30mm 12mm 12mm;
+}
+.paper.cover-page .cover-logo {
+  width: 60mm; height: auto;
+  margin-bottom: 16mm;
+  object-fit: contain;
+}
+.paper.cover-page .cover-logo.ph {
+  width: 60mm; height: 30mm;
+  margin: 0 auto 16mm;
+  background: #f0f0f0;
+  display: flex; align-items: center; justify-content: center;
+  color: #aaa;
+  font-size: 14pt;
+}
+.paper.cover-page .cover-cn {
+  font-size: 24pt;
+  font-weight: 700;
+  margin-bottom: 4mm;
+  color: var(--accent);
+}
+.paper.cover-page .cover-en {
+  font-size: 12pt;
+  letter-spacing: 1px;
+  color: #555;
+  margin-bottom: 8mm;
+}
+.paper.cover-page .cover-line {
+  width: 80%;
+  margin: 0 auto 12mm;
+  border-top: 2px solid var(--accent);
+}
+.paper.cover-page .cover-proj {
+  text-align: left;
+  max-width: 130mm;
+  margin: 0 auto 16mm;
+  font-size: 12pt;
+  line-height: 2;
+}
+.paper.cover-page .cover-foot {
+  position: absolute;
+  bottom: 12mm; left: 12mm; right: 12mm;
+  text-align: center;
+  font-size: 10pt;
+  color: #555;
+  border-top: 1px solid #ddd;
+  padding-top: 4mm;
+}
+.paper .page-title,
+.paper .cat-title,
+.paper .cover-title {
+  color: var(--accent);
+  border-bottom: 1px solid var(--accent);
+  padding-bottom: 4px;
+  margin: 0 0 12px;
+}
+.paper .cover-title {
+  font-size: 22pt;
+  text-align: center;
+  border-bottom: none;
+}
+.paper .subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 16px;
+}
+.paper .empty {
+  color: #aaa;
+  text-align: center;
+  padding: 30px;
+  font-style: italic;
+}
+
+/* ---- quote table ---- */
+.quote-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+}
+.quote-table th,
+.quote-table td {
+  border: 1px solid #999;
+  padding: 4px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.quote-table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.quote-table td.num,
+.quote-table th.num { text-align: right; }
+.quote-table td.right { text-align: right; }
+.quote-table tfoot td {
+  font-weight: 600;
+  background: #f8f8f8;
+}
+
+/* ---- notes ---- */
+.paper.notes .notes-body {
+  white-space: pre-wrap;
+  min-height: 100mm;
+  font-size: 11pt;
+  line-height: 1.8;
+}
+.paper.notes .meta {
+  margin-top: 12mm;
+  display: flex; justify-content: space-between;
+  font-size: 10pt;
+  color: #555;
+}
+
+/* ---- sign ---- */
+.paper.sign .sign-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20mm 16mm;
+  margin: 30mm 16mm;
+}
+.paper.sign .sign-label {
+  font-size: 10pt;
+  color: #666;
+  border-bottom: 1px solid #999;
+  padding-bottom: 16mm;
+  margin-bottom: 4px;
+}
+.paper.sign .sign-val { font-size: 11pt; min-height: 18pt; }
+.paper.sign .footer-line {
+  position: absolute;
+  bottom: 12mm; left: 12mm; right: 12mm;
+  text-align: center;
+  color: var(--accent);
+  font-size: 9pt;
+  border-top: 1px solid var(--accent);
+  padding-top: 4mm;
+}
+
+/* ---- material book ---- */
+.paper.material-cover .cover-title { font-size: 28pt; }
+.paper.material-block .mat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6mm;
+}
+.paper.material-block .mat-item {
+  display: flex; gap: 4mm;
+  border: 1px solid #ddd;
+  padding: 3mm;
+  border-radius: 3px;
+}
+.paper.material-block .mat-img {
+  width: 30mm; height: 30mm;
+  object-fit: cover;
+  background: #f0f0f0;
+  border-radius: 2px;
+}
+.paper.material-block .mat-img.ph {
+  display: flex; align-items: center; justify-content: center;
+  color: #aaa;
+  font-size: 9pt;
+}
+.paper.material-block .mat-info { flex: 1; }
+.paper.material-block .mat-name { font-weight: 600; }
+.paper.material-block .mat-meta {
+  font-size: 9pt; color: #555;
+}
+
+/* ---- print ---- */
+@media print {
+  html, body { background: #fff !important; }
+  .toolbar, .nav, .thumb-list, .no-print { display: none !important; }
+  .layout { display: block; padding: 0; }
+  .stage { border: none; padding: 0; }
+  .papers { transform: none !important; }
+  .paper {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+  }
+  .paper.excluded { visibility: hidden !important; height: 0; padding: 0; margin: 0; }
+}

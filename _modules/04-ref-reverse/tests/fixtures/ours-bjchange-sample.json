@@ -1,0 +1,20 @@
+{
+  "fileType": "YUNSHU_ZHUANGQI_CHANGE_ORDERS",
+  "formatVersion": 1,
+  "savedAt": "2026-10-16T10:00:00.000Z",
+  "project": {
+    "name": "测试工程 · R-2026-001",
+    "code": "R-2026-001"
+  },
+  "rows": [
+    {
+      "id": "change-mvaveu8k-l4yam6du",
+      "kind": "add",
+      "name": "测试增项",
+      "unit": "项",
+      "qty": 1,
+      "price": 100,
+      "note": "本地生成"
+    }
+  ]
+}
