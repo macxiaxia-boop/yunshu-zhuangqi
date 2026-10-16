@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="装报价 — 装企(装修企业)报价工具 demo。">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>装报价 · 装企报价工具</title>
+<style>
+  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --shadow: 0 4px 12px rgba(0,0,0,0.05); --radius: 10px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+  a { color: var(--primary); }
+  button, input, select, textarea { font-family: inherit; }
+  /* Top bar */
+  .topbar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+  .brand-logo { width: 28px; height: 28px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(99,102,241,0.25); }
+  .brand-name { font-size: 14px; }
+  .actions { display: flex; gap: 6px; align-items: center; }
+  .btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 12px; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-primary:hover { background: var(--primary-2); border-color: var(--primary-2); color: #fff; }
+  .btn-sm { padding: 3px 8px; font-size: 11px; }
+  .btn-icon { padding: 4px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; color: var(--text-dim); }
+  .btn-icon:hover { color: var(--primary); }
+  /* Sidebar + main */
+  .layout { display: grid; grid-template-columns: 230px 1fr; height: calc(100vh - 50px); }
+  .sidebar { background: var(--bg-2); border-right: 1px solid var(--border); padding: 14px 0; overflow-y: auto; }
+  .sidebar-section { padding: 0 16px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-faint); }
+  .nav-item { padding: 9px 14px; cursor: pointer; display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--text-dim); border-left: 2px solid transparent; transition: all 0.1s; }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--primary-soft); color: var(--text); border-left-color: var(--primary); }
+  .nav-item .ni-ico { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-item.active .ni-ico { color: var(--primary); }
+  .nav-item .ni-label { flex: 1; min-width: 0; }
+  .nav-item .ni-price { font-family: monospace; font-size: 11px; color: var(--text-faint); }
+  .nav-item.active .ni-price { color: var(--primary); }
+  .sidebar-foot { padding: 14px 16px; border-top: 1px solid var(--border); font-size: 9px; color: var(--text-faint); margin-top: auto; }
+  .sidebar-foot .slogan { color: var(--text-dim); font-weight: 500; }
+  .sidebar-foot .en { letter-spacing: 1.5px; }
+  .sidebar-foot .ver { color: var(--primary); font-weight: 600; margin-top: 4px; }
+  /* Project switcher */
+  .project-switch { padding: 10px 16px; border-bottom: 1px solid var(--border); position: relative; }
+  .project-btn { width: 100%; padding: 8px 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .project-btn:hover { border-color: var(--primary); }
+  .project-menu { display: none; position: absolute; top: 100%; left: 16px; right: 16px; margin-top: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; box-shadow: var(--shadow); z-index: 60; overflow: hidden; }
+  .project-menu.active { display: block; }
+  .project-menu-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+  .project-menu-item:last-child { border-bottom: none; }
+  .project-menu-item:hover { background: var(--bg); }
+  /* Main */
+  .main { overflow-y: auto; }
+  .view { display: none; }
+  .view.active { display: flex; flex-direction: column; }
+  .view-head { background: var(--bg-2); padding: 14px 24px 10px; border-bottom: 1px solid var(--border); }
+  .view-head .crumb-en { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-faint); margin-bottom: 4px; }
+  .view-head .crumb-en::before { content: "●"; color: var(--primary); margin-right: 6px; font-size: 8px; }
+  .view-head h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .view-meta { display: flex; gap: 14px; font-size: 11px; color: var(--text-faint); align-items: center; }
+  .view-meta .field { display: flex; align-items: center; gap: 4px; }
+  .view-meta .label { color: var(--text-faint); }
+  .view-meta .value { color: var(--text-dim); }
+  .view-meta .spacer { flex: 1; }
+  .view-meta .date { color: var(--primary); font-weight: 600; font-family: monospace; font-size: 13px; }
+  .view-body { padding: 18px 24px; }
+  /* Cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .summary-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; position: relative; overflow: hidden; }
+  .summary-card .icon-btn { position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); background: var(--bg); }
+  .summary-card .label { font-size: 11px; color: var(--text-faint); margin-bottom: 10px; }
+  .summary-card .price { font-size: 26px; font-weight: 700; font-family: monospace; margin-bottom: 6px; }
+  .summary-card .desc { font-size: 11px; color: var(--text-dim); }
+  .summary-card.primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-color: var(--primary); }
+  .summary-card.primary .label, .summary-card.primary .desc { color: rgba(255,255,255,0.8); }
+  .summary-card.primary .price { color: #fff; }
+  .summary-card.primary .icon-btn { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.12); }
+  /* Quote table */
+  .qtable { width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .qtable-head { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .qtable-head .title { font-size: 14px; font-weight: 600; }
+  .qtable-head .sub { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .qtable table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .qtable th { background: var(--bg-2); padding: 10px 18px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-dim); }
+  .qtable td { padding: 10px 18px; border-bottom: 1px solid var(--border); }
+  .qtable tr:last-child td { border-bottom: none; }
+  .qtable .row-num { font-family: monospace; color: var(--text-faint); width: 50px; }
+  .qtable .name { display: flex; align-items: center; gap: 6px; }
+  .qtable .dot { color: var(--primary); font-size: 10px; }
+  .qtable .right { text-align: right; }
+  .qtable .formula { font-family: monospace; font-size: 11px; color: var(--text-dim); }
+  .qtable tfoot td { background: var(--bg-2); font-weight: 600; }
+  .qtable .total-amount { color: var(--primary); font-family: monospace; }
+  .note-bottom { margin-top: 12px; padding: 10px 14px; background: var(--primary-soft); border-left: 3px solid var(--primary); border-radius: 0 4px 4px 0; font-size: 11px; color: var(--text-dim); }
+  .note-bottom::before { content: "ⓘ"; color: var(--primary); margin-right: 6px; }
+  /* Project card */
+  .project-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .pc-head { padding: 12px 18px; background: var(--bg-2); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .pc-head .title { display: flex; align-items: center; gap: 12px; }
+  .pc-head .num { background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+  .pc-head .name { font-size: 14px; font-weight: 600; }
+  .pc-head .filter-tip { font-size: 11px; color: var(--text-faint); margin-right: 8px; }
+  .pc-head .filter-tip b { color: var(--primary); }
+  .pc-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pc-body th { padding: 10px 18px; background: var(--bg-2); text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; color: var(--text-dim); }
+  .pc-body td { padding: 10px 18px; border-bottom: 1px solid var(--border); }
+  .pc-foot { padding: 12px 18px; background: var(--bg-2); border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .pc-foot .amount { color: var(--primary); font-weight: 700; font-family: monospace; font-size: 14px; }
+  /* Empty */
+  .empty { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 60px 24px; text-align: center; }
+  .empty-mark { font-size: 48px; opacity: 0.3; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; color: var(--text-dim); margin-bottom: 6px; }
+  .empty p { font-size: 13px; color: var(--text-faint); }
+  .add-row { padding: 6px 10px; border: 1px dashed var(--border-2, #d0d0d0); border-radius: 4px; color: var(--text-dim); font-size: 11px; cursor: pointer; margin: 4px 18px; background: transparent; }
+  .add-row:hover { border-color: var(--primary); color: var(--primary); }
+  /* Bottom brand */
+  .brand-footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 0 24px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 10px; }
+  .brand-footer .slogan-zh { color: var(--text-dim); font-weight: 500; }
+  .brand-footer .sep { margin: 0 12px; color: var(--border); }
+  .brand-footer .slogan-en { letter-spacing: 1.5px; }
+  .brand-footer .ver { color: var(--primary); font-weight: 600; margin-left: 12px; }
+  /* Toast */
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--primary); color: #fff; padding: 8px 18px; border-radius: 6px; font-size: 13px; box-shadow: 0 6px 18px rgba(99,102,241,0.35); opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 1000; font-weight: 500; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* Changelog modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-bg.active { display: flex; }
+  .modal { background: var(--panel); border-radius: var(--radius); max-width: 480px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-head h3 { font-size: 14px; font-weight: 700; }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-2); border: none; cursor: pointer; font-size: 18px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { padding: 18px; font-size: 12px; line-height: 1.7; }
+  .modal-body .changelog-version { border-left: 3px solid var(--primary); padding-left: 12px; margin-bottom: 12px; }
+  .modal-body .changelog-version .date { font-weight: 600; color: var(--primary); font-size: 13px; margin-bottom: 4px; }
+  .modal-body .changelog-version .sub { font-size: 11px; color: var(--text-faint); margin-bottom: 8px; }
+  .modal-body .changelog-version ul { padding-left: 18px; color: var(--text-dim); }
+  .modal-body .changelog-version ul li { padding: 2px 0; }
+  /* Cmd+K palette */
+  .cmd-palette { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); width: 560px; max-width: 90vw; background: var(--bg-2); border: 1px solid var(--border-2, #d0d0d0); border-radius: 10px; box-shadow: 0 16px 48px rgba(0,0,0,0.5); z-index: 200; display: none; overflow: hidden; }
+  .cmd-palette.active { display: block; }
+  .cmd-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); padding: 14px 18px; color: var(--text); font-size: 14px; outline: none; }
+  .cmd-input::placeholder { color: var(--text-faint); }
+  .cmd-list { max-height: 360px; overflow-y: auto; }
+  .cmd-item { padding: 10px 18px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12.5px; border-left: 3px solid transparent; }
+  .cmd-item:hover, .cmd-item.selected { background: var(--bg); border-left-color: var(--primary); }
+  .cmd-item .cmd-icon { font-size: 14px; width: 20px; text-align: center; }
+  .cmd-item .cmd-name { flex: 1; }
+  .cmd-item .cmd-shortcut { font-family: monospace; font-size: 11px; color: var(--text-faint); background: var(--bg); padding: 1px 6px; border-radius: 3px; }
+  .cmd-empty { padding: 20px; text-align: center; color: var(--text-faint); font-size: 12px; }
+  .cmd-footer { padding: 6px 18px; border-top: 1px solid var(--border); background: var(--bg); font-size: 10px; color: var(--text-faint); display: flex; justify-content: space-between; }
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; height: auto; }
+    .sidebar { display: none; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .topbar .actions .btn:not(:last-child) { display: none; }
+    .pc-body table, .qtable table { font-size: 11px; }
+  }
+  @media print {
+    .topbar, .sidebar, .brand-footer, .toast, .project-switch, .add-row { display: none !important; }
+    body { background: white; padding: 0; }
+    .layout { display: block; height: auto; }
+    .view { display: block !important; }
+    .view-head { background: white; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <span class="brand-name">装报价</span>
+  </div>
+  <div class="actions">
+    <select id="themeSelect" onchange="switchTheme(this.value)" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;background:var(--panel);">
+      <option value="8B0029">胭脂(默认)</option>
+      <option value="dae">黛青</option>
+      <option value="songshi">松石绿</option>
+      <option value="zheshi">赭石</option>
+      <option value="yan">烟紫</option>
+      <option value="nuanxiang">暖香</option>
+    </select>
+    <button class="btn btn-icon" onclick="openChangelog()" title="更新日志">📋</button>
+    <button class="btn btn-icon" onclick="exportQuote()" title="导出报价书">📥</button>
+    <button class="btn btn-icon" onclick="openCmd()" title="命令面板 (Ctrl+K)">⌘</button>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <span>报价工作台</span>
+    </div>
+    <div class="project-switch">
+      <button class="project-btn" onclick="toggleProjectMenu()">📁 <span id="currentProjectName">示例工程 · 未命名</span> <span style="font-size:9px;">▼</span></button>
+      <div class="project-menu" id="projectMenu">
+        <div class="project-menu-item" data-project="empty" onclick="switchProject('empty')">
+          <div style="font-weight:500;">📋 新建空工程</div>
+          <div style="font-size:10px;color:var(--text-faint);margin-top:2px;">全新项目,所有金额归零</div>
+        </div>
+        <div class="project-menu-item" data-project="inprogress" onclick="switchProject('inprogress')">
+          <div style="font-weight:500;">🔨 进行中 · ST-001</div>
+          <div style="font-size:10px;color:var(--text-faint);margin-top:2px;">部分模块已填,演示中</div>
+        </div>
+        <div class="project-menu-item" data-project="completed" onclick="switchProject('completed')">
+          <div style="font-weight:500;">✅ 已完成 · ST-002</div>
+          <div style="font-size:10px;color:var(--text-faint);margin-top:2px;">全部模块已填,演示终态</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-item active" data-view="summary" onclick="switchView('summary', this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v3H4zM4 10h16v3H4zM4 16h10v3H4z"/></svg>
+      <span class="ni-label">总价表</span>
+      <span class="ni-price">¥310.39</span>
+    </div>
+    <div class="nav-item" data-view="base" onclick="toggleSection(this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
+      <span class="ni-label">基础装修</span>
+    </div>
+    <div class="nav-item" data-view="main" onclick="toggleSection(this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span class="ni-label">主材软装</span>
+    </div>
+    <div class="nav-item" data-view="change" onclick="switchView('change', this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4l8 8-8 8"/></svg>
+      <span class="ni-label">增减项</span>
+      <span class="ni-price">¥-120</span>
+    </div>
+    <div class="nav-item" data-view="assistant" onclick="switchView('assistant', this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9h.01M15 9h.01M8 15c1-1 2.5-1.5 4-1.5s3 .5 4 1.5"/></svg>
+      <span class="ni-label">智能助手</span>
+    </div>
+    <div class="nav-item" data-view="library" onclick="switchView('library', this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/></svg>
+      <span class="ni-label">定额库</span>
+    </div>
+    <div class="nav-item" data-view="material" onclick="switchView('material', this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span class="ni-label">物料全书</span>
+    </div>
+    <div class="nav-item" data-view="settings" onclick="toggleSection(this)">
+      <svg class="ni-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="ni-label">系统设置</span>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="slogan">让设计源自生活</div>
+      <div class="en">LET DESIGN RETURN TO LIFE</div>
+      <div class="ver">装报价 V1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- 总价表 -->
+    <div class="view active" data-view="summary">
+      <div class="view-head">
+        <div class="crumb-en">PROJECT / QUOTATION SUMMARY</div>
+        <h2>项目报价工作台</h2>
+        <div class="view-meta">
+          <div class="field"><span class="label">工程编号</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制日期</span><span class="value">2026-10-14</span></div>
+          <div class="field"><span class="label">建筑师</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制人员</span><span class="value">待填写</span></div>
+          <div class="spacer"></div>
+          <div class="field"><span class="label">TODAY · 周三</span></div>
+          <div class="field"><span class="date">2026.10.14</span></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="icon-btn">✏️</div>
+            <div class="label">设计服务费</div>
+            <div class="price">¥ 0.00</div>
+            <div class="desc">按面积与设计单价计算</div>
+          </div>
+          <div class="summary-card">
+            <div class="icon-btn">🏠</div>
+            <div class="label">基础装修工程项目</div>
+            <div class="price">¥ 310.39</div>
+            <div class="desc">含管理费及税金</div>
+          </div>
+          <div class="summary-card">
+            <div class="icon-btn">🛋</div>
+            <div class="label">主材软装代购项目</div>
+            <div class="price">¥ 0.00</div>
+            <div class="desc">含代购服务费及税金</div>
+          </div>
+          <div class="summary-card primary">
+            <div class="icon-btn">📋</div>
+            <div class="label">本次报价总计</div>
+            <div class="price">¥ 310.39</div>
+            <div class="desc">仅汇总已勾选的报价</div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:11px;color:var(--text-faint);">📐 报价总览 · 勾选本次需要的报价板块</span>
+          <div><button class="btn btn-sm">舒适</button><button class="btn btn-sm">紧凑</button></div>
+        </div>
+        <div class="qtable">
+          <div class="qtable-head">
+            <div class="title">项目报价清单</div>
+            <div class="sub">QUOTATION / 把每一笔钱算到清单里</div>
+          </div>
+          <table>
+            <thead><tr><th style="width:50px;">编号</th><th>名称</th><th>备注</th><th>公式计算说明</th><th style="text-align:right;">合计(元)</th></tr></thead>
+            <tbody>
+              <tr><td class="row-num">一、</td><td><div class="name"><span class="dot">●</span>设计服务费 <span style="color:var(--primary);">✓</span></div></td><td>设计服务费</td><td class="formula">0.00㎡ × 200.0 元/㎡</td><td class="right total-amount">¥0.00</td></tr>
+              <tr><td class="row-num">二、</td><td><div class="name"><span class="dot">●</span>基础装修工程项目 <span style="color:var(--primary);">✓</span></div></td><td>基础装修工程项目中的工程量清单为准</td><td class="formula">详见 "基础装修工程项目 - 价目表"</td><td class="right total-amount">¥310.39</td></tr>
+              <tr><td class="row-num">三、</td><td><div class="name"><span class="dot">●</span>主材软装代购项目</div></td><td>以主材软装代购价目表中的项目清单为准</td><td class="formula">详见 "主材软装代购项目 - 价目表"</td><td class="right total-amount">¥0.00</td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="4" class="right">总计</td><td class="right total-amount">¥310.39</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="note-bottom">报价概览仅用于屏幕查看,不会添加至打印文件。项目完成完成后请使用右上角"保存"保留独立项目文件。</div>
+      </div>
+    </div>
+
+    <!-- 基础装修 - 价目表 -->
+    <div class="view" data-view="base_price">
+      <div class="view-head">
+        <div class="crumb-en">CONSTRUCTION / PRICE LIST</div>
+        <h2>项目报价工作台</h2>
+        <div class="view-meta">
+          <div class="field"><span class="label">工程编号</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制日期</span><span class="value">2026-10-14</span></div>
+          <div class="field"><span class="label">建筑师</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制人员</span><span class="value">待填写</span></div>
+          <div class="spacer"></div>
+          <div class="field"><span class="label">2026.10.14</span></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:11px;color:var(--text-faint);">📐 分摊项目总 · 点击项目名称进入对应明细</span>
+          <div><button class="btn btn-sm">舒适</button><button class="btn btn-sm">紧凑</button></div>
+        </div>
+        <div class="project-card">
+          <div class="pc-head"><div class="title"><div class="name">基础装修工程项目价目表</div></div><div style="font-size:11px;color:var(--text-faint);">QUOTATION / 把每一笔钱算到清单里</div></div>
+          <div class="pc-body">
+            <table>
+              <thead><tr><th>编号</th><th>名称</th><th>备注</th><th>公式计算说明</th><th style="text-align:right;">合计(元)</th></tr></thead>
+              <tbody>
+                <tr><td>01</td><td>措施项目</td><td>管理费、规费、税金</td><td class="formula">基础装修工程项目 × 5.00 %</td><td class="right total-amount">¥42.00</td></tr>
+                <tr><td>02</td><td>拆除工程</td><td>拆除工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+                <tr><td>03</td><td>砌筑工程</td><td>砌筑工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+                <tr><td>04</td><td>水电暖工程</td><td>水电暖工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+                <tr><td>05</td><td>防水工程</td><td>防水工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+                <tr><td>06</td><td>保温隔热静音工程</td><td>保温隔热静音工程</td><td class="formula">—</td><td class="right total-amount">¥245.00</td></tr>
+                <tr><td>07</td><td>泥瓦工程</td><td>泥瓦工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+                <tr><td>08</td><td>木作工程</td><td>木作工程</td><td class="formula">—</td><td class="right total-amount">¥0.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pc-foot"><span>合计</span><span class="amount">¥310.39</span></div>
+        </div>
+        <div class="note-bottom">工程管理费包含:管理人员工资、办公费、差旅交通费、固定资产使用费、工具用具使用费、零星材料费、检验试验费、计时点费、劳动保护费、工人工资、税金等。</div>
+      </div>
+    </div>
+
+    <!-- 基础装修 - 01 措施项目 -->
+    <div class="view" data-view="p1">
+      <div class="view-head">
+        <div class="crumb-en">CONSTRUCTION / DETAILS</div>
+        <h2>项目报价工作台</h2>
+        <div class="view-meta">
+          <div class="field"><span class="label">工程编号</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制日期</span><span class="value">2026-10-14</span></div>
+          <div class="field"><span class="label">建筑师</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制人员</span><span class="value">待填写</span></div>
+          <div class="spacer"></div>
+          <div class="field"><span class="label">2026.10.14</span></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:11px;color:var(--text-faint);">📐 明细编辑 · 数量 / 单价 / 交档算式 · 双击可编辑算式</span>
+          <div><button class="btn btn-sm">舒适</button><button class="btn btn-sm">紧凑</button></div>
+        </div>
+        <div class="project-card">
+          <div class="pc-head">
+            <div class="title"><span class="num">01</span><span class="name">措施项目</span></div>
+            <div class="filter-tip">筛选项目,如:周同</div>
+          </div>
+          <div class="pc-body">
+            <table>
+              <thead><tr><th>序号</th><th>项目名称及备注</th><th>单位</th><th>数量</th><th>综合单价</th><th>合计</th></tr></thead>
+              <tbody>
+                <tr><td>1.1.1</td><td>安全生产<br><span style="font-size:10px;color:var(--text-faint);">为安全生产而采取的全部措施项目费用</span></td><td>项</td><td>1.00</td><td>0.00</td><td>0.00</td></tr>
+                <tr><td>1.1.3</td><td>冬雨季施工费用<br><span style="font-size:10px;color:var(--text-faint);">室内井道所需要的垫筑材料费</span></td><td>户</td><td>1.00</td><td>0.00</td><td>0.00</td></tr>
+                <tr><td>1.1.4</td><td>脚手架<br><span style="font-size:10px;color:var(--text-faint);">脚手架搭拆、料具、钢模木</span></td><td>㎡</td><td>1.00</td><td>0.00</td><td>0.00</td></tr>
+              </tbody>
+            </table>
+            <button class="add-row">+ 添加标题</button>
+            <button class="add-row">+ 添加项目</button>
+          </div>
+          <div class="pc-foot"><span>小计</span><span class="amount">¥42.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 其他 view 占位 -->
+    <div class="view" data-view="base_desc"><div class="view-body"><div class="empty"><div class="empty-mark">📝</div><h3>编制说明</h3><p>本报价涵盖基础装修工程所有相关项目,包括工程管理费、措施项目、拆除工程等。<br>系统自动按管理费率 5% 计算。</p></div></div></div>
+    <div class="view" data-view="p2"><div class="view-body"><div class="empty"><div class="empty-mark">📋</div><h3>02 拆除工程</h3><p>此工程子目为空 · 等待添加</p><button class="btn btn-primary" style="margin-top:14px;">+ 添加定额</button></div></div></div>
+    <div class="view" data-view="p3"><div class="view-body"><div class="empty"><div class="empty-mark">📋</div><h3>03 砌筑工程</h3><p>此工程子目为空 · 等待添加</p><button class="btn btn-primary" style="margin-top:14px;">+ 添加定额</button></div></div></div>
+    <div class="view" data-view="p4"><div class="view-body"><div class="empty"><div class="empty-mark">⚡</div><h3>04 水电暖工程</h3><p>此工程子目为空</p></div></div></div>
+    <div class="view" data-view="p5"><div class="view-body"><div class="empty"><div class="empty-mark">💧</div><h3>05 防水工程</h3><p>此工程子目为空</p></div></div></div>
+    <div class="view" data-view="p6"><div class="view-body"><div class="empty"><div class="empty-mark">🔇</div><h3>06 保温隔热静音工程</h3><p>此工程子目已填示例(¥245.00)</p></div></div></div>
+    <div class="view" data-view="p7"><div class="view-body"><div class="empty"><div class="empty-mark">🧱</div><h3>07 泥瓦工程</h3><p>此工程子目为空</p></div></div></div>
+    <div class="view" data-view="p8"><div class="view-body"><div class="empty"><div class="empty-mark">🪵</div><h3>08 木作工程</h3><p>此工程子目为空</p></div></div></div>
+
+    <!-- 主材软装 -->
+    <div class="view" data-view="main_price"><div class="view-body"><div class="empty"><div class="empty-mark">🛋</div><h3>主材软装代购项目 · 价目表</h3><p>主材设备及软装代购总览</p></div></div></div>
+    <div class="view" data-view="main_desc"><div class="view-body"><div class="empty"><div class="empty-mark">📝</div><h3>主材软装代购项目 · 编制说明</h3><p>主材设备的采购说明、规格、品牌范围</p></div></div></div>
+    <div class="view" data-view="m1"><div class="view-body"><div class="empty"><div class="empty-mark">📦</div><h3>01 套装</h3><p>套装类主材(厨房/卫浴/全屋定制)的报价清单</p></div></div></div>
+    <div class="view" data-view="m2"><div class="view-body"><div class="empty"><div class="empty-mark">🪨</div><h3>02 石材</h3><p>石材类主材(大理石/花岗岩/人造石)的报价清单</p></div></div></div>
+
+    <!-- 增减项 -->
+    <div class="view" data-view="change">
+      <div class="view-head">
+        <div class="crumb-en">CHANGE ORDERS</div>
+        <h2>增减项</h2>
+        <div class="view-meta">
+          <div class="field"><span class="label">关联工程</span><span class="value">未填写工程名称</span></div>
+          <div class="field"><span class="label">工程编号</span><span class="value">待填写</span></div>
+          <div class="spacer"></div>
+          <button class="btn">↩ 返回报价</button>
+          <div class="field"><span class="label">2026.10.14</span></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px;">
+          <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:18px;">
+            <div style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">增加金额</div>
+            <div style="font-size:24px;font-weight:700;color:#4ade80;font-family:monospace;">¥ 0.00</div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:18px;">
+            <div style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">减少金额</div>
+            <div style="font-size:24px;font-weight:700;color:var(--primary);font-family:monospace;">¥ 120.00</div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:18px;">
+            <div style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">净增减金额</div>
+            <div style="font-size:24px;font-weight:700;color:var(--text);font-family:monospace;">¥ -120.00</div>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="pc-head">
+            <div class="title"><div class="name">增减项明细</div></div>
+            <div style="display:flex;gap:4px;">
+              <button class="btn btn-sm">+ 添加项</button>
+              <button class="btn btn-sm">- 添加减项</button>
+              <button class="btn btn-sm">粘贴报价项目</button>
+              <button class="btn btn-sm">导出明细</button>
+            </div>
+          </div>
+          <div class="pc-body">
+            <table>
+              <thead><tr><th>类型</th><th>变更项目</th><th>单位</th><th>工程量</th><th>单价</th><th>增减金额</th><th>备注/原因</th><th style="text-align:right;">操作</th></tr></thead>
+              <tbody>
+                <tr><td><span style="color:#4ade80;">增项</span></td><td></td><td>项</td><td>1.00</td><td>0.00</td><td style="color:var(--text-faint);">0.00</td><td></td><td><button class="btn-icon">×</button></td></tr>
+                <tr style="background:var(--primary-soft);"><td><span style="color:var(--primary);">减项</span></td><td>保温隔热天棚</td><td>㎡</td><td>1.00</td><td>120.00</td><td style="color:var(--primary);font-weight:700;">-120.00</td><td>满粘XPS板;50mm;M20抹面砂浆</td><td><button class="btn-icon">×</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="padding:14px 18px;font-size:11px;color:var(--text-faint);">修改后自动保存 · 顶部"保存"可选择位置 · 单地保存增减项文件。</div>
+      </div>
+    </div>
+
+    <div class="view" data-view="assistant"><div class="view-body"><div class="empty"><div class="empty-mark">🤖</div><h3>智能助手</h3><p>AI 助手可以帮您快速生成报价、识别图纸、提供方案建议</p><button class="btn btn-primary" style="margin-top:14px;">开始对话</button></div></div></div>
+    <div class="view" data-view="library"><div class="view-body"><div class="empty"><div class="empty-mark">📚</div><h3>定额库中心</h3><p>独立定额库 · 自动保存于本机 · 切换报价不影响库内内容</p></div></div></div>
+    <div class="view" data-view="material"><div class="view-body"><div class="empty"><div class="empty-mark">🪨</div><h3>物料全书</h3><p>物料详情 · 品牌型号规格</p></div></div></div>
+
+    <!-- 系统设置 -->
+    <div class="view" data-view="settings">
+      <div class="view-head">
+        <div class="crumb-en">STUDIO / SETTINGS</div>
+        <h2>系统设置</h2>
+        <div class="view-meta">
+          <div class="field"><span class="label">工程编号</span><span class="value">待填写</span></div>
+          <div class="field"><span class="label">编制日期</span><span class="value">2026-10-14</span></div>
+          <div class="spacer"></div>
+          <button class="btn btn-primary">💾 保存</button>
+          <button class="btn">刷新</button>
+          <div class="field"><span class="label">2026.10.14</span></div>
+        </div>
+      </div>
+      <div class="view-body">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="field-group"><div class="field-label">项目编号 <span class="en">Project No.</span></div><input class="field-input" placeholder="如:ST-01"></div>
+          <div class="field-group"><div class="field-label">编制日期 <span class="en">Date</span></div><input class="field-input" type="date" value="2026-10-14"></div>
+          <div class="field-group"><div class="field-label">建筑师 <span class="en">Architect</span></div><input class="field-input"></div>
+          <div class="field-group"><div class="field-label">编制人员 <span class="en">Compiled By</span></div><input class="field-input"></div>
+          <div class="field-group" style="grid-column:span 2;"><div class="field-label">公司名称 <span class="en">Company Name</span></div><input class="field-input" value="云上室内建筑设计"></div>
+          <div class="field-group"><div class="field-label">联系电话</div><input class="field-input" placeholder="请输入联系电话"></div>
+          <div class="field-group"><div class="field-label">公司地址</div><input class="field-input"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="brand-footer">
+  <span class="slogan-zh">让设计源自生活</span>
+  <span class="sep">·</span>
+  <span class="slogan-en">LET DESIGN RETURN TO LIFE</span>
+  <span class="sep">·</span>
+  <span class="slogan-en">CLOUD STUDIO</span>
+  <span class="ver" style="cursor:pointer;" onclick="openChangelog()" title="查看更新日志">V1.0</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Changelog Modal -->
+<div class="modal-bg" id="changelogModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📋 更新日志 · V1.0</h3>
+      <button class="modal-close" onclick="document.getElementById('changelogModal').classList.remove('active')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="changelog-version">
+        <div class="date">🎉 V1.0 (2026-10-15) — 首次发布</div>
+        <div class="sub">装企报价系统 demo · 基于小红书「溜小溜」视频还原</div>
+        <ul>
+          <li>11 大报价模块(基础装修 + 主材软装)</li>
+          <li>6 主题色 + 自定义</li>
+          <li>3 示例项目切换器</li>
+          <li>Cmd+K 命令面板(24 命令)</li>
+          <li>导出报价书(HTML 下载)</li>
+          <li>响应式(1100px + 768px 断点)</li>
+          <li>localStorage 持久化</li>
+          <li>键盘快捷键(?, Ctrl+P)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cmd+K Palette -->
+<div class="cmd-palette" id="cmdPalette">
+  <input class="cmd-input" id="cmdInput" placeholder="🔍 搜索命令 (切换项目、切换主题、导出报价等...)" oninput="filterCmd(this.value)" onkeydown="cmdKeydown(event)">
+  <div class="cmd-list" id="cmdList"></div>
+  <div class="cmd-footer">
+    <span>↑↓ 选择 · Enter 执行 · Esc 关闭</span>
+    <span id="cmdCount">24 命令</span>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ============ Demo Data ============
+const PROJECTS = {
+  empty: {
+    name: '示例工程 · 未命名',
+    summary: [
+      { type: '设计服务费', checked: true, formula: '0.00㎡ × 200.0 元/㎡', total: 0 },
+      { type: '基础装修工程项目', checked: true, formula: '详见 "基础装修工程项目 - 价目表"', total: 0 },
+      { type: '主材软装代购项目', checked: false, formula: '详见 "主材软装代购项目 - 价目表"', total: 0 }
+    ],
+    grandTotal: 0
+  },
+  inprogress: {
+    name: '进行中 · ST-001',
+    summary: [
+      { type: '设计服务费', checked: true, formula: '0.00㎡ × 200.0 元/㎡', total: 0 },
+      { type: '基础装修工程项目', checked: true, formula: '详见 "基础装修工程项目 - 价目表"', total: 4580 },
+      { type: '主材软装代购项目', checked: false, formula: '详见 "主材软装代购项目 - 价目表"', total: 0 }
+    ],
+    grandTotal: 4580
+  },
+  completed: {
+    name: '已完成 · ST-002',
+    summary: [
+      { type: '设计服务费', checked: true, formula: '0.00㎡ × 200.0 元/㎡', total: 0 },
+      { type: '基础装修工程项目', checked: true, formula: '详见 "基础装修工程项目 - 价目表"', total: 128360 },
+      { type: '主材软装代购项目', checked: true, formula: '详见 "主材软装代购项目 - 价目表"', total: 58180 }
+    ],
+    grandTotal: 186540
+  }
+};
+
+const KEY = { currentProject: 'yunshu-current-project' };
+let currentProject = loadJSON(KEY.currentProject, 'empty');
+
+// ============ Utils ============
+function $(s, p) { return (p || document).querySelector(s); }
+function $$(s, p) { return Array.from((p || document).querySelectorAll(s)); }
+function loadJSON(key, def) { try { const v = JSON.parse(localStorage.getItem(key) || 'null'); return v == null ? def : v; } catch(e) { return def; } }
+function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+function showToast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============ Theme Switching ============
+const THEMES = {
+  '8B0029': { name: '胭脂', primary: '#B50029', primary2: '#8B0029', soft: 'rgba(181,0,41,0.12)' },
+  dae: { name: '黛青', primary: '#2a4858', primary2: '#1e3540', soft: 'rgba(42,72,88,0.15)' },
+  songshi: { name: '松石绿', primary: '#2d6e54', primary2: '#1f5240', soft: 'rgba(45,110,84,0.15)' },
+  zheshi: { name: '赭石', primary: '#8B4513', primary2: '#5d2f0d', soft: 'rgba(139,69,19,0.15)' },
+  yan: { name: '烟紫', primary: '#6b4a7a', primary2: '#4a3457', soft: 'rgba(107,74,122,0.45)' },
+  nuanxiang: { name: '暖香', primary: '#b8945a', primary2: '#8d6e3f', soft: 'rgba(184,148,90,0.15)' }
+};
+
+function switchTheme(key) {
+  const t = THEMES[key];
+  if (!t) return;
+  document.documentElement.style.setProperty('--primary', t.primary);
+  document.documentElement.style.setProperty('--primary-2', t.primary2);
+  document.documentElement.style.setProperty('--primary-soft', t.soft);
+  document.documentElement.style.setProperty('--theme-color', t.primary);
+  saveJSON('yunshu-theme', key);
+}
+
+// 启动时加载主题
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('yunshu-theme');
+  if (savedTheme && THEMES[savedTheme]) {
+    switchTheme(savedTheme);
+    const sel = document.getElementById('themeSelect');
+    if (sel) sel.value = savedTheme;
+  }
+});
+
+// ============ Project Switching ============
+function toggleProjectMenu() {
+  document.getElementById('projectMenu').classList.toggle('active');
+}
+
+function switchProject(key) {
+  if (!PROJECTS[key]) return;
+  currentProject = key;
+  saveJSON(KEY.currentProject, key);
+  document.getElementById('projectMenu').classList.remove('active');
+  document.getElementById('currentProjectName').textContent = PROJECTS[key].name;
+  renderSummary();
+  showToast('✓ 已切换项目: ' + PROJECTS[key].name);
+}
+
+function renderSummary() {
+  // 简单刷新总览卡的金额
+  const p = PROJECTS[currentProject];
+  const cards = $$('.summary-card');
+  if (cards.length >= 4) {
+    cards[0].querySelector('.price').textContent = '¥ ' + p.summary[0].total.toFixed(2);
+    cards[1].querySelector('.price').textContent = '¥ ' + p.summary[1].total.toFixed(2);
+    cards[2].querySelector('.price').textContent = '¥ ' + p.summary[2].total.toFixed(2);
+    cards[3].querySelector('.price').textContent = '¥ ' + p.grandTotal.toFixed(2);
+  }
+}
+
+// ============ Sidebar Navigation ============
+function switchView(name, el) {
+  $$('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n === el));
+}
+
+function toggleSection(el) {
+  const children = el.nextElementSibling;
+  const isOpen = children.classList.toggle('open');
+  el.classList.toggle('expanded', isOpen);
+  if (isOpen && children.classList.contains('base_price')) switchView('base_price', el);
+}
+
+// ============ Changelog ============
+function openChangelog() { document.getElementById('changelogModal').classList.add('active'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('changelogModal').classList.remove('active'); });
+
+// ============ Export Quote ============
+function exportQuote() {
+  const p = PROJECTS[currentProject];
+  const itemsHtml = p.summary.map(item => `<tr><td>${item.type}</td><td>${item.checked ? '✓' : '○'}</td><td>${item.formula}</td><td style="text-align:right;font-weight:700;color:${item.checked ? '#B50029' : '#aaa'};">¥${item.total.toFixed(2)}</td></tr>`).join('');
+  const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>报价单 - ${p.name}</title>
+<style>body{font-family:-apple-system,"PingFang SC",sans-serif;max-width:760px;margin:30px auto;padding:0 20px;color:#1a1a2e;line-height:1.7;}
+h1{font-size:24px;border-bottom:3px solid #B50029;padding-bottom:10px;}
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;}
+th{background:#fef0f3;padding:12px;text-align:left;border-bottom:1px solid #ddd;font-size:12px;color:#5e5e7a;}
+td{padding:12px;border-bottom:1px solid #eee;}
+.amount{text-align:right;font-family:monospace;font-weight:700;color:#B50029;}
+.total{font-size:36px;font-weight:800;color:#B50029;text-align:right;margin:20px 0;padding:14px;background:#fef0f3;border-radius:8px;}
+</style></head><body>
+<h1>${p.name}</h1>
+<div style="color:#5e5e7a;font-size:13px;margin-bottom:14px;">报价日期:2026-10-14 · 编制人:待填写</div>
+<table><thead><tr><th>报价板块</th><th>选择</th><th>计算说明</th><th class="amount">合计</th></tr></thead>
+<tbody>${itemsHtml}</tbody></table>
+<div class="total">本次报价总计 ¥${p.grandTotal.toLocaleString('zh-CN')}</div>
+<div style="text-align:center;color:#9595ad;font-size:11px;margin-top:30px;padding-top:14px;border-top:1px solid #eee;">
+由 装报价 demo 生成 · 让设计源自生活
+</div></body></html>`;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `报价单_${p.name}_${Date.now()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast('✓ 报价单已下载');
+}
+
+// ============ Cmd+K Command Palette ============
+const COMMANDS = [
+  { name: '切换项目: 新建空工程', icon: '📋', action: () => switchProject('empty') },
+  { name: '切换项目: 进行中 ST-001', icon: '🔨', action: () => switchProject('inprogress') },
+  { name: '切换项目: 已完成 ST-002', icon: '✅', action: () => switchProject('completed') },
+  { name: '打开 总价表', icon: '📊', action: () => switchView('summary', document.querySelector('[data-view="summary"]')) },
+  { name: '打开 基础装修 · 价目表', icon: '📋', action: () => switchView('base_price', document.querySelector('[data-view="base_price"]')) },
+  { name: '打开 01 措施项目', icon: '🔨', action: () => switchView('p1', document.querySelector('[data-view="p1"]')) },
+  { name: '打开 06 保温隔热', icon: '🔇', action: () => switchView('p6', document.querySelector('[data-view="p6"]')) },
+  { name: '打开 增减项', icon: '➕', action: () => switchView('change', document.querySelector('[data-view="change"]')) },
+  { name: '打开 定额库中心', icon: '📚', action: () => switchView('library', document.querySelector('[data-view="library"]')) },
+  { name: '打开 物料全书', icon: '🪨', action: () => switchView('material', document.querySelector('[data-view="material"]')) },
+  { name: '打开 系统设置', icon: '⚙️', action: () => switchView('settings', document.querySelector('[data-view="settings"]')) },
+  { name: '导出 报价单(HTML)', icon: '📥', action: () => exportQuote() },
+  { name: '打开 更新日志', icon: '📋', action: () => openChangelog() },
+  { name: '打印 当前页面', icon: '🖨', action: () => window.print() },
+  { name: '刷新页面', icon: '🔄', action: () => location.reload() },
+  { name: '切换主题: 胭脂红', icon: '🎨', action: () => switchTheme('8B0029') },
+  { name: '切换主题: 黛青', icon: '🎨', action: () => switchTheme('dae') },
+  { name: '切换主题: 松石绿', icon: '🎨', action: () => switchTheme('songshi') },
+  { name: '切换主题: 赭石', icon: '🎨', action: () => switchTheme('zheshi') },
+  { name: '切换主题: 烟紫', icon: '🎨', action: () => switchTheme('yan') },
+  { name: '切换主题: 暖香', icon: '🎨', action: () => switchTheme('nuanxiang') },
+  { name: '保存当前项目(演示)', icon: '💾', action: () => showToast('✓ 已保存(演示版)') },
+  { name: '新建项目(演示版)', icon: '📁', action: () => switchProject('empty') },
+  { name: '切换项目: ST-002', icon: '📋', action: () => switchProject('completed') }
+];
+
+let cmdFiltered = [...COMMANDS];
+let cmdSelectedIdx = 0;
+
+function openCmd() {
+  cmdFiltered = [...COMMANDS];
+  cmdSelectedIdx = 0;
+  document.getElementById('cmdPalette').classList.add('active');
+  document.getElementById('cmdInput').value = '';
+  renderCmd();
+  setTimeout(() => document.getElementById('cmdInput').focus(), 50);
+}
+
+function filterCmd(q) {
+  q = q.toLowerCase().trim();
+  cmdFiltered = q ? COMMANDS.filter(c => c.name.toLowerCase().includes(q)) : [...COMMANDS];
+  cmdSelectedIdx = 0;
+  renderCmd();
+}
+
+function renderCmd() {
+  const list = document.getElementById('cmdList');
+  if (!cmdFiltered.length) { list.innerHTML = '<div class="cmd-empty">没有匹配的命令</div>'; return; }
+  list.innerHTML = cmdFiltered.map((c, i) => `<div class="cmd-item ${i === cmdSelectedIdx ? 'selected' : ''}" data-idx="${i}" onclick="runCmd(${i})"><span class="cmd-icon">${c.icon}</span><span class="cmd-name">${c.name}</span></div>`).join('');
+}
+
+function runCmd(idx) {
+  const cmd = cmdFiltered[idx]; if (!cmd) return;
+  document.getElementById('cmdPalette').classList.remove('active');
+  cmd.action();
+}
+
+function cmdKeydown(e) {
+  if (e.key === 'Escape') { document.getElementById('cmdPalette').classList.remove('active'); return; }
+  if (e.key === 'ArrowDown') { e.preventDefault(); cmdSelectedIdx = Math.min(cmdSelectedIdx + 1, cmdFiltered.length - 1); renderCmd(); return; }
+  if (e.key === 'ArrowUp') { e.preventDefault(); cmdSelectedIdx = Math.max(cmdSelectedIdx - 1, 0); renderCmd(); return; }
+  if (e.key === 'Enter') { e.preventDefault(); runCmd(cmdSelectedIdx); return; }
+}
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openCmd(); }
+  if (e.key === '?') { e.preventDefault(); openChangelog(); }
+  if (e.key === 'Escape') { document.getElementById('cmdPalette').classList.remove('active'); document.getElementById('changelogModal').classList.remove('active'); }
+});
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('currentProjectName').textContent = PROJECTS[currentProject].name;
+  renderSummary();
+});
+</script>
+
+</body>
+</html>
