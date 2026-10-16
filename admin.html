@@ -493,8 +493,9 @@ function renderProjects() {
           <div style="font-size:11px;color:#818cf8;margin-top:4px;">总额: <b>¥${(p.total || 0).toFixed(2)}</b> · ${(p.items || []).length} 项</div>
         </div>
         <div style="display:flex;gap:6px;">
-          <button onclick="deleteProject('${id}')" style="padding:3px 8px;background:#1a1d2e;color:#f87171;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">删除</button>
-        </div>
+        <button onclick="shareProject('${id}')" style="padding:3px 8px;background:#16a34a;color:#fff;border:1px solid #16a34a;border-radius:3px;cursor:pointer;font-size:10px;">分享</button>
+        <button onclick="deleteProject('${id}')" style="padding:3px 8px;background:#1a1d2e;color:#f87171;border:1px solid #2a3454;border-radius:3px;cursor:pointer;font-size:10px;">删除</button>
+      </div>
       </div>
     </div>`;
   }).join('');
@@ -516,6 +517,61 @@ function deleteProject(id) {
   renderProjects();
   renderStats();
   showToast('✓ 项目已删除');
+}
+
+// ============ Share project (public link for client) ============
+function shareProject(id) {
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const proj = projects[id];
+  if (!proj) return;
+
+  // 构建 share.html URL
+  const baseUrl = location.href.replace(/\/[^\/]*$/, '/');
+  const shareUrl = baseUrl + 'share.html?p=' + id;
+
+  // 显示分享弹窗(包含链接 + 项目名 + 二维码占位)
+  const modal = document.createElement('div');
+  modal.className = 'modal-bg';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div style="background:#232738;border-radius:16px;max-width:520px;width:90%;border:1px solid #2a3454;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+      <div style="padding:18px 24px;border-bottom:1px solid #2a3454;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-size:16px;font-weight:700;">📤 分享报价单给业主</h3>
+        <button onclick="this.closest('.modal-bg').remove()" style="background:transparent;color:#8a93b0;border:none;font-size:20px;cursor:pointer;">×</button>
+      </div>
+      <div style="padding:24px;">
+        <div style="background:#0d111a;border-radius:10px;padding:18px;margin-bottom:16px;border:1px solid #16a34a;">
+          <div style="font-size:12px;color:#8a93b0;margin-bottom:6px;">📋 项目</div>
+          <div style="font-size:14px;font-weight:600;color:#e8eaf0;margin-bottom:10px;">${proj.name}</div>
+          <div style="font-size:12px;color:#8a93b0;margin-bottom:6px;">🔗 业主访问地址(只读)</div>
+          <input id="shareUrl" readonly value="${shareUrl}" style="width:100%;padding:10px;background:#1a1d2e;border:1px solid #2a3454;border-radius:6px;color:#16a34a;font-family:monospace;font-size:11px;word-break:break-all;">
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <button onclick="copyShareUrl()" style="flex:1;padding:8px;background:#16a34a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;">📋 复制链接</button>
+            <button onclick="window.open(document.getElementById('shareUrl').value, '_blank')" style="flex:1;padding:8px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:6px;cursor:pointer;font-size:13px;">👁 预览</button>
+          </div>
+        </div>
+        <div style="background:rgba(99,102,241,0.08);border-radius:8px;padding:14px;font-size:12px;color:#818cf8;line-height:1.7;">
+          💡 <strong>说明:</strong><br>
+          • 这是<strong>公开只读链接</strong>,业主<strong>无需注册</strong>即可查看<br>
+          • 微信发给业主 / 复制到报价邮件 / 短信发送均可<br>
+          • 业主看到的是您的<strong>工作室品牌名</strong>,数据不传到云端<br>
+          • 如需删除业主访问权,删除此项目即可
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('shareUrl').select();
+}
+
+function copyShareUrl() {
+  const input = document.getElementById('shareUrl');
+  navigator.clipboard.writeText(input.value).then(() => {
+    showToast('📋 链接已复制!微信发给业主即可');
+  });
 }
 
 // ============ Accounts tab ============
