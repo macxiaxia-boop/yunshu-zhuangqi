@@ -526,9 +526,9 @@ function shareProject(id) {
   const proj = projects[id];
   if (!proj) return;
 
-  // 项目数据 base64 编码(中文 URI 编码 + btoa)
+  // 项目数据 base64 编码(中文安全:encodeURIComponent → btoa)
   const json = JSON.stringify(proj);
-  const encoded = encodeURIComponent(btoa(json));
+  const encoded = btoa(encodeURIComponent(json));
   const baseUrl = location.href.replace(/\/[^\/]*$/, '/');
   const shareUrl = baseUrl + 'share.html?d=' + encoded;
 
