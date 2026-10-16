@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>报价单 · 装报价</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f6f7fb; color: #1f2330; line-height: 1.6; padding: 24px 16px 80px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 16px 0; margin-bottom: 24px; border-bottom: 2px solid #e8eaf2; }
+.brand-logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; }
+.brand-name { font-size: 18px; font-weight: 700; }
+.brand-sub { font-size: 13px; color: #6b7088; }
+.card { background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.hero { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; border-radius: 16px; padding: 32px 24px; text-align: center; margin-bottom: 24px; }
+.hero-label { font-size: 13px; opacity: 0.85; margin-bottom: 8px; }
+.hero-amount { font-size: 40px; font-weight: 800; margin-bottom: 4px; }
+.hero-meta { font-size: 13px; opacity: 0.7; }
+h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #1f2330; }
+.meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; }
+.meta div { padding: 8px 0; }
+.meta-label { color: #6b7088; font-size: 12px; }
+.meta-value { color: #1f2330; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #e8eaf2; font-size: 14px; }
+th { background: #f6f7fb; font-weight: 600; color: #6b7088; font-size: 12px; text-transform: uppercase; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.notes { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+.actions { display: flex; gap: 12px; margin-top: 24px; }
+.btn { flex: 1; padding: 14px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; border: 0; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-primary { background: #6366f1; color: white; }
+.btn-secondary { background: #e8eaf2; color: #1f2330; }
+.empty { text-align: center; padding: 60px 20px; color: #6b7088; }
+.empty h1 { font-size: 22px; margin-bottom: 12px; color: #1f2330; }
+.empty p { margin-bottom: 8px; }
+@media print {
+  body { background: white; padding: 0; }
+  .actions, .no-print { display: none; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+  .hero { background: #6366f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-logo" id="brandLogo">装</div>
+    <div>
+      <div class="brand-name" id="brandName">装报价</div>
+      <div class="brand-sub" id="brandSub">专业装修报价单</div>
+    </div>
+  </div>
+  <div id="content"></div>
+  <div class="actions no-print" id="actions" style="display:none">
+    <button class="btn btn-primary" onclick="window.print()">🖨 打印 / 保存 PDF</button>
+    <a class="btn btn-secondary" id="contactBtn" href="#">📞 联系装饰公司</a>
+  </div>
+</div>
+<script>
+(function() {
+  function getParam(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function fmt(n) { return Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function getWorkspaceName() {
+    try {
+      var u = JSON.parse(localStorage.getItem('yunshu-user') || 'null');
+      return (u && u.workspaceName) ? u.workspaceName : '装报价工作室';
+    } catch(e) { return '装报价工作室'; }
+  }
+  function getContactPhone() {
+    try {
+      var u = JSON.parse(localStorage.getItem('yunshu-user') || 'null');
+      return (u && u.contactPhone) ? u.contactPhone : '';
+    } catch(e) { return ''; }
+  }
+  function loadProject(id) {
+    try {
+      var data = JSON.parse(localStorage.getItem('yunshu-app-projects') || '[]');
+      if (!Array.isArray(data)) data = [];
+      return data.find(function(p) { return p && (p.id === id || p._id === id || p.projectId === id); }) || null;
+    } catch(e) { return null; }
+  }
+  function render() {
+    var id = getParam('p');
+    var content = document.getElementById('content');
+    var workspaceName = getWorkspaceName();
+    var contactPhone = getContactPhone();
+    document.getElementById('brandName').textContent = workspaceName;
+    var logoChar = workspaceName.charAt(0) || '装';
+    document.getElementById('brandLogo').textContent = logoChar;
+    if (!id) {
+      content.innerHTML = '<div class="card empty"><h1>未指定项目</h1><p>请通过完整的分享链接访问</p></div>';
+      return;
+    }
+    var project = loadProject(id);
+    if (!project) {
+      content.innerHTML =
+        '<div class="card empty">' +
+        '<h1>项目未找到</h1>' +
+        '<p>此链接对应的项目可能已被删除</p>' +
+        '<p style="font-size:13px;margin-top:20px;color:#999">如需帮助请联系您的装修公司</p>' +
+        '</div>';
+      return;
+    }
+    var items = Array.isArray(project.items) ? project.items : [];
+    var total = Number(project.total || items.reduce(function(s, it) { return s + Number(it.amount || 0) * Number(it.qty || 1); }, 0));
+    var rows = items.map(function(it) {
+      return '<tr>' +
+        '<td>' + (it.name || '-') + '</td>' +
+        '<td class="num">' + fmt(it.price || 0) + '</td>' +
+        '<td class="num">' + (it.qty || 1) + '</td>' +
+        '<td class="num"><strong>' + fmt(it.amount || 0) + '</strong></td>' +
+        '</tr>';
+    }).join('');
+    content.innerHTML =
+      '<div class="hero">' +
+        '<div class="hero-label">项目总报价</div>' +
+        '<div class="hero-amount">¥ ' + fmt(total) + '</div>' +
+        '<div class="hero-meta">' + (project.name || '装修项目') + '</div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<h2>项目信息</h2>' +
+        '<div class="meta">' +
+          '<div><div class="meta-label">项目名称</div><div class="meta-value">' + (project.name || '-') + '</div></div>' +
+          '<div><div class="meta-label">客户姓名</div><div class="meta-value">' + (project.clientName || project.ownerName || '-') + '</div></div>' +
+          '<div><div class="meta-label">联系电话</div><div class="meta-value">' + (project.clientPhone || '-') + '</div></div>' +
+          '<div><div class="meta-label">项目地址</div><div class="meta-value">' + (project.address || '-') + '</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<h2>报价明细</h2>' +
+        '<table>' +
+          '<thead><tr><th>项目</th><th class="num">单价 (¥)</th><th class="num">数量</th><th class="num">小计 (¥)</th></tr></thead>' +
+          '<tbody>' + (rows || '<tr><td colspan="4" style="text-align:center;color:#999">暂无明细</td></tr>') + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      (project.notes ? '<div class="card"><h2>备注 / 服务承诺</h2><div class="notes">' + (project.notes + '').replace(/[<>&]/g, function(c) { return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]; }) + '</div></div>' : '') +
+      '<div class="card" style="text-align:center;background:linear-gradient(135deg,#f6f7fb 0%,#e8eaf2 100%);">' +
+        '<div style="font-size:14px;color:#6b7088;margin-bottom:8px">本报价单由</div>' +
+        '<div style="font-size:20px;font-weight:700;color:#1f2330;margin-bottom:4px">' + workspaceName + '</div>' +
+        '<div style="font-size:12px;color:#6b7088">专业 · 透明 · 高效</div>' +
+      '</div>';
+    document.getElementById('actions').style.display = 'flex';
+    if (contactPhone) {
+      document.getElementById('contactBtn').href = 'tel:' + contactPhone;
+    } else {
+      document.getElementById('contactBtn').href = 'https://workbuddy.aizhao.com/';
+      document.getElementById('contactBtn').target = '_blank';
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    render();
+  }
+})();
+</script>
+</body>
+</html>
