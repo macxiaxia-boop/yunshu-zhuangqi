@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#B50029">
-<meta name="description" content="云数装企 · 报价系统 — 面向装企(装修企业)的全案设计施工报价工作台 SaaS。11 模块 + 6 主题色 + Cmd+K 命令面板。">
+<meta name="theme-color" content="#6366f1">
+<meta name="description" content="装报价 · 报价系统 — 面向装企(装修企业)的全案设计施工报价工作台 SaaS。11 模块 + 6 主题色 + Cmd+K 命令面板。">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="云数装企">
+<meta name="apple-mobile-web-app-title" content="装报价">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" href="favicon-192.png">
-<title>云数装企 · 报价系统 v1.0</title>
+<title>装报价 · 让报价只需 10 分钟</title>
 <style>
   /* ============ 主题色变量(6 色循环) ============ */
   :root, [data-theme="8B0029"] {
-    --primary: #B50029;
-    --primary-2: #8B0029;
+    --primary: #6366f1;
+    --primary-2: #4338ca;
     --primary-soft: rgba(181, 0, 41, 0.12);
     --primary-glow: rgba(181, 0, 41, 0.3);
   }
@@ -1139,8 +1139,8 @@
       </svg>
     </div>
     <div class="brand-text">
-      <div class="zh">云数装企</div>
-      <div class="en">YUNSHU ZHUANGQI</div>
+      <div class="zh" id="brandZh">装报价</div>
+      <div class="en">ZHUANG BAO JIA</div>
     </div>
   </div>
   <div class="breadcrumb" id="breadcrumb">
@@ -1253,7 +1253,7 @@
     <div class="sidebar-footer">
       <div class="slogan">让设计源自生活</div>
       <div class="en">LET DESIGN RETURN TO LIFE</div>
-      <div class="ver">YUNSHU STUDIO V1.0</div>
+      <div class="ver">装报价 V1.0</div>
     </div>
   </aside>
 
@@ -1620,7 +1620,7 @@
           <button class="hbtn">主材定额库</button>
         </div>
         <div style="display:flex; gap:8px; margin-bottom:16px; align-items:center;">
-          <select class="field-input" style="width:200px;"><option>云数装企基础报价定额库</option></select>
+          <select class="field-input" style="width:200px;"><option>装报价基础报价定额库</option></select>
           <button class="hbtn primary" style="font-size:11px;">+ 新建定额库</button>
           <button class="hbtn" style="font-size:11px;">修改库名</button>
           <button class="hbtn" style="font-size:11px;">删除定额库</button>
@@ -1734,8 +1734,8 @@
           <div class="setting-card">
             <h4>公司信息</h4>
             <div class="form-row">
-              <div class="field-group"><div class="field-label">公司名称 <span class="en">Company Name</span></div><input class="field-input" value="云数装企"></div>
-              <div class="field-group"><div class="field-label">英文名 <span class="en">English Name</span> · 可手动修改</div><input class="field-input" value="YUNSHU ZHUANGQI"></div>
+              <div class="field-group"><div class="field-label">公司名称 <span class="en">Company Name</span></div><input class="field-input" value="装报价"></div>
+              <div class="field-group"><div class="field-label">英文名 <span class="en">English Name</span> · 可手动修改</div><input class="field-input" value="装报价"></div>
             </div>
             <div class="form-row">
               <div class="field-group"><div class="field-label">联系电话 <span class="en">Telephone</span></div><input class="field-input" placeholder="请输入联系电话"></div>
@@ -1792,13 +1792,13 @@
           <div class="setting-card">
             <h4>界面设置</h4>
             <div class="form-row">
-              <div class="field-group"><div class="field-label">左侧标题栏（中文） <span class="en">Sidebar Title (Chinese)</span></div><input class="field-input" value="云数装企"></div>
-              <div class="field-group"><div class="field-label">左侧标题栏（英文） <span class="en">Sidebar Title (English)</span> · 自动翻译，可手动修改</div><input class="field-input" value="YUNSHU ZHUANGQI"></div>
+              <div class="field-group"><div class="field-label">左侧标题栏（中文） <span class="en">Sidebar Title (Chinese)</span></div><input class="field-input" value="装报价"></div>
+              <div class="field-group"><div class="field-label">左侧标题栏（英文） <span class="en">Sidebar Title (English)</span> · 自动翻译，可手动修改</div><input class="field-input" value="装报价"></div>
             </div>
             <div class="field-group" style="margin-top:14px;">
               <div class="field-label">主题色 <span class="en">Theme Color</span></div>
               <div class="color-row" id="colorRow">
-                <div class="color-pill active" data-color="8B0029" onclick="setTheme('8B0029', this)"><div class="color-circle" style="background:#B50029;"></div><div class="name">胭脂</div></div>
+                <div class="color-pill active" data-color="8B0029" onclick="setTheme('8B0029', this)"><div class="color-circle" style="background:#6366f1;"></div><div class="name">胭脂</div></div>
                 <div class="color-pill" data-color="dae" onclick="setTheme('dae', this)"><div class="color-circle" style="background:#2a4858;"></div><div class="name">黛青</div></div>
                 <div class="color-pill" data-color="songshi" onclick="setTheme('songshi', this)"><div class="color-circle" style="background:#2d6e54;"></div><div class="name">松石绿</div></div>
                 <div class="color-pill" data-color="zheshi" onclick="setTheme('zheshi', this)"><div class="color-circle" style="background:#8B4513;"></div><div class="name">赭石</div></div>
@@ -1887,7 +1887,7 @@
                 <div class="field-label">预览效果（内嵌页面示例）</div>
                 <div class="wm-preview">
                   <div class="watermark">云数 | YUNSHU<div class="en">ZHUANGQI QUOTATION</div></div>
-                  <div class="doc-title">YUNSHU ZHUANGQI<br><span style="font-size:11px;color:#666;font-weight:normal;">总价表</span></div>
+                  <div class="doc-title">装报价<br><span style="font-size:11px;color:#666;font-weight:normal;">总价表</span></div>
                   <div style="font-size:12px;color:#333; font-weight:600; padding-bottom:6px;">项目报价清单</div>
                   <table>
                     <thead><tr><th>编号</th><th>名称</th><th>合计(元)</th></tr></thead>
@@ -1920,7 +1920,7 @@
             </div>
             <div style="font-size:11px;color:var(--text-faint);margin-bottom:14px;line-height:1.7;">这里对应等打印内容顶部抬头页眉/标题、英文抬头以及右栏工程信息排版编辑。</div>
             <div class="form-row">
-              <div class="field-group"><div class="field-label">页面抬头 <span class="en">Header Text</span></div><input class="field-input" value="YUNSHU ZHUANGQI"></div>
+              <div class="field-group"><div class="field-label">页面抬头 <span class="en">Header Text</span></div><input class="field-input" value="装报价"></div>
               <div class="field-group"></div>
             </div>
             <div class="form-row">
@@ -1995,11 +1995,11 @@
 
 <!-- ===== Bottom Brand Footer ===== -->
 <footer class="brand-footer">
-  <span class="slogan-zh">让设计源自生活</span>
+  <span class="slogan-zh" id="footerBrandZh">让设计源自生活</span>
   <span class="sep">·</span>
   <span class="slogan-en">LET DESIGN RETURN TO LIFE</span>
   <span class="sep">·</span>
-  <span class="slogan-en">YUNSHU STUDIO</span>
+  <span class="slogan-en" id="footerBrandEn">ZHUANGBAOJIA STUDIO</span>
   <span class="ver" style="cursor:pointer;" onclick="openChangelog()" title="查看更新日志">V1.0</span>
 </footer>
 
@@ -2088,7 +2088,7 @@
         <div class="print-page">
           <div class="watermark">云数 | YUNSHU<div class="en">ZHUANGQI QUOTATION</div></div>
           <div class="doc-head">
-            <div class="brand"><div class="zh">YUNSHU ZHUANGQI</div><div style="color:#666;">基础装修工程项目</div></div>
+            <div class="brand"><div class="zh">装报价</div><div style="color:#666;">基础装修工程项目</div></div>
             <div class="meta">工程名称 未命名工程<br>工程编号 ST-01<br>编制日期 2026-10-14<br>编制人员 待填写</div>
           </div>
           <div class="doc-title">基础装修工程量清单</div>
@@ -2302,7 +2302,27 @@
   })();
 
   // ============ Welcome toast ============
-  setTimeout(() => showToast('🎉 云数装企 · 报价系统 v1.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板'), 600);
+  setTimeout(() => {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    const ws = user.workspaceName || '装报价';
+    showToast('🎉 ' + ws + ' · 装报价 v1.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板');
+  }, 600);
+
+  // ============ Multi-tenant brand display ============
+  (function applyBrand() {
+    try {
+      const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+      const ws = user.workspaceName;
+      if (ws) {
+        const brandZh = document.getElementById('brandZh');
+        if (brandZh) brandZh.textContent = ws;
+        document.title = ws + ' · 装报价';
+        // 同步 footer 工作室名
+        const footerBrandZh = document.getElementById('footerBrandZh');
+        if (footerBrandZh) footerBrandZh.textContent = ws;
+      }
+    } catch(e) {}
+  })();
 
   // ============ Auth gate (strict — must be activated) ============
   (function authGate() {
@@ -2511,21 +2531,21 @@
     const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>${p.name} - 报价单</title>
 <style>
   body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; max-width: 800px; margin: 30px auto; padding: 40px; color: #1a1d2e; background: #fff; }
-  .header { text-align: center; border-bottom: 3px solid #B50029; padding-bottom: 20px; margin-bottom: 30px; }
-  .header h1 { color: #B50029; font-size: 28px; margin: 0; }
+  .header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 20px; margin-bottom: 30px; }
+  .header h1 { color: #6366f1; font-size: 28px; margin: 0; }
   .header .en { color: #888; font-size: 12px; letter-spacing: 2px; margin-top: 4px; }
   .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; font-size: 13px; }
   .meta .item { padding: 10px 14px; background: #f8f8fa; border-radius: 4px; }
   .meta .label { color: #888; font-size: 11px; }
   .meta .value { font-weight: 600; margin-top: 2px; }
-  .total { background: linear-gradient(135deg, #B50029, #8B0029); color: #fff; padding: 24px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
+  .total { background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; padding: 24px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
   .total .label { font-size: 13px; opacity: 0.85; }
   .total .amount { font-size: 36px; font-weight: 700; font-family: monospace; margin-top: 8px; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
   th { background: #f4f4f4; padding: 10px 14px; text-align: left; font-size: 12px; border-top: 2px solid #1a1d2e; border-bottom: 1px solid #ccc; }
   td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 13px; }
   .amount { text-align: right; font-family: monospace; }
-  .total-row td { background: #fafafa; font-weight: 700; color: #B50029; }
+  .total-row td { background: #fafafa; font-weight: 700; color: #6366f1; }
   .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-30deg); font-size: 80px; font-weight: bold; color: rgba(0,0,0,0.06); pointer-events: none; white-space: nowrap; }
   .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 11px; }
 </style></head><body>
@@ -2571,7 +2591,7 @@
     <tr><td>08</td><td>木作工程</td><td class="amount">${p.prices['p8-price']}</td></tr>
   </tbody>
 </table>
-<div class="footer">云数装企 · YUNSHU ZHUANGQI · V1.0</div>
+<div class="footer">装报价 · 装报价 · V1.0</div>
 </body></html>`;
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
