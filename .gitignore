@@ -70,3 +70,9 @@ serve.py.un~
 
 # macOS
 .DS_Store
+
+# 用户 dev 工具（不是 R31202 产出）
+uninstall.bat
+serve.py
+backup_status.py
+STATUS_REPORT.json
