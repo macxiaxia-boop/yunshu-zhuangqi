@@ -1154,9 +1154,22 @@
     <a href="index.html" class="hbtn" title="返回首页">🏠 首页</a>
     <button class="hbtn" onclick="doLogout()" title="退出当前账号">退出</button>
     <div style="position:relative;">
-      <button class="hbtn" id="projectSwitcher" onclick="toggleProjectMenu()">📁 <span id="currentProjectName">示例工程 · 未命名</span> <span style="font-size:9px;">▼</span></button>
+      <button class="hbtn" id="projectSwitcher" onclick="toggleProjectMenu()">📁 <span id="currentProjectName">未选择项目</span> <span style="font-size:9px;">▼</span></button>
       <div id="projectMenu" style="display:none; position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-2); border:1px solid var(--border-2); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.4); min-width:240px; z-index:60; overflow:hidden;">
-        <div style="padding:8px 12px; font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1px;">示例项目 · 切换查看不同状态</div>
+        <div id="projectMenuHeader" style="padding:10px 12px; font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1px;border-bottom:1px solid var(--border);">我的项目</div>
+        <div id="projectMenuList">
+          <!-- 动态渲染 -->
+        </div>
+        <div style="border-top:1px solid var(--border);padding:6px;">
+          <div class="project-menu-item" onclick="createNewProject()" style="background:var(--primary-soft);">
+            <div style="font-weight:600;color:var(--primary);">+ 新建报价项目</div>
+            <div style="font-size:10px; color:var(--text-faint); margin-top:2px;">弹窗填明细 + 单价</div>
+          </div>
+          <div class="project-menu-item" onclick="window.open('admin.html', '_blank')">
+            <div style="font-weight:500;">👑 老板管理后台</div>
+            <div style="font-size:10px; color:var(--text-faint); margin-top:2px;">管理所有项目 + 分享给业主</div>
+          </div>
+        </div>
         <div class="project-menu-item" data-project="empty" onclick="switchProject('empty')">
           <div style="font-weight:500;">📋 新建空工程</div>
           <div style="font-size:10px; color:var(--text-faint); margin-top:2px;">全新项目,所有金额归零</div>
