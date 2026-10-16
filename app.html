@@ -1152,6 +1152,7 @@
   </div>
   <div class="header-actions">
     <a href="index.html" class="hbtn" title="返回首页">🏠 首页</a>
+    <button class="hbtn" onclick="doLogout()" title="退出当前账号">退出</button>
     <div style="position:relative;">
       <button class="hbtn" id="projectSwitcher" onclick="toggleProjectMenu()">📁 <span id="currentProjectName">示例工程 · 未命名</span> <span style="font-size:9px;">▼</span></button>
       <div id="projectMenu" style="display:none; position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-2); border:1px solid var(--border-2); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.4); min-width:240px; z-index:60; overflow:hidden;">
@@ -2323,6 +2324,13 @@
       }
     } catch(e) {}
   })();
+
+  // ============ Logout (前台登出) ============
+  function doLogout() {
+    if (!confirm('确定退出当前账号?\n\n退出后:\n• 当前账号登录态清除\n• 需要重新登录才能使用\n• 项目数据保留在本地(可导出 ZIP 恢复)')) return;
+    localStorage.removeItem('yunshu-user');
+    window.location.href = 'index.html';
+  }
 
   // ============ Auth gate (strict — must be activated) ============
   (function authGate() {
