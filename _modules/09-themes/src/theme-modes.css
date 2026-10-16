@@ -1,0 +1,78 @@
+/* theme-modes.css — light/dark 两套主题
+ * 通过 body[data-mode='light'|'dark'] 切换
+ * 持久化键：ys_studio_ui_v31_color_mode = 'light' | 'dark'
+ *
+ * 注意：CSS vars 由 JS 写入 :root；这里只针对 dark 模式做覆盖
+ *       light 模式不需要显式覆盖（默认就是 light）
+ */
+
+/* === 深色模式 === */
+body[data-mode='dark'] {
+  color-scheme: dark;
+  /* chrome dark */
+  --ys-bg: #1a1f1c;
+  --ys-chrome: #262b28;
+  --ys-ink: #f0f0f0;
+  --ys-muted: #999999;
+  --ys-line: #3a3f3c;
+  --ys-scrollbar: rgba(255,255,255,0.15);
+}
+
+/* 浅色模式显式声明（防御某些浏览器/扩展默认 dark） */
+body[data-mode='light'] {
+  color-scheme: light;
+  --ys-bg: #fafafa;
+  --ys-chrome: #ffffff;
+  --ys-ink: #1a1a1a;
+  --ys-muted: #666666;
+  --ys-line: #e8e6e1;
+  --ys-scrollbar: rgba(0,0,0,0.15);
+}
+
+/* 深色模式下卡片 / 输入框 / 表格微调 */
+body[data-mode='dark'] .ys-card,
+body[data-mode='dark'] .ys-paper {
+  background: var(--ys-chrome);
+  color: var(--ys-ink);
+  border-color: var(--ys-line);
+}
+
+body[data-mode='dark'] input,
+body[data-mode='dark'] select,
+body[data-mode='dark'] textarea {
+  background: var(--ys-chrome);
+  color: var(--ys-ink);
+  border-color: var(--ys-line);
+}
+
+body[data-mode='dark'] ::placeholder { color: var(--ys-muted); }
+
+/* 深色模式表格头 */
+body[data-mode='dark'] .ys-table thead th {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ys-ink);
+}
+
+body[data-mode='dark'] .ys-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* 深色模式下 :root CSS vars 写入的反向兼容（module 02 打印模板） */
+body[data-mode='dark'][data-theme-mode='dark'] {
+  --bg: var(--ys-bg);
+  --text: var(--ys-ink);
+  --border: var(--ys-line);
+  --paper-bg: var(--ys-chrome);
+}
+
+body[data-mode='light'][data-theme-mode='light'] {
+  --bg: var(--ys-bg);
+  --text: var(--ys-ink);
+  --border: var(--ys-line);
+  --paper-bg: var(--ys-chrome);
+}
+
+/* 模式切换 200ms 过渡 */
+body, .ys-paper, .ys-card, input, select, textarea, button {
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}

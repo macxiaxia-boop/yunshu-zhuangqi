@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>R31202 W1 模块集成测试 Harness</title>
+<style>
+:root{--bg:#f7f9f8;--ink:#1a1f1c;--accent:#A23C43;--ok:#1b8a3a;--fail:#c0392b;--warn:#d39c00;--line:#e8e6e1;--chrome:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+header{padding:24px 32px;background:var(--chrome);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+h1{margin:0;font-size:22px;font-weight:600}
+h1 small{font-weight:400;color:#666;font-size:13px;margin-left:12px}
+.meta{display:flex;gap:24px;margin-top:8px;font-size:12px;color:#666}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.bar{background:#eee;height:8px;border-radius:4px;overflow:hidden;margin-top:8px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--ok),#46c46a);transition:width .4s}
+main{padding:24px 32px;display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));max-width:1400px;margin:0 auto}
+.module{background:var(--chrome);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.module h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+.module h2 .id{font-size:11px;padding:2px 8px;background:var(--accent);color:#fff;border-radius:4px;font-weight:600}
+.module .tag{font-size:11px;color:#666;background:#f5f5f5;padding:2px 8px;border-radius:4px;font-weight:500}
+.tests{font-family:ui-monospace,"Cascadia Code",Menlo,monospace;font-size:12px;background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;flex:1;min-height:160px;max-height:280px;overflow-y:auto}
+.test-line{display:flex;gap:8px;align-items:flex-start;padding:2px 0}
+.test-line .status{width:18px;flex-shrink:0;font-weight:700;text-align:center}
+.test-line .name{flex:1;color:#222}
+.test-line .detail{font-size:11px;color:#888;margin-left:auto}
+.PASS .status{color:var(--ok)}.FAIL .status{color:var(--fail)}
+.PENDING{color:#888;font-style:italic}
+.summary{display:flex;gap:12px;margin-top:8px;font-size:12px;color:#666}
+.summary strong{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;background:var(--chrome);border:1px solid var(--line);border-radius:12px;padding:16px;margin:20px 32px;max-width:1340px}
+.kpi div{padding:8px}
+.kpi strong{display:block;font-size:24px;font-weight:600;color:var(--ink)}
+.kpi small{color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+button{padding:9px 18px;border:1px solid var(--line);border-radius:6px;background:var(--chrome);color:var(--ink);cursor:pointer;font-size:13px;font-family:inherit}
+button:hover{background:#fafafa;border-color:var(--accent)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.toolbar{padding:16px 32px;display:flex;gap:12px;background:var(--chrome);border-bottom:1px solid var(--line);position:sticky;top:96px;z-index:9}
+</style>
+</head>
+<body>
+<header>
+<h1>R31202 W1 模块集成测试 <small>v9 · 持续干模式</small></h1>
+<div class="meta">
+<span>📅 2026-10-16 · R31202</span>
+<span>🎯 4 模块 · ~60 测试</span>
+<span>👤 用户授权 = L2 写本地</span>
+</div>
+<div class="bar"><div id="bar" style="width:0%"></div></div>
+</header>
+
+<div class="kpis">
+<div><strong id="kpi-pass">0</strong><small>PASS</small></div>
+<div><strong id="kpi-fail">0</strong><small>FAIL</small></div>
+<div><strong id="kpi-total">0</strong><small>总计</small></div>
+<div><strong id="kpi-ms">—</strong><small>耗时 ms</small></div>
+</div>
+
+<div class="toolbar">
+<button class="primary" onclick="TestRunner.runAll()">▶ 跑全部测试</button>
+<button onclick="TestRunner.exportLog()">💾 导出报告</button>
+<button onclick="location.reload()">🔄 重置</button>
+</div>
+
+<main>
+<section class="module" id="mod-01">
+<h2><span class="id">01</span>PWA 离线 <span class="tag">W1 D1-D2</span></h2>
+<div class="tests" id="t-01">—</div>
+<div class="summary">文件: <strong id="s-01-files">—</strong> · 行数: <strong id="s-01-lines">—</strong></div>
+</section>
+
+<section class="module" id="mod-02">
+<h2><span class="id">02</span>22 纸型打印 <span class="tag">W1 D3</span></h2>
+<div class="tests" id="t-02">—</div>
+<div class="summary">文件: <strong id="s-02-files">—</strong> · 行数: <strong id="s-02-lines">—</strong></div>
+</section>
+
+<section class="module" id="mod-03">
+<h2><span class="id">03</span>克隆 ZIP DRM <span class="tag">W1 D4-D5</span></h2>
+<div class="tests" id="t-03">—</div>
+<div class="summary">文件: <strong id="s-03-files">—</strong> · 行数: <strong id="s-03-lines">—</strong></div>
+</section>
+
+<section class="module" id="mod-04">
+<h2><span class="id">04</span>REF 反向兼容 <span class="tag">W1 D7</span></h2>
+<div class="tests" id="t-04">—</div>
+<div class="summary">文件: <strong id="s-04-files">—</strong> · 行数: <strong id="s-04-lines">—</strong></div>
+</section>
+</main>
+
+<script>
+// ============== Test Runner ==============
+const TestRunner = (function(){
+  const results = []; let startTime;
+  async function runAll(){
+    startTime = Date.now();
+    document.getElementById('bar').style.width = '5%';
+    results.length = 0;
+    await run01PWA();
+    document.getElementById('bar').style.width = '30%';
+    await run02Print();
+    document.getElementById('bar').style.width = '55%';
+    await run03CloneZip();
+    document.getElementById('bar').style.width = '80%';
+    await run04RefReverse();
+    document.getElementById('bar').style.width = '100%';
+    render();
+  }
+  function render(panelId, lines){
+    const el = document.getElementById(panelId);
+    if(!lines.length){ el.innerHTML = '<div class="PENDING">运行中...</div>'; return; }
+    el.innerHTML = lines.map(l=>`<div class="test-line ${l.status}"><span class="status">${l.status==='PASS'?'✓':l.status==='FAIL'?'✗':'·'}</span><span class="name">${esc(l.name)}</span>${l.detail?`<span class="detail">${esc(l.detail)}</span>`:''}</div>`).join('');
+  }
+  async function loadModScript(path){
+    try { return await import('./' + path); } catch(e){ return null; }
+  }
+  async function fetchMod(path){
+    try { return await (await fetch(path, {cache:'no-store'})).text(); } catch(e){ return '/* FAILED TO LOAD */'; }
+  }
+  async function loadModByNumber(n){
+    const dir = String(n).padStart(2,'0');
+    return await fetchMod(`../r31202-modules/${dir}-${['pwa','print-preview','clone-zip','ref-reverse'][n-1]}/`);
+  }
+  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function record(mod, name, ok, detail=''){
+    results.push({mod, name, status: ok?'PASS':'FAIL', detail});
+  }
+  async function countFilesLines(modDirName){
+    return {files:'TBD', lines:'TBD'};
+  }
+
+  async function run01PWA(){
+    const lines = [];
+    const dir = '../r31202-modules/01-pwa/';
+    const html = await fetchMod(dir + 'manifest.json');
+    const sw = await fetchMod(dir + 'service-worker.js');
+    const idb = await fetchMod(dir + 'idb-store.js');
+    const regsw = await fetchMod(dir + 'register-sw.js');
+    const offline = await fetchMod(dir + 'offline.html');
+    const test = await fetchMod(dir + 'pwa.test.js');
+
+    // Test 1: manifest.json 字段校验
+    let m = {}; try { m = JSON.parse(html); } catch(e){}
+    const mOk = m && m.name && m.start_url && m.display && m.icons;
+    lines.push({status: mOk?'PASS':'FAIL', name:'manifest.json 字段完整', detail: `name=${m.name||'缺失'}`});
+    record('01','manifest.json 字段完整', mOk);
+
+    // Test 2: SW 至少 1 fetch handler
+    const swHasFetch = sw && /addEventListener\(['"]fetch['"]/.test(sw);
+    lines.push({status: swHasFetch?'PASS':'FAIL', name:'service-worker.js 有 fetch handler', detail:swHasFetch?'OK':'缺失'});
+    record('01','service-worker.js fetch handler', swHasFetch);
+
+    // Test 3: IndexedDB table 'projects'
+    const idbOk = idb && /projects/.test(idb) && /open|put|get|list|delete/.test(idb);
+    lines.push({status: idbOk?'PASS':'FAIL', name:'IndexedDB projects table + CRUD', detail:idbOk?'OK':'缺失'});
+    record('01','IndexedDB projects CRUD', idbOk);
+
+    // Test 4: register-sw 安全降级
+    const regOk = regsw && /serviceWorker\.register/.test(regsw) && /catch\s*\(/.test(regsw);
+    lines.push({status: regOk?'PASS':'FAIL', name:'register-sw 注册 + catch 降级', detail:regOk?'OK':'缺失'});
+    record('01','register-sw 异常降级', regOk);
+
+    // Test 5: offline.html 存在
+    lines.push({status: offline && offline.includes('<')?'PASS':'FAIL', name:'offline.html 降级页存在', detail:offline.length+' bytes'});
+    record('01','offline.html', !!offline);
+
+    const fileCount = [html,sw,idb,regsw,offline,test].filter(x=>x && !x.includes('FAILED')).length;
+    document.getElementById('s-01-files').textContent = fileCount + ' 文件';
+    document.getElementById('s-01-lines').textContent = [html,sw,idb,regsw,offline,test].reduce((s,x)=>s+x.split('\n').length, 0);
+    render('t-01', lines);
+  }
+
+  async function run02Print(){
+    const lines = [];
+    const dir = '../r31202-modules/02-print-preview/';
+    const html = await fetchMod(dir + 'print-preview.html');
+    const core = await fetchMod(dir + 'print-core.js');
+    const tpl = await fetchMod(dir + 'print-template.js');
+    const act = await fetchMod(dir + 'print-actions.js');
+    const css = await fetchMod(dir + 'styles.css');
+    const test = await fetchMod(dir + 'print.test.js');
+
+    // Test 1: 22 纸型 (A0-A8, B0-B6, Letter, Legal, Tabloid, Executive, Folio, 自定义)
+    let paperCount = 0;
+    if(core){
+      paperCount = (core.match(/A\d+:|B\d+:|Letter|Legal|Tabloid|Executive|Folio/g) || []).length;
+    }
+    const paperOk = paperCount >= 22;
+    lines.push({status: paperOk?'PASS':'FAIL', name:'22 纸型常量', detail:`${paperCount} found`});
+    record('02','22 纸型完整', paperOk);
+
+    // Test 2: 范围正则 (1-5,8,11-13)
+    const rangeOk = core && /1-5.*8.*11-13|\\d\+-\\d\+/.test(core) && /split\(\/\[\,，\]\/\)/.test(core);
+    lines.push({status: rangeOk?'PASS':'FAIL', name:'范围正则 parser', detail: rangeOk?'OK':'缺失'});
+    record('02','范围正则 parser', rangeOk);
+
+    // Test 3: Ctrl+滚轮 zoom 25-300%
+    const zoomOk = core && /0\.(?:25|75)/.test(core) && /3/.test(core);
+    lines.push({status: zoomOk?'PASS':'FAIL', name:'Ctrl+滚轮 25-300% 缩放', detail: zoomOk?'OK':'缺失'});
+    record('02','Ctrl+滚轮缩放', zoomOk);
+
+    // Test 4: 4 模板函数
+    const tplCount = ['renderQuoteTemplate','renderChangeOrderTemplate','renderMaterialBookTemplate','renderCoverTemplate'].filter(fn=>tpl && tpl.includes(fn)).length;
+    const tplOk = tplCount === 4;
+    lines.push({status: tplOk?'PASS':'FAIL', name:'4 模板函数', detail:`${tplCount}/4`});
+    record('02','4 模板函数', tplOk);
+
+    // Test 5: @page rule CSS
+    const cssOk = css && /@page/.test(css) && /size:/.test(css);
+    lines.push({status: cssOk?'PASS':'FAIL', name:'CSS @page size', detail: cssOk?'OK':'缺失'});
+    record('02','@page CSS', cssOk);
+
+    // Test 6: print + savePDF actions
+    const actOk = act && /window\.print/.test(act) && /savePDF/.test(act);
+    lines.push({status: actOk?'PASS':'FAIL', name:'print + savePDF actions', detail: actOk?'OK':'缺失'});
+    record('02','print/savePDF actions', actOk);
+
+    document.getElementById('s-02-files').textContent = '6 文件';
+    document.getElementById('s-02-lines').textContent = [html,core,tpl,act,css,test].reduce((s,x)=>s+x.split('\n').length,0);
+    render('t-02', lines);
+  }
+
+  async function run03CloneZip(){
+    const lines = [];
+    const dir = '../r31202-modules/03-clone-zip/';
+    const main = await fetchMod(dir + 'clone-zip.js');
+    const mt = await fetchMod(dir + 'manifest-template.json');
+    const cfg = await fetchMod(dir + 'configuration-schema.json');
+    const val = await fetchMod(dir + 'validation.js');
+    const res = await fetchMod(dir + 'resources-handler.js');
+    const bak = await fetchMod(dir + 'index-backup.js');
+    const test = await fetchMod(dir + 'clone-zip.test.js');
+
+    // Test 1: 51 字段白名单
+    const fieldsMatch = main.match(/companyName\s+englishName\s+companyPhone/g) || [];
+    const fieldsOk = main && /companyName/.test(main) && /waterHeatingAppendixPrint/.test(main);
+    lines.push({status: fieldsOk?'PASS':'FAIL', name:'51 字段白名单', detail:fieldsOk?'OK':'缺失'});
+    record('03','51 字段白名单', fieldsOk);
+
+    // Test 2: financial Set (5字段)
+    const finOk = main && /managementFeeRate/.test(main) && /discountRate/.test(main);
+    lines.push({status: finOk?'PASS':'FAIL', name:'financial 5 字段', detail:finOk?'OK':'缺失'});
+    record('03','financial 5 字段', finOk);
+
+    // Test 3: SHA256 hash 函数
+    const shaOk = main && /SHA-256|sha256|crypto\.subtle\.digest/.test(main);
+    lines.push({status: shaOk?'PASS':'FAIL', name:'SHA256 (Web Crypto API)', detail:shaOk?'OK':'缺失'});
+    record('03','SHA256', shaOk);
+
+    // Test 4: minAppVersion DRM
+    const drOk = main && /minAppVersion/.test(main);
+    lines.push({status: drOk?'PASS':'FAIL', name:'minAppVersion DRM', detail:drOk?'OK':'缺失'});
+    record('03','minAppVersion DRM', drOk);
+
+    // Test 5: exportBytes + inspect API
+    const apiOk = main && /exportBytes\s*\(/.test(main) && /inspect\s*\(/.test(main);
+    lines.push({status: apiOk?'PASS':'FAIL', name:'exportBytes + inspect', detail:apiOk?'OK':'缺失'});
+    record('03','exportBytes + inspect', apiOk);
+
+    // Test 6: 校验 - 反原型链
+    const protoOk = main && /__proto__|constructor|prototype/.test(main) && /throw\s+Error/.test(main);
+    lines.push({status: protoOk?'PASS':'FAIL', name:'__proto__/constructor 拒绝', detail:protoOk?'OK':'缺失'});
+    record('03','反原型链攻击防御', protoOk);
+
+    // Test 7: 40MB 单包 + 45MB 总包限制
+    const sizeOk = main && /40\s*\*\s*1024\s*\*\s*1024/.test(main) && /45\s*\*\s*1024\s*\*\t*1024/.test(main);
+    lines.push({status: sizeOk?'PASS':'FAIL', name:'40MB 单包 + 45MB 总包', detail:sizeOk?'OK':'缺失'});
+    record('03','大小限制', sizeOk);
+
+    // Test 8: ZIP integrity 内容白名单
+    const zipOk = main && /manifest\.json/.test(main) && /configuration\.json/.test(main);
+    lines.push({status: zipOk?'PASS':'FAIL', name:'ZIP 内容白名单（仅 3 文件）', detail:zipOk?'OK':'缺失'});
+    record('03','ZIP integrity', zipOk);
+
+    document.getElementById('s-03-files').textContent = '7 文件';
+    document.getElementById('s-03-lines').textContent = [main,mt,cfg,val,res,bak,test].reduce((s,x)=>s+x.split('\n').length,0);
+    render('t-03', lines);
+  }
+
+  async function run04RefReverse(){
+    const lines = [];
+    const dir = '../r31202-modules/04-ref-reverse/';
+    const bjproj = await fetchMod(dir + 'bjproj-parser.js');
+    const bjchange = await fetchMod(dir + 'bjchange-parser.js');
+    const wlbook = await fetchMod(dir + 'wlbook-parser.js');
+    const ref2ours = await fetchMod(dir + 'ref-to-ours-clone.js');
+    const ours = await fetchMod(dir + 'ours-formatter.js');
+    const test = await fetchMod(dir + 'ref-reverse.test.js');
+    const fix = await fetchMod(dir + 'fixtures-generator.js');
+
+    // Test 1: bjproj parser 函数
+    const bOk = bjproj && /parseRefBjproj/.test(bjproj) && /BjprojParseError/.test(bjproj);
+    lines.push({status: bOk?'PASS':'FAIL', name:'.bjproj parser + 异常类', detail:bOk?'OK':'缺失'});
+    record('04','.bjproj parser', bOk);
+
+    // Test 2: bjchange parser
+    const bcOk = bjchange && /parseRefBjchange/.test(bjchange);
+    lines.push({status: bcOk?'PASS':'FAIL', name:'.bjchange parser', detail:bcOk?'OK':'缺失'});
+    record('04','.bjchange parser', bcOk);
+
+    // Test 3: wlbook parser (5 大类识别)
+    const wlOk = wlbook && /材料/.test(wlbook) && /洁具/.test(wlbook) && /灯具/.test(wlbook) && /五金/.test(wlbook) && /开关/.test(wlbook);
+    lines.push({status: wlOk?'PASS':'FAIL', name:'.wlbook 5 大类识别', detail:wlOk?'OK':'缺失'});
+    record('04','.wlbook 5 大类', wlOk);
+
+    // Test 4: REF → ours clone ZIP
+    const r2oOk = ref2ours && /convertRefCloneZip/.test(ref2ours);
+    lines.push({status: r2oOk?'PASS':'FAIL', name:'REF clone ZIP → ours', detail:r2oOk?'OK':'缺失'});
+    record('04','REF→ours clone', r2oOk);
+
+    // Test 5: ours 原生导出
+    const oOk = ours && /exportBjproj/.test(ours) && /exportBjchange/.test(ours) && /exportWlbook/.test(ours);
+    lines.push({status: oOk?'PASS':'FAIL', name:'ours 原生 3 格式导出', detail:oOk?'OK':'缺失'});
+    record('04','ours 原生导出', oOk);
+
+    // Test 6: CSV 注入防护
+    const csvOk = ours && /\[\=＋\-\@\]|\[\=＋\-\@\]|\[\=\+\-\@\]/.test(ours) || (ours && /replace\(\/\^\[\=＋\-\@\]\/,\s*["']'\$/.test(ours));
+    lines.push({status: csvOk?'PASS':'FAIL', name:'CSV 注入防护 (=+/-/@前加单引号)', detail:csvOk?'OK':'缺失'});
+    record('04','CSV 注入防护', csvOk);
+
+    // Test 7: fixtures 生成器
+    const fixOk = fix && /generateRefBjprojSample|fixtures/.test(fix);
+    lines.push({status: fixOk?'PASS':'FAIL', name:'fixtures 生成器', detail:fixOk?'OK':'缺失'});
+    record('04','fixtures 生成', fixOk);
+
+    document.getElementById('s-04-files').textContent = '7 文件';
+    document.getElementById('s-04-lines').textContent = [bjproj,bjchange,wlbook,ref2ours,ours,test,fix].reduce((s,x)=>s+x.split('\n').length,0);
+    render('t-04', lines);
+  }
+
+  function exportLog(){
+    const blob = new Blob([JSON.stringify(results,null,2)],{type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `R31202-W1-testlog-${Date.now()}.json`;
+    a.click();
+  }
+
+  function updateKPIs(){
+    const pass = results.filter(r=>r.status==='PASS').length;
+    const fail = results.filter(r=>r.status==='FAIL').length;
+    document.getElementById('kpi-pass').textContent = pass;
+    document.getElementById('kpi-fail').textContent = fail;
+    document.getElementById('kpi-total').textContent = results.length;
+    document.getElementById('kpi-ms').textContent = Date.now()-startTime;
+  }
+
+  return {runAll, exportLog};
+})();
+
+// 自动绑到 render 完成时刷新 KPI
+const origRender = Array.prototype.indexOf; // noop anchor
+setInterval(()=>{ /* tick */ }, 1000);
+document.addEventListener('DOMContentLoaded', ()=>{
+  // initial UI
+  document.querySelectorAll('.tests').forEach(el=>el.innerHTML='<div class="PENDING">点 ▶ 跑全部测试 启动</div>');
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "format": "YUNSHU_ZHUANGQI_CLONE",
+  "schema": 1,
+  "appVersion": "0.5.0",
+  "minAppVersion": "0.5.0",
+  "createdAt": "2026-10-16T12:00:00.000Z",
+  "company": "工作室名称",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "contents": {
+    "categories": 0,
+    "quotas": 0,
+    "template": false,
+    "resourceFiles": 0
+  }
+}

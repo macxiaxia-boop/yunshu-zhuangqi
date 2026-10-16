@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>费率汇总 · fee-summary</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background:#f7f8fa; margin:0; padding:16px; color:#222; }
+  h1 { font-size:16px; margin:0 0 10px; }
+  table { width:100%; border-collapse:collapse; background:#fff; }
+  th, td { padding:8px 10px; border-bottom:1px solid #eee; text-align:left; font-size:13px; }
+  th { background:#f0f2f5; font-weight:600; }
+  input[type=number] { width:90px; padding:4px 6px; border:1px solid #d0d4d9; border-radius:3px;
+                       font-size:13px; text-align:right; }
+  .sum-row { font-weight:600; background:#fffbe6; }
+  .sum-total { font-weight:700; background:#fef3c7; font-size:15px; }
+  .fee-block { margin-top:16px; padding:10px; background:#fff; border-radius:4px; border:1px solid #e5e7eb; }
+  .fee-block h2 { font-size:13px; margin:0 0 8px; color:#555; }
+  .fee-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; font-size:13px; }
+  .fee-row { display:flex; align-items:center; gap:6px; }
+  .fee-row label { flex:1; color:#444; }
+  .actions { margin-top:14px; display:flex; gap:8px; }
+  .btn { padding:6px 14px; border-radius:4px; cursor:pointer; border:1px solid #d0d4d9;
+         background:#fff; font-size:13px; }
+  .btn-primary { background:#2b6cb0; color:#fff; border-color:#2b6cb0; }
+</style>
+</head>
+<body>
+  <h1>费率汇总 · fee-summary</h1>
+
+  <table id="summary-table">
+    <thead>
+      <tr><th>项目</th><th>金额 (¥)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>基装小计 (constructionSum)</td><td id="construction-sum">0.00</td></tr>
+      <tr><td>主材小计 (materialSum)</td><td id="material-sum">0.00</td></tr>
+      <tr><td>管理费 (mgmtFee · 5%)</td><td id="mgmt-fee">0.00</td></tr>
+      <tr><td>税 (taxFee · 3%)</td><td id="tax-fee">0.00</td></tr>
+      <tr><td>主材服务费 (matlService · 5%)</td><td id="matl-service">0.00</td></tr>
+      <tr><td>设计费 (designFee · 80 元/㎡)</td><td id="design-fee">0.00</td></tr>
+      <tr><td>折扣 (discount · %)</td><td id="discount-val">100</td></tr>
+      <tr class="sum-row"><td>折前合计</td><td id="pre-discount">0.00</td></tr>
+      <tr class="sum-total"><td>总计 (total)</td><td id="total">0.00</td></tr>
+    </tbody>
+  </table>
+
+  <div class="fee-block">
+    <h2>5 费率设置 (与 REF clone-settings 的 financial Set 对齐)</h2>
+    <div class="fee-grid">
+      <div class="fee-row">
+        <label>管理费率 %</label>
+        <input type="number" id="fee-mgmt" step="0.1" min="0" max="100">
+      </div>
+      <div class="fee-row">
+        <label>税率 %</label>
+        <input type="number" id="fee-tax" step="0.1" min="0" max="100">
+      </div>
+      <div class="fee-row">
+        <label>主材服务费率 %</label>
+        <input type="number" id="fee-matl" step="0.1" min="0" max="100">
+      </div>
+      <div class="fee-row">
+        <label>设计费 元/㎡</label>
+        <input type="number" id="fee-design" step="0.1" min="0">
+      </div>
+      <div class="fee-row">
+        <label>折扣率 %</label>
+        <input type="number" id="fee-discount" step="0.1" min="0" max="100">
+      </div>
+      <div class="fee-row">
+        <label>设计面积 ㎡</label>
+        <input type="number" id="design-area" step="0.1" min="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="save-btn">保存费率</button>
+    <button class="btn" id="reset-btn">重置默认</button>
+  </div>
+
+<script src="./material-calc.js"></script>
+<script>
+(function () {
+  function getQuery() {
+    try {
+      const raw = window.name ? decodeURIComponent(window.name) : '';
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  const q = getQuery() || {};
+  const categories = Array.isArray(q.categories) ? q.categories : [];
+  const initialFee = q.feeTable || window.MaterialCalc.DEFAULT_FEE_TABLE;
+  const designArea = q.designArea || 0;
+
+  const feeTable = window.MaterialCalc.mergeFeeTable(initialFee);
+
+  // Bind fee inputs
+  const feeInputs = {
+    management:     document.getElementById('fee-mgmt'),
+    taxRate:        document.getElementById('fee-tax'),
+    materialService:document.getElementById('fee-matl'),
+    design:         document.getElementById('fee-design'),
+    discount:       document.getElementById('fee-discount'),
+  };
+  feeInputs.management.value     = feeTable.management.rate;
+  feeInputs.taxRate.value        = feeTable.taxRate.rate;
+  feeInputs.materialService.value= feeTable.materialService.rate;
+  feeInputs.design.value         = feeTable.design.rate;
+  feeInputs.discount.value       = feeTable.discount.rate;
+
+  const designAreaInput = document.getElementById('design-area');
+  designAreaInput.value = designArea;
+
+  function recalc() {
+    feeTable.management.rate      = Number(feeInputs.management.value) || 0;
+    feeTable.taxRate.rate         = Number(feeInputs.taxRate.value) || 0;
+    feeTable.materialService.rate = Number(feeInputs.materialService.value) || 0;
+    feeTable.design.rate          = Number(feeInputs.design.value) || 0;
+    feeTable.discount.rate        = Number(feeInputs.discount.value) || 0;
+    const da = Number(designAreaInput.value) || 0;
+    const result = window.MaterialCalc.calcTotal(categories, feeTable, { designArea: da });
+
+    document.getElementById('construction-sum').textContent = result.constructionSum.toFixed(2);
+    document.getElementById('material-sum').textContent     = result.materialSum.toFixed(2);
+    document.getElementById('mgmt-fee').textContent         = result.mgmtFee.toFixed(2);
+    document.getElementById('tax-fee').textContent          = result.taxFee.toFixed(2);
+    document.getElementById('matl-service').textContent     = result.matlService.toFixed(2);
+    document.getElementById('design-fee').textContent       = result.designFee.toFixed(2);
+    document.getElementById('discount-val').textContent     = result.discount.toFixed(0);
+    const pre = result.constructionSum + result.mgmtFee + result.taxFee + result.matlService + result.designFee;
+    document.getElementById('pre-discount').textContent     = pre.toFixed(2);
+    document.getElementById('total').textContent            = result.total.toFixed(2);
+  }
+
+  Object.values(feeInputs).forEach((el) => el.addEventListener('input', recalc));
+  designAreaInput.addEventListener('input', recalc);
+
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    feeInputs.management.value      = 5;
+    feeInputs.taxRate.value         = 3;
+    feeInputs.materialService.value = 5;
+    feeInputs.design.value          = 80;
+    feeInputs.discount.value        = 100;
+    recalc();
+  });
+
+  document.getElementById('save-btn').addEventListener('click', () => {
+    const payload = { feeTable, designArea: Number(designAreaInput.value) || 0, result: window.MaterialCalc.calcTotal(categories, feeTable, { designArea: Number(designAreaInput.value) || 0 }) };
+    try {
+      if (window.opener && window.opener.ydata && typeof window.opener.ydata.updateFeeTable === 'function') {
+        window.opener.ydata.updateFeeTable(payload);
+      }
+    } catch (e) { /* cross-origin silent */ }
+    window.close();
+  });
+
+  recalc();
+})();
+</script>
+</body>
+</html>

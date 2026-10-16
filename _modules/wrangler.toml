@@ -1,0 +1,29 @@
+# wrangler.toml · yunshu-zhuangqi share-link Worker
+
+# 部署目标：Cloudflare Workers (free tier)
+# 触发：worker.js
+# 资源：1 个 KV namespace (SHARE_KV)
+
+name = "yunshu-zhuangqi-share"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# KV 命名空间绑定（部署前在 Cloudflare Dashboard 创建 → 填 ID）
+# 步骤：
+# 1. wrangler kv namespace create SHARE_KV
+# 2. 把返回的 ID 填到下面的 id 字段
+# 3. wrangler deploy
+[[kv_namespaces]]
+binding = "SHARE_KV"
+id = "REPLACE_WITH_REAL_KV_ID"  # ← 用户填入实际 ID
+
+# 可选：自定义域名
+# routes = [
+#   { pattern = "share.yunshu-zhuangqi.com/*", custom_domain = true }
+# ]
+
+# 默认环境变量（前台 shareId 长度 + 过期秒数）
+[vars]
+SHAREID_LENGTH = "12"
+EXPIRE_SECONDS = "604800"  # 7 天
+RATE_LIMIT_PER_HOUR = "5"
