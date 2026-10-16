@@ -1,0 +1,111 @@
+# R31202 · V3 视觉 API 真测试 (用 GH Secrets)
+# Trigger: workflow_dispatch 手动触发 · push to _modules/12-ai-floorplan/
+
+name: 🧠 V3 Real Vision Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Provider to test'
+        required: false
+        default: 'deepseek'
+        type: choice
+        options: [anthropic, deepseek, agnes, minimax]
+  push:
+    branches: [master]
+    paths: ['_modules/12-ai-floorplan/**']
+
+jobs:
+  test-vision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Setup
+        run: |
+          mkdir -p /tmp/test-out
+          # 生成测试 PNG (红色 4x4)
+          node -e "
+          const buf = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z95AAAAFElEQVR4XmP8z8DwHwAGBQIuH4kFAQCsBQp8HJEYAAAAAElFTkSuQmCC', 'base64');
+          require('fs').writeFileSync('/tmp/test-red.png', buf);
+          console.log('test PNG created');
+          "
+
+      - name: Test Anthropic (if ANTHROPIC_API_KEY set)
+        if: env.ANTHROPIC_API_KEY != ''
+        run: |
+          node -e "
+          const buf = require('fs').readFileSync('/tmp/test-red.png').toString('base64');
+          fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'x-api-key': process.env.ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'claude-3-5-sonnet-20241022',
+              max_tokens: 50,
+              messages: [{role:'user',content:[
+                {type:'text',text:'这个色块是什么颜色？1个词。'},
+                {type:'image',source:{type:'base64',media_type:'image/png',data:buf}}
+              ]}]
+            })
+          }).then(r => r.ok ? r.json() : Promise.reject(r.status+' '+r.statusText))
+            .then(j => console.log('✅ Anthropic vision works:', j.content?.[0]?.text?.slice(0,50)))
+            .catch(e => console.log('❌ Anthropic failed:', e.message));
+          "
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Test DeepSeek (if DEEPSEEK_API_KEY set)
+        if: env.DEEPSEEK_API_KEY != ''
+        run: |
+          node -e "
+          const buf = require('fs').readFileSync('/tmp/test-red.png').toString('base64');
+          fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + process.env.DEEPSEEK_API_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'deepseek-flash',
+              max_tokens: 50,
+              messages: [{role:'user',content:[
+                {type:'text',text:'这个色块是什么颜色？1个词。'},
+                {type:'image_url',image_url:{url:'data:image/png;base64,'+buf}}
+              ]}]
+            })
+          }).then(r => r.ok ? r.json() : Promise.reject(r.status+' '+r.statusText))
+            .then(j => console.log('✅ DeepSeek V4.1 Flash vision works:', j.choices?.[0]?.message?.content?.slice(0,50)))
+            .catch(e => console.log('❌ DeepSeek failed:', e.message));
+          "
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
+      - name: Test AGNES (vision image generation)
+        if: env.AGNES_API_KEY != ''
+        run: |
+          node -e "
+          fetch('https://apihub.agnes-ai.com/v1/images/generations', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + process.env.AGNES_API_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'agnes-image-2.5-flash',
+              prompt: 'red square',
+              size: '256x256',
+              n: 1
+            })
+          }).then(r => r.ok ? r.json() : Promise.reject(r.status+' '+r.statusText))
+            .then(j => console.log('✅ AGNES image generation works:', j.data?.[0]?.url?.slice(0,60)))
+            .catch(e => console.log('❌ AGNES failed:', e.message));
+          "
+        env:
+          AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
