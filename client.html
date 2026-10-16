@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6366f1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>我的报价 · 装报价</title>
+<style>
+  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --green: #16a34a; --shadow: 0 4px 12px rgba(0,0,0,0.05); --radius: 16px; --radius-sm: 10px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  a { color: var(--primary); text-decoration: none; }
+  /* Header */
+  .header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+  .brand-logo { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(99,102,241,0.25); }
+  .user-chip { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-2); border-radius: 20px; font-size: 13px; }
+  .user-chip .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+  .actions { display: flex; gap: 8px; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; }
+  /* Container */
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  .greeting { margin-bottom: 28px; }
+  .greeting h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .greeting .sub { color: var(--text-dim); font-size: 14px; }
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .stat-card .num { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-card .label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  /* Project cards */
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title .count { background: var(--primary-soft); color: var(--primary); padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .project-list { display: grid; gap: 16px; }
+  .project-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.15s; cursor: pointer; }
+  .project-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary); }
+  .project-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+  .project-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .project-owner { font-size: 12px; color: var(--text-faint); }
+  .project-status { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .status-active { background: rgba(22,163,74,0.1); color: var(--green); }
+  .status-pending { background: var(--primary-soft); color: var(--primary); }
+  .status-done { background: var(--bg-2); color: var(--text-dim); }
+  .project-info { display: flex; gap: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .info-item { flex: 1; }
+  .info-item .label { font-size: 11px; color: var(--text-faint); margin-bottom: 4px; }
+  .info-item .value { font-size: 14px; font-weight: 600; color: var(--text); }
+  .info-item .value.big { font-size: 20px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .empty { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 60px 24px; text-align: center; }
+  .empty-mark { font-size: 48px; opacity: 0.3; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; color: var(--text-dim); margin-bottom: 6px; }
+  .empty p { font-size: 13px; color: var(--text-faint); }
+  /* Modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-bg.active { display: flex; }
+  .modal { background: var(--panel); border-radius: var(--radius); max-width: 760px; width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal-head { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-head h3 { font-size: 16px; font-weight: 700; }
+  .modal-close { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-2); border: none; cursor: pointer; font-size: 18px; color: var(--text-dim); display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--border); }
+  .modal-body { padding: 24px; overflow-y: auto; }
+  .modal-foot { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+  .modal-foot button { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); font-size: 13px; cursor: pointer; }
+  .modal-foot .btn-ok { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; }
+  /* Quote display */
+  .quote-section { margin-bottom: 16px; }
+  .quote-section .title { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+  .quote-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .quote-table th { background: var(--bg); padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-dim); }
+  .quote-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .quote-table tfoot td { background: var(--bg); font-weight: 700; color: var(--primary); }
+  .quote-section .total { font-size: 32px; font-weight: 800; color: var(--primary); text-align: right; padding: 16px 0; border-top: 2px solid var(--primary); margin-top: 8px; }
+  /* Status badge */
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(22,163,74,0.12); color: var(--green); }
+  .badge-purple { background: var(--primary-soft); color: var(--primary); }
+  @media (max-width: 700px) {
+    .stats { grid-template-columns: 1fr; }
+    .project-info { flex-wrap: wrap; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="client.html" class="brand">
+    <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <span>装报价 · <span id="brandSub">业主</span></span>
+  </a>
+  <div class="actions">
+    <div class="user-chip">
+      <div class="avatar" id="userAvatar">业</div>
+      <span id="userPhone">加载中...</span>
+    </div>
+    <button class="btn" onclick="doLogout()">退出</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="greeting">
+    <h1>您好,<span id="userName">业主</span> 👋</h1>
+    <p class="sub">查看您所有的装修报价和项目进度</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num" id="statProjects">0</div>
+      <div class="label">项目数</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statActive">0</div>
+      <div class="label">进行中</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="statTotal">¥0</div>
+      <div class="label">报价总额</div>
+    </div>
+  </div>
+
+  <div class="section-title">
+    <span>📋 我的项目</span>
+    <span class="count" id="projectCount">0</span>
+  </div>
+  <div id="projectList" class="project-list"></div>
+</div>
+
+<!-- 报价详情 Modal -->
+<div class="modal-bg" id="quoteModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">报价详情</h3>
+      <button class="modal-close" onclick="closeQuote()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button onclick="closeQuote()">关闭</button>
+      <button class="btn-ok" onclick="printQuote()">🖨 打印</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function init() {
+  // 验证登录态
+  let user;
+  try { user = JSON.parse(localStorage.getItem('yunshu-user') || 'null'); } catch(e) { user = null; }
+  if (!user || user.role !== 'client') {
+    window.location.replace('client-login.html');
+    return;
+  }
+  // 显示用户信息
+  document.getElementById('userPhone').textContent = user.phone || '';
+  const masked = (user.phone || '').replace(/^(\d{3})\d{4}/, '$1****');
+  document.getElementById('userPhone').textContent = masked;
+  document.getElementById('userAvatar').textContent = (user.workspaceName || '业').slice(0, 1);
+  document.getElementById('userName').textContent = user.workspaceName || '业主';
+  document.title = (user.workspaceName || '业主') + ' · 我的报价';
+
+  renderProjects(user);
+})();
+
+function renderProjects(user) {
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const myProjectIds = user.projects || [];
+  const list = document.getElementById('projectList');
+  const myProjects = myProjectIds.map(id => ({ id, data: projects[id] })).filter(p => p.data);
+
+  document.getElementById('projectCount').textContent = myProjects.length;
+  document.getElementById('statProjects').textContent = myProjects.length;
+  const activeCount = myProjects.filter(p => p.data.status === 'active').length;
+  document.getElementById('statActive').textContent = activeCount;
+  const total = myProjects.reduce((sum, p) => sum + (parseFloat(p.data.total) || 0), 0);
+  document.getElementById('statTotal').textContent = '¥' + total.toFixed(2);
+
+  if (!myProjects.length) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">📋</div>
+        <h3>还没有项目</h3>
+        <p>联系您的装饰公司为您创建报价项目</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = myProjects.map(p => {
+    const proj = p.data;
+    const statusBadge = proj.status === 'done' ? '<span class="project-status status-done">已完成</span>'
+      : proj.status === 'pending' ? '<span class="project-status status-pending">待启动</span>'
+      : '<span class="project-status status-active">进行中</span>';
+    return `
+      <div class="project-card" onclick="openQuote('${p.id}')">
+        <div class="project-head">
+          <div>
+            <div class="project-name">${proj.name || '未命名项目'}</div>
+            <div class="proj-owner">由 ${proj.ownerName || '您的装饰公司'} 创建 · ${proj.createdAt ? new Date(proj.createdAt).toLocaleDateString('zh-CN') : ''}</div>
+          </div>
+          ${statusBadge}
+        </div>
+        <div class="project-info">
+          <div class="info-item"><div class="label">项目总额</div><div class="value big">¥${(proj.total || 0).toFixed(2)}</div></div>
+          <div class="info-item"><div class="label">子项目</div><div class="value">${(proj.items || []).length} 项</div></div>
+          <div class="info-item"><div class="label">最后更新</div><div class="value">${proj.updatedAt ? new Date(proj.updatedAt).toLocaleDateString('zh-CN') : '-'}</div></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openQuote(projectId) {
+  const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
+  const proj = projects[projectId];
+  if (!proj) return;
+  document.getElementById('modalTitle').textContent = (proj.name || '项目') + ' · 报价详情';
+  const itemsHtml = (proj.items || []).map(item => `
+    <tr>
+      <td>${item.name || ''}</td>
+      <td>${item.unit || ''}</td>
+      <td style="text-align:right">${item.qty || 1}</td>
+      <td style="text-align:right">¥${(item.price || 0).toFixed(2)}</td>
+      <td style="text-align:right">¥${((item.qty || 1) * (item.price || 0)).toFixed(2)}</td>
+    </tr>`).join('');
+  document.getElementById('modalBody').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;color:#5e5e7a;margin-bottom:4px;">装饰公司</div>
+      <div style="font-size:16px;font-weight:600;">${proj.ownerName || ''}</div>
+    </div>
+    <div style="margin-bottom:16px;display:flex;gap:32px;">
+      <div><div style="font-size:11px;color:#9595ad;margin-bottom:4px;">项目编号</div><div style="font-family:monospace;font-size:14px;">${projectId}</div></div>
+      <div><div style="font-size:11px;color:#9595ad;margin-bottom:4px;">创建日期</div><div style="font-size:14px;">${proj.createdAt ? new Date(proj.createdAt).toLocaleDateString('zh-CN') : '-'}</div></div>
+    </div>
+    <div class="quote-section">
+      <div class="title">📋 项目明细</div>
+      <table class="quote-table">
+        <thead><tr><th>项目</th><th>单位</th><th style="text-align:right">数量</th><th style="text-align:right">单价</th><th style="text-align:right">小计</th></tr></thead>
+        <tbody>${itemsHtml || '<tr><td colspan="5" style="text-align:center;color:#9595ad">无明细</td></tr>'}</tbody>
+      </table>
+      <div class="total">总计 ¥${(proj.total || 0).toFixed(2)}</div>
+    </div>
+    ${proj.notes ? `<div style="margin-top:16px;padding:14px;background:#fafaff;border-radius:8px;font-size:13px;color:#5e5e7a;line-height:1.7;">📝 备注:${proj.notes}</div>` : ''}
+  `;
+  document.getElementById('quoteModal').classList.add('active');
+}
+
+function closeQuote() {
+  document.getElementById('quoteModal').classList.remove('active');
+}
+
+function printQuote() {
+  window.print();
+}
+
+function doLogout() {
+  if (!confirm('确定退出登录?')) return;
+  localStorage.removeItem('yunshu-user');
+  window.location.href = 'client-login.html';
+}
+
+// ESC 关闭弹窗
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeQuote();
+});
+</script>
+</body>
+</html>
