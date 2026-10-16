@@ -2812,6 +2812,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <button data-act="assistant" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">🤖 智能助手</button>
       <button data-act="collab" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">🤝 协作</button>
       <button data-act="ai-floorplan" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">🧠 AI户型</button>
+      <button data-act="cert" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">📜 存证证书</button>
       <button data-act="calendar" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">📅 万年历</button>
       <button data-act="fee-summary" style="padding:8px 12px;background:#fff;border:1px solid #ccc;border-radius:8px;cursor:pointer">💰 费率汇总</button>
     `;
@@ -2936,6 +2937,9 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       else if (act === 'ai-floorplan') {
         window.open('_modules/12-ai-floorplan/ai-floorplan.html', '_blank', 'width=1100,height=800');
+      }
+      else if (act === 'cert') {
+        window.open('_modules/13-blockchain-cert/cert-view.html', '_blank', 'width=1000,height=800');
       }
 
       else if (act === 'calendar') {

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>🅱️ 报价单数字存证 · R31202</title>
+<style>
+:root {
+  --primary: #A23C43;
+  --bg: #fafafa;
+  --chrome: #fff;
+  --ink: #1a1a1a;
+  --muted: #666;
+  --line: #e8e6e1;
+  --ok: #1b8a3a;
+  --warn: #d39c00;
+  --fail: #c0392b;
+}
+* { box-sizing: border-box }
+body {
+  margin: 0; padding: 24px;
+  font-family: "Microsoft YaHei", system-ui, sans-serif;
+  background: var(--bg); color: var(--ink);
+  line-height: 1.6;
+}
+.wrap { max-width: 880px; margin: 0 auto; }
+h1 { margin: 0 0 8px; font-size: 22px; color: var(--primary); }
+h2 { font-size: 16px; margin: 24px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.card {
+  background: var(--chrome);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+button {
+  padding: 9px 18px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--chrome); cursor: pointer; font-size: 13px;
+  font-family: inherit;
+}
+button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+button:hover { background: #fafafa; }
+button.primary:hover { background: #b56369; }
+
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+textarea { width: 100%; min-height: 120px; font-family: monospace; font-size: 12px; padding: 8px; }
+.kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 12px; font-size: 13px; }
+.kv span:nth-child(odd) { color: var(--muted); }
+.kv span:nth-child(even) { font-family: ui-monospace, monospace; word-break: break-all; }
+.ok { color: var(--ok); font-weight: 600; }
+.fail { color: var(--fail); font-weight: 600; }
+.muted { color: var(--muted); }
+code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+.cert-list { max-height: 200px; overflow: auto; }
+.cert-item { padding: 10px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.cert-item:hover { background: rgba(0,0,0,0.03); }
+.cert-item .id { font-family: monospace; font-size: 12px; color: var(--primary); }
+.cert-item .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🅱️ 报价单数字存证证书</h1>
+<p class="muted">R31202 V4 · SHA-256 链式哈希 · 篡改自动检测 · IndexedDB 永久保存</p>
+
+<div class="card">
+<h2>1. 创建证书</h2>
+<p class="muted">输入报价 JSON（粘贴完整 data 对象）→ 生成不可篡改的数字存证</p>
+<textarea id="inputData" placeholder='粘贴完整项目数据 JSON，例如：{"projectInfo":{"name":"示例","totalAmount":125600},"categories":[...]}'></textarea>
+<div class="row" style="margin-top: 8px;">
+  <input type="text" id="author" placeholder="存证人（默认：yunshu-zhuangqi）" style="flex:1; padding:9px 12px; border:1px solid var(--line); border-radius:6px;">
+  <button class="primary" onclick="createCert()">📜 创建证书</button>
+</div>
+<div id="result"></div>
+</div>
+
+<div class="card">
+<h2>2. 历史证书（链）</h2>
+<p class="muted">按时间倒序，所有证书都链接到上一个证书的 chainHash</p>
+<button onclick="loadList()">🔄 刷新列表</button>
+<div id="list" class="cert-list" style="margin-top: 12px;"></div>
+</div>
+
+<div class="card">
+<h2>3. 公开验证（业主端）</h2>
+<p class="muted">业主拿到证书 ID + 数据 JSON，输入后验证完整性。任何字段被改都会失败。</p>
+<input type="text" id="verifyId" placeholder="证书 ID" style="width: 100%; padding: 9px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; font-family: monospace;">
+<textarea id="verifyData" placeholder='对应的项目数据 JSON'></textarea>
+<button class="primary" onclick="verifyCert()" style="margin-top:8px;">🔍 验证</button>
+<div id="verifyResult"></div>
+</div>
+
+<div class="card">
+<h2>4. 运行测试</h2>
+<p class="muted">R31202 内置 16 自检 · 验证 V4 模块完整性</p>
+<button onclick="runTests()">▶ 跑测试</button>
+<pre id="testLog" style="margin-top: 12px; padding: 12px; background: #1a1a1a; color: #aef; border-radius: 6px; font-size: 11px; max-height: 300px; overflow: auto;"></pre>
+</div>
+
+</div>
+
+<script src="./cert-core.js"></script>
+<script src="./cert.test.js"></script>
+<script>
+async function createCert() {
+  const text = document.getElementById('inputData').value.trim();
+  const author = document.getElementById('author').value.trim() || 'yunshu-zhuangqi';
+  const r = document.getElementById('result');
+  if (!text) { r.innerHTML = '<p class="fail">❌ 请粘贴报价数据</p>'; return; }
+  let data;
+  try { data = JSON.parse(text); } catch (e) { r.innerHTML = '<p class="fail">❌ JSON 解析失败：'+e.message+'</p>'; return; }
+  const cert = await window.YSCert.createCertificate({ projectData: data, author });
+  r.innerHTML = `
+    <div class="kv" style="margin-top: 12px;">
+      <span>证书 ID</span><span><code>${cert.id}</code></span>
+      <span>version</span><span>${cert.version}</span>
+      <span>timestamp</span><span>${cert.timestamp}</span>
+      <span>author</span><span>${cert.author}</span>
+      <span>dataHash</span><span><code>${cert.dataHash.slice(0,32)}...</code></span>
+      <span>chainHash</span><span><code>${cert.chainHash.slice(0,32)}...</code></span>
+      <span>prevHash</span><span><code>${cert.prevHash.slice(0,32)}...</code></span>
+      <span>signature</span><span><code>${cert.signature.slice(0,32)}...</code></span>
+      <span>链位置</span><span>#${(await YSCert.listCertificates().then(l => l.findIndex(c => c.id === cert.id)) + 1)}</span>
+    </div>
+    <p class="ok" style="margin-top:12px;">✅ 证书已存证。链上前一个：${cert.prevHash === '0'.repeat(64) ? 'GENESIS（链的第 1 个）' : '已链上'}</p>
+    <div class="row" style="margin-top:12px;">
+      <button onclick='verifyThisCert(${JSON.stringify(cert.id)}, ${JSON.stringify(JSON.stringify(data))})'>🔍 验证完整性</button>
+      <button onclick='exportThisCert(${JSON.stringify(cert.id)})'>💾 导出 JSON</button>
+    </div>`;
+  await loadList();
+}
+
+async function verifyThisCert(id, jsonStr) {
+  const data = JSON.parse(jsonStr);
+  const certs = await window.YSCert.listCertificates();
+  const cert = certs.find(c => c.id === id);
+  if (!cert) { alert('证书不存在'); return; }
+  const r = await window.YSCert.verifyCertificate({ ...cert, fullData: data });
+  alert(r.ok ? '✅ 验证通过：证书未被篡改' : '❌ ' + r.reason);
+}
+
+async function exportThisCert(id) {
+  const exp = await window.YSCert.exportCertificate(id);
+  if (!exp) { alert('未找到'); return; }
+  const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = id + '.cert.json';
+  a.click();
+}
+
+async function loadList() {
+  const list = await window.YSCert.listCertificates();
+  const el = document.getElementById('list');
+  if (!list.length) { el.innerHTML = '<p class="muted">无证书</p>'; return; }
+  el.innerHTML = list.map((c, i) => `
+    <div class="cert-item">
+      <div class="id">#${list.length - i} · ${c.id}</div>
+      <div class="meta">${c.timestamp} · ${c.metadata?.projectName || '?'} · ${c.metadata?.itemsCount || 0} 项 · dataHash: ${c.dataHash.slice(0,16)}...</div>
+    </div>`).join('');
+}
+
+async function verifyCert() {
+  const id = document.getElementById('verifyId').value.trim();
+  const text = document.getElementById('verifyData').value.trim();
+  const r = document.getElementById('verifyResult');
+  if (!id || !text) { r.innerHTML = '<p class="fail">❌ 请填 ID 和数据</p>'; return; }
+  let data;
+  try { data = JSON.parse(text); } catch (e) { r.innerHTML = '<p class="fail">❌ JSON 解析失败</p>'; return; }
+  const v = await window.YSCert.publicVerify(id, data);
+  r.innerHTML = v.ok
+    ? `<p class="ok">✅ 验证通过：证书 ID <code>${id}</code> 完整且未被篡改。</p>`
+    : `<p class="fail">❌ 验证失败：${v.reason}</p>`;
+}
+
+async function runTests() {
+  const log = document.getElementById('testLog');
+  log.textContent = 'Running...';
+  try {
+    const r = await window.testV4();
+    log.textContent = `PASS: ${r.pass}\nFAIL: ${r.fail}\n\n${log.textContent}`;
+  } catch (e) {
+    log.textContent = '测试失败：' + e.message;
+  }
+}
+
+// 启动时自动加载
+loadList();
+</script>
+</body>
+</html>
