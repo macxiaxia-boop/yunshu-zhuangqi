@@ -3,42 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#B50029">
-<title>管理员工具 · 云数装企</title>
+<meta name="theme-color" content="#6366f1">
+<title>管理员工具 · 装报价</title>
 <script src="activation_codes.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #1a1d2e; color: #e8eaf0; padding: 20px; }
-  .lock { max-width: 400px; margin: 100px auto; background: #232738; padding: 40px; border-radius: 12px; }
+  .lock { max-width: 400px; margin: 100px auto; background: #232738; padding: 40px; border-radius: 16px; box-shadow: 0 20px 60px rgba(99,102,241,0.25); }
   .lock h1 { font-size: 20px; margin-bottom: 16px; }
-  .lock input { width: 100%; padding: 10px 12px; background: #0d111a; border: 1px solid #2a3454; border-radius: 6px; color: #e8eaf0; margin-bottom: 12px; font-size: 14px; }
-  .lock button { width: 100%; padding: 10px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
-  .lock button:hover { background: #8B0029; }
+  .lock input { width: 100%; padding: 12px 14px; background: #0d111a; border: 1px solid #2a3454; border-radius: 10px; color: #e8eaf0; margin-bottom: 12px; font-size: 14px; outline: none; }
+  .lock input:focus { border-color: #6366f1; }
+  .lock button { width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
   .panel { display: none; }
   .panel.active { display: block; }
   .header { background: #232738; padding: 14px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 16px; }
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
   .stat { background: #232738; padding: 14px; border-radius: 8px; text-align: center; }
-  .stat .num { font-size: 24px; font-weight: 700; color: #B50029; }
+  .stat .num { font-size: 24px; font-weight: 700; color: #818cf8; }
   .stat .label { font-size: 11px; color: #8a93b0; margin-top: 4px; }
   .codes-table { background: #232738; padding: 16px; border-radius: 8px; }
   .codes-table h3 { font-size: 14px; margin-bottom: 12px; }
   .filter { display: flex; gap: 8px; margin-bottom: 12px; }
   .filter button { padding: 6px 12px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 4px; cursor: pointer; font-size: 12px; }
-  .filter button.active { background: #B50029; color: #fff; border-color: #B50029; }
+  .filter button.active { background: #6366f1; color: #fff; border-color: #6366f1; }
   .code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; max-height: 500px; overflow-y: auto; }
   .code-item { padding: 8px 10px; background: #0d111a; border-radius: 4px; font-family: monospace; font-size: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
   .code-item.used { opacity: 0.5; }
-  .code-item .badge-used { color: #fbbf24; font-size: 10px; }
+  .code-item .badge-used { color: #fbbf24amp;#fbbf24; font-size: 10px; }
   .code-item .badge-avail { color: #4ade80; font-size: 10px; }
-  .code-item .actions { font-family: sans-serif; font-size: 10px; color: #B50029; }
+  .code-item .actions { font-family: sans-serif; font-size: 10px; color: #6366f1; }
   .users-list { background: #232738; padding: 16px; border-radius: 8px; margin-top: 16px; }
   .user-row { padding: 8px 0; border-bottom: 1px solid #2a3454; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   .user-row:last-child { border-bottom: none; }
   .user-row .email { font-family: monospace; }
   .user-row .actions button { padding: 2px 8px; margin-left: 6px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 3px; cursor: pointer; font-size: 11px; }
-  .user-row .actions button:hover { background: #B50029; border-color: #B50029; color: #fff; }
+  .user-row .actions button:hover { background: #6366f1; border-color: #6366f1; color: #fff; }
   .user-row .actions .revoke { color: #f87171; }
 </style>
 </head>
@@ -48,12 +48,12 @@
   <h1>🔒 管理员登录</h1>
   <input type="password" id="adminPwd" placeholder="管理员密码" onkeydown="if(event.key==='Enter') tryUnlock()">
   <button onclick="tryUnlock()">进入</button>
-  <div style="margin-top:12px; font-size:11px; color:#8a93b0;">首次访问?默认密码:<code style="color:#B50029">yunshu-admin-2026</code></div>
+  <div style="margin-top:12px; font-size:11px; color:#8a93b0;">首次访问?默认密码:<code style="color:#6366f1">yunshu-admin-2026</code></div>
 </div>
 
 <div class="panel" id="mainPanel">
   <div class="header">
-    <h1>👑 云数装企 · 管理员控制台</h1>
+    <h1>👑 装报价 · 管理员控制台</h1>
     <div>
       <a href="index.html" style="color:#8a93b0;margin-right:14px;text-decoration:none;">查看前台</a>
       <button onclick="logout()" style="padding:6px 14px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;">退出</button>
@@ -80,13 +80,14 @@
   </div>
 
   <div class="users-list">
-    <h3>注册用户(本地浏览器,跨设备不共享)</h3>
+    <h3>账号管理(多租户) · 改名 / 激活 / 删除</h3>
+    <div style="font-size:11px;color:#8a93b0;margin-bottom:10px;line-height:1.6;">📋 用户注册信息存在自己浏览器 localStorage。本管理员工具只能在同一浏览器看到这些账号。改名后,用户下次登录就会看到新的工作室名。</div>
     <div id="userList" style="font-size:12px;color:#8a93b0;">加载中...</div>
   </div>
 </div>
 
 <script>
-const ADMIN_PWD = 'yunshu-admin-2026';
+const ADMIN_PWD = 'yunshu-admin-2026';  // 👈 首次登录后请改这个密码
 const LS_USED = 'yunshu-codes-used';
 const LS_USERS = 'yunshu-users-pending';
 
@@ -149,7 +150,7 @@ function renderCodes() {
     const recipient = isUsed ? used[code].email || used[code].note : '';
     div.innerHTML = `
       <span onclick="copyCode('${code}')" title="点击复制" style="flex:1">${code}</span>
-      <span style="font-family:sans-serif;font-size:10px;color:${isUsed ? '#fbbf24' : '#4ade80'};margin-right:4px">${isUsed ? '已发' : '未发'}</span>
+      <span style="font-family:sans-serif;font-size:10px;color:${isUsed ? '#fbbf24amp;#fbbf24' : '#4ade80'};margin-right:4px">${isUsed ? '已发' : '未发'}</span>
       <span class="actions">
         ${isUsed ?
           `<button onclick="revokeCode('${code}')" title="撤销" style="border-color:#f87171;color:#f87171">×</button>` :
@@ -190,7 +191,7 @@ function revokeCode(code) {
 function exportCodes() {
   const used = getUsed();
   const avail = ACTIVATION_CODES.filter(c => !used[c]);
-  const text = '【云数装企 · 激活码导出】\n\n未发放 (' + avail.length + ' 个):\n' +
+  const text = '【装报价 · 激活码导出】\n\n未发放 (' + avail.length + ' 个):\n' +
     avail.join('\n') +
     '\n\n已发放 (' + Object.keys(used).length + ' 个):\n' +
     Object.entries(used).map(([c, m]) => c + ' → ' + m.note).join('\n');
@@ -206,24 +207,37 @@ function exportCodes() {
 }
 
 function renderUsers() {
-  const users = getUsers();
+  // 从 yunshu-accounts 读取真实数据(多租户)
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
   const list = document.getElementById('userList');
-  if (!users.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px">暂无注册用户(只有客户在自己浏览器注册后,这里才能看到)</div>';
+  const phones = Object.keys(accounts);
+  document.getElementById('statUsers').textContent = phones.length;
+  if (!phones.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px">暂无注册账号(浏览器需至少一次注册)<br>' +
+    '<span style="font-size:11px">注 — 用户注册信息存在自己浏览器 localStorage,本管理员工具只在同一浏览器看到</span></div>';
     return;
   }
-  list.innerHTML = users.map((u, i) => `
-    <div class="user-row">
+  list.innerHTML = phones.map(phone => {
+    const acc = accounts[phone];
+    const activated = acc.activated ? '<span style="color:#4ade80;font-size:10px;background:rgba(74,222,128,0.12);padding:2px 6px;border-radius:3px;margin-left:6px">已激活</span>' : '<span style="color:#fbbf24amp;#fbbf24;font-size:10px;background:rgba(251,191,36,0.12);padding:2px 6px;border-radius:3px;margin-left:6px">未激活</span>';
+    return `
+    <div class="user-row" style="padding:10px 0;">
       <span>
-        <span class="email">${u.email || '(未填)'}</span>
-        ${u.company ? ' <span style="color:#8a93b0">· ' + u.company + '</span>' : ''}
-        <span style="color:#8a93b0;font-size:11px;margin-left:8px">${new Date(u.at).toLocaleString('zh-CN')}</span>
+        <span class="email" style="font-size:14px;font-weight:600">${phone}</span>
+        ${activated}
+        <br>
+        <span style="color:#8a93b0;font-size:12px;margin-left:0">工作室名: <b style="color:#e8eaf0">${acc.workspaceName || '未命名'}</b></span>
+        <span style="color:#5a6485;font-size:11px;margin-left:8px">${new Date(acc.at || 0).toLocaleString('zh-CN')}</span>
       </span>
       <span class="actions">
-        <button onclick="removeUser(${i})" class="revoke" title="删除">删除</button>
+        <button onclick="renameWorkspace('${phone}')" title="改名工作室">改名</button>
+        ${acc.activated
+          ? `<button onclick="revokeActivation('${phone}')" class="revoke">撤销</button>`
+          : `<button onclick="grantActivation('${phone}')" style="border-color:#4ade80;color:#4ade80">激活</button>`}
+        <button onclick="deleteAccount('${phone}')" class="revoke" title="删除账号">删除</button>
       </span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function removeUser(i) {
@@ -233,6 +247,75 @@ function removeUser(i) {
   setUsers(users);
   renderUsers();
   renderStats();
+}
+
+// ============ 多租户:改工作室名 ============
+function renameWorkspace(phone) {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const acc = accounts[phone];
+  if (!acc) {
+    alert('账号不存在');
+    return;
+  }
+  const newName = prompt(`改 "${acc.workspaceName || '未命名'}" 的工作室名为:`, acc.workspaceName || '');
+  if (newName === null || !newName.trim()) return;
+  acc.workspaceName = newName.trim();
+  accounts[phone] = acc;
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  // 如果当前用户改的是自己,更新登录态
+  try {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    if (user.phone === phone) {
+      user.workspaceName = newName.trim();
+      localStorage.setItem('yunshu-user', JSON.stringify(user));
+    }
+  } catch(e) {}
+  renderUsers();
+  showToast('✓ 已改名为 "' + newName.trim() + '"');
+}
+
+function grantActivation(phone) {
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const acc = accounts[phone];
+  if (!acc) { alert('账号不存在'); return; }
+  acc.activated = true;
+  acc.activatedAt = Date.now();
+  acc.activatedCode = 'admin-grant-' + Date.now();
+  accounts[phone] = acc;
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  try {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    if (user.phone === phone) {
+      user.activated = true;
+      localStorage.setItem('yunshu-user', JSON.stringify(user));
+    }
+  } catch(e) {}
+  renderUsers();
+  showToast('✓ 已激活账号 ' + phone);
+}
+
+function revokeActivation(phone) {
+  if (!confirm('撤销 ' + phone + ' 的激活状态?(将变回未激活)')) return;
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  const acc = accounts[phone];
+  if (!acc) return;
+  acc.activated = false;
+  acc.activatedAt = 0;
+  acc.activatedCode = '';
+  accounts[phone] = acc;
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  renderUsers();
+  showToast('已撤销 ' + phone + ' 的激活状态');
+}
+
+function deleteAccount(phone) {
+  if (!confirm('确定删除账号 ' + phone + '?(不可恢复)')) return;
+  const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+  delete accounts[phone];
+  localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+  renderUsers();
+  renderStats();
+  showToast('已删除 ' + phone);
 }
 
 function renderStats() {
