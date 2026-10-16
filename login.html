@@ -79,9 +79,13 @@ function doLogin(form) {
     phone, plan: 'paid', activated: !!account.activated,
     activatedAt: account.activatedAt || 0, activatedCode: account.activatedCode || '',
     workspaceName: account.workspaceName || '未命名工作室',
+    isAdmin: !!account.isAdmin,
     loginAt: Date.now()
   }));
-  if (!account.activated) {
+  // 管理员自动跳到 admin 工具
+  if (account.isAdmin) {
+    window.location.href = 'admin.html';
+  } else if (!account.activated) {
     window.location.href = 'pending.html';
   } else {
     window.location.href = 'app.html';
