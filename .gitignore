@@ -63,3 +63,10 @@ _modules/**/package-lock.json
 # ============ 临时文件 ============
 *.tmp
 *.bak
+
+# 用户辅助脚本（不是 R31202 产出）
+watchdog.py
+serve.py.un~
+
+# macOS
+.DS_Store
