@@ -1,0 +1,13 @@
+# robots.txt for 装报价 yunshu-zhuangqi
+# https://macxiaxia-boop.github.io/yunshu-zhuangqi/
+
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /app.html
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /pending.html
+Disallow: /activation.html
+
+Sitemap: https://macxiaxia-boop.github.io/yunshu-zhuangqi/sitemap.xml
