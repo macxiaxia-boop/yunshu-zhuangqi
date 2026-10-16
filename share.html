@@ -151,10 +151,17 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
       document.getElementById('contactBtn').target = '_blank';
     }
   }
+  function autoPrintIfRequested() {
+    var printMode = getParam('print');
+    if (printMode === '1') {
+      setTimeout(function() { window.print(); }, 500);
+    }
+  }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
+    document.addEventListener('DOMContentLoaded', function() { render(); autoPrintIfRequested(); });
   } else {
     render();
+    autoPrintIfRequested();
   }
 })();
 </script>
