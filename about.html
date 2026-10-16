@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<meta name="description" content="装报价 — 装企(装修企业)免费开源报价工具。11 大报价模块、6 主题色、一键打印、品牌克隆。">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon-192.png">
+<title>关于 · 装报价</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fafaff 0%, #f5f5fb 100%); color: #1a1a2e; min-height: 100vh; margin: 0; padding: 0; }
+  .nav { background: #fff; border-bottom: 1px solid #e8e8ef; padding: 14px 0; position: sticky; top: 0; z-index: 10; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .brand-logo { width: 36px; height: 36px; background: linear-gradient(135deg, #B50029, #8B0029); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(181,0,41,0.25); }
+  .links a { color: #5e5e7a; font-size: 14px; margin-left: 28px; text-decoration: none; }
+  .links a:hover { color: #B50029; }
+  .container { max-width: 800px; margin: 0 auto; padding: 80px 24px; }
+  h1 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+  .lead { font-size: 18px; color: #5e5e7a; line-height: 1.7; margin-bottom: 40px; }
+  h2 { font-size: 24px; font-weight: 700; margin: 40px 0 16px; color: #1a1a2e; }
+  p { font-size: 15px; color: #5e5e7a; line-height: 1.8; margin-bottom: 14px; }
+  .timeline { background: #fff; border: 1px solid #e8e8ef; border-radius: 12px; padding: 24px; margin-top: 24px; }
+  .tl-item { padding: 12px 0; border-bottom: 1px solid #f0f0f5; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-tag { background: rgba(181,0,41,0.08); color: #B50029; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .tl-text { color: #1a1a2e; line-height: 1.6; }
+  .contact { background: linear-gradient(135deg, rgba(181,0,41,0.05), rgba(181,0,41,0.02)); border: 1px solid #B50029; border-radius: 12px; padding: 24px; margin-top: 24px; font-size: 14px; color: #1a1a2e; text-align: center; }
+  .contact b { color: #B50029; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 8px; border: 1px solid #e8e8ef; background: #fff; color: #1a1a2e; font-size: 14px; text-decoration: none; margin-top: 16px; }
+  .btn:hover { border-color: #B50029; color: #B50029; }
+  .btn-primary { background: linear-gradient(135deg, #B50029, #8B0029); color: #fff !important; border-color: transparent; box-shadow: 0 4px 12px rgba(181,0,41,0.25); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand">
+      <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <span>装报价</span>
+    </a>
+    <div class="links">
+      <a href="index.html">首页</a>
+      <a href="pricing.html">价格</a>
+      <a href="about.html">关于</a>
+    </div>
+    <a href="app.html" class="btn btn-primary">📊 进入工作台</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>关于装报价</h1>
+  <p class="lead">装报价是专为<strong>装企(装修企业)</strong>打造的免费开源报价工具。覆盖 11 大报价模块、6 主题色、一键打印、品牌克隆 — 从设计到签约,装企全流程。</p>
+
+  <h2>我们相信</h2>
+  <p>装企值得更好的报价体验。我们认为,专业的报价工具不应该被锁定在 ¥99/月起的订阅墙后面。装报价<strong>完全免费 · 无功能限制 · 无项目数量限制 · 无品牌限制</strong>,开源代码可查、可持续更新。</p>
+
+  <h2>产品形态</h2>
+  <p>装报价采用「公开免费 + 付钱激活」双轨制:</p>
+  <p>· <strong>公开免费</strong>:所有人可访问 <a href="index.html">首页</a> → <a href="app.html">app.html</a> → 直接使用所有功能(11 大报价模块、6 主题色、打印预览、PDF 导出、键盘快捷键、3 个示例项目、团队克隆 ZIP、PWA 安装)。无需注册、无需信用卡,数据本地存储。</p>
+  <p>· <strong>付钱激活</strong>:需要「云端同步 · 多端协作 · 客户管理 · 项目分配」等企业级功能的装企老板,可通过 <a href="login.html">登录</a> → <a href="register.html">注册</a> → 扫码支付 ¥198 → 老板手动开通激活码(老板完全控制发放,无需后端服务器)。详见 <a href="pricing.html">价格页</a> 与 <a href="pending.html">待开通页</a>。</p>
+
+  <h2>开发时间线</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-tag">R1901</span><span class="tl-text">抓取小红书 xhs 视频(标题"是谁还在 Excel 做报价"),抽帧分析、ASR 转录</span></div>
+    <div class="tl-item"><span class="tl-tag">R1902</span><span class="tl-text">单文件 HTML v1→v2 终版 — 11 大模块 28 关键帧还原,2500+ 行代码</span></div>
+    <div class="tl-item"><span class="tl-tag">R1903</span><span class="tl-text">改名「装报价」+ PWA 资产(manifest.json / favicon × 3 / theme-color)</span></div>
+    <div class="tl-item"><span class="tl-tag">R1904</span><span class="tl-text">GitHub Pages 公开发布 — <a href="https://macxiaxia-boop.github.io/yunshu-zhuangqi/" target="_blank">yunshu-zhuangqi.pages.dev</a></span></div>
+    <div class="tl-item"><span class="tl-tag">R1905</span><span class="tl-text">完整 SaaS 形态 — 8 个页面(landing/login/register/pricing/app/about/terms/privacy) + SEO(sitemap/robots)</span></div>
+    <div class="tl-item"><span class="tl-tag">R1906</span><span class="tl-text">公开免费版 — 移除 23 处付费元素,统一文案"完全免费 · 无功能限制"</span></div>
+    <div class="tl-item"><span class="tl-tag">R1907</span><span class="tl-text">付钱激活流程 — admin.html 后台 + pending.html 支付页 + 100 个预生成激活码</span></div>
+    <div class="tl-item"><span class="tl-tag">R1908</span><span class="tl-text">🔄 双轨制整合 — 公开免费保留 + 付钱激活补回 + 法律页补全(about/terms/privacy)</span></div>
+  </div>
+
+  <h2>团队</h2>
+  <p>独立开发,由 <b>装报价创始人</b> 维护。联系方式:hello@yunshu.cn(反馈 / 定制 / 合作)。</p>
+
+  <div class="contact">
+    <div><b>反馈邮箱:</b> hello@yunshu.cn</div>
+    <div><b>GitHub:</b> <a href="https://github.com/macxiaxia-boop/yunshu-zhuangqi" target="_blank">macxiaxia-boop/yunshu-zhuangqi</a></div>
+    <div style="margin-top:6px; font-size:11px; color: #9595ad;">工作日 9:00-22:00 · 通常 24 小时内回复</div>
+  </div>
+
+  <a href="app.html" class="btn btn-primary">📊 立即进入工作台</a>
+</div>
+
+</body>
+</html>
