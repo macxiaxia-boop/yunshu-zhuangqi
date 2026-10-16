@@ -5,71 +5,132 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#6366f1">
-<meta name="description" content="装报价 · 装企报价工具">
+<meta name="description" content="装报价 — 装企(装修企业)报价 SaaS。选项目模板 → 改价 → 一键生成报价单。完全免费开源。">
+<meta property="og:title" content="装报价 — 装企报价专家">
+<meta property="og:description" content="10 分钟生成专业报价书 · 让装企告别 Excel 时代">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<title>装报价 · 商家工作台</title>
+<link rel="apple-touch-icon" href="favicon-192.png">
+<title>装报价 · 装企报价专家</title>
 <style>
-  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --shadow: 0 4px 12px rgba(0,0,0,0.05); --radius: 12px; }
+  :root { --primary: #6366f1; --primary-2: #4338ca; --primary-soft: rgba(99,102,241,0.08); --bg: #fafaff; --bg-2: #f5f5fb; --panel: #fff; --border: #e8e8ef; --text: #1a1a2e; --text-dim: #5e5e7a; --text-faint: #9595ad; --shadow: 0 10px 30px rgba(99,102,241,0.08); --radius: 10px; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  html, body { min-height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
   a { color: var(--primary); text-decoration: none; }
-  button { font-family: inherit; }
-  input, textarea, select { font-family: inherit; }
-  /* Lock screen */
+  a:hover { color: var(--primary-2); }
+  button, input, textarea, select { font-family: inherit; }
+  /* ============ MODE SWITCH ============ */
+  body.workbench-mode { background: var(--bg); padding: 0; }
+  /* ============ LANDING STYLES ============ */
+  .nav { background: var(--panel); border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .brand-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  .brand-text { font-size: 17px; letter-spacing: -0.5px; }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { color: var(--text-dim); font-size: 14px; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); }
+  .btn { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 14px; cursor: pointer; transition: all 0.15s; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff !important; border-color: transparent; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.35); color: #fff !important; }
+  .btn-lg { padding: 14px 28px; font-size: 16px; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 4px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; color: var(--text-dim); }
+  .btn-icon:hover { color: var(--primary); }
+  /* Hero */
+  .hero { max-width: 1200px; margin: 0 auto; padding: 100px 24px 60px; text-align: center; position: relative; }
+  .hero::before { content: ""; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; background: var(--primary-soft); color: var(--primary); border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+  .hero h1 { font-size: 64px; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; }
+  .hero h1 .accent { background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-sub { font-size: 19px; color: var(--text-dim); max-width: 640px; margin: 0 auto 36px; line-height: 1.7; }
+  .hero-ctas { display: flex; gap: 14px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
+  .hero-screenshot { max-width: 1080px; margin: 0 auto; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .hero-screenshot img { width: 100%; display: block; }
+  /* Features */
+  .features { max-width: 1200px; margin: 0 auto; padding: 100px 24px; }
+  .section-title { text-align: center; margin-bottom: 60px; }
+  .section-title h2 { font-size: 42px; font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; }
+  .section-title p { font-size: 17px; color: var(--text-dim); max-width: 560px; margin: 0 auto; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .feature { padding: 32px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.2s; }
+  .feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--primary); }
+  .feature-icon { width: 52px; height: 52px; background: linear-gradient(135deg, var(--primary-soft), rgba(99,102,241,0.16)); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; margin-bottom: 18px; }
+  .feature h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .feature p { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+  /* Pricing */
+  .pricing { background: var(--bg-2); padding: 100px 24px; }
+  .pricing-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+  .price-card { background: var(--panel); border: 2px solid var(--primary); border-radius: var(--radius); padding: 48px 40px; box-shadow: var(--shadow); position: relative; }
+  .price-card .badge { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 4px 16px; border-radius: 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+  .price-card .name { font-size: 18px; color: var(--text-dim); margin-bottom: 8px; }
+  .price-card .price { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin-bottom: 8px; }
+  .price-card .price .num { font-size: 64px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+  .price-card .price .unit { font-size: 18px; color: var(--text-dim); }
+  .price-card .tag { color: var(--primary); font-size: 14px; font-weight: 600; margin-bottom: 24px; }
+  .price-card ul { list-style: none; margin-bottom: 32px; text-align: left; }
+  .price-card ul li { padding: 6px 0; font-size: 14px; color: var(--text-dim); display: flex; align-items: flex-start; gap: 8px; }
+  .price-card ul li::before { content: "✓"; color: #16a34a; font-weight: 700; flex-shrink: 0; }
+  /* Final CTA */
+  .final-cta { background: linear-gradient(135deg, var(--primary), var(--primary-2)); padding: 80px 24px; text-align: center; color: #fff; }
+  .final-cta h2 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
+  .final-cta p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; }
+  .final-cta .btn { background: #fff; color: var(--primary) !important; border-color: #fff; font-weight: 600; }
+  .final-cta .btn:hover { background: rgba(255,255,255,0.95); color: var(--primary) !important; }
+  /* Footer */
+  footer.landing-footer { background: var(--panel); border-top: 1px solid var(--border); padding: 60px 24px 30px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+  .footer-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { padding: 5px 0; font-size: 13px; }
+  .footer-col a { color: var(--text-dim); }
+  .footer-col a:hover { color: var(--primary); }
+  .footer-brand p { font-size: 13px; color: var(--text-dim); margin-top: 14px; max-width: 280px; line-height: 1.6; }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-faint); text-align: center; }
+  @media (max-width: 900px) {
+    .hero h1 { font-size: 40px; }
+    .hero-sub { font-size: 16px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+  /* ============ WORKBENCH STYLES ============ */
+  body.workbench-mode .landing-section { display: none; }
+  .workbench-section { display: none; }
+  body.workbench-mode .workbench-section { display: block; }
   .lock-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #fafaff 0%, #f0f0fa 100%); }
-  .lock-box { width: 100%; max-width: 400px; background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(99,102,241,0.08); text-align: center; }
-  .lock-logo { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 14px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(99,102,241,0.25); }
-  .lock-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  body.workbench-mode .lock-screen { display: none; }
+  .lock-box { width: 100%; max-width: 400px; background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: var(--shadow); text-align: center; }
+  .lock-title { font-size: 22px; font-weight: 700; margin: 16px 0 4px; }
   .lock-sub { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
   .lock-input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; outline: none; margin-bottom: 14px; letter-spacing: 4px; }
   .lock-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
   .lock-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
-  .lock-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.35); }
   .lock-hint { margin-top: 14px; font-size: 11px; color: var(--text-faint); }
-  /* Workbench */
-  .workbench { display: none; min-height: 100vh; }
-  .workbench.active { display: block; }
-  .top-bar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-  .brand-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(99,102,241,0.25); }
-  .brand-name { font-size: 15px; }
+  .top-bar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
   .nav-tabs { display: flex; gap: 4px; background: var(--bg-2); padding: 3px; border-radius: 8px; }
   .nav-tab { padding: 7px 14px; font-size: 13px; cursor: pointer; border-radius: 6px; color: var(--text-dim); font-weight: 500; }
   .nav-tab.active { background: var(--panel); color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .nav-tab:hover:not(.active) { color: var(--text); }
   .actions { display: flex; gap: 8px; }
-  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .btn:hover { border-color: var(--primary); color: var(--primary); }
-  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
-  .btn-primary:hover { color: #fff; transform: translateY(-1px); }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-icon { padding: 4px 8px; background: transparent; border: none; cursor: pointer; font-size: 14px; color: var(--text-dim); }
-  .btn-icon:hover { color: var(--primary); }
-  /* Main */
   .main { max-width: 1280px; margin: 0 auto; padding: 24px; }
   .section { display: none; }
   .section.active { display: block; }
   .section-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
   .section-sub { color: var(--text-dim); font-size: 13px; margin-bottom: 20px; }
-  /* Cards / lists */
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
-  .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .card-title { font-size: 15px; font-weight: 600; }
-  .card-meta { font-size: 12px; color: var(--text-faint); margin-top: 4px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; background: var(--bg-2); }
   .input:focus { border-color: var(--primary); background: var(--panel); }
   textarea.input { min-height: 60px; resize: vertical; font-family: inherit; }
   .label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 4px; font-weight: 500; }
-  /* Catalog items */
-  .catalog-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .cat-item { padding: 12px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
   .cat-item .name { font-weight: 600; font-size: 13px; }
   .cat-item .price { font-family: monospace; font-size: 13px; color: var(--primary); }
-  .cat-item .actions { display: flex; gap: 4px; }
   .empty-form { text-align: center; padding: 30px; color: var(--text-faint); font-size: 13px; }
-  /* Quote (报价生成器) */
+  /* Quote */
   .quote-layout { display: grid; grid-template-columns: 1fr 380px; gap: 16px; }
   .quote-left, .quote-right { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
   .catalog-picker { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; max-height: 260px; overflow-y: auto; }
@@ -90,20 +151,15 @@
   .qtable tfoot td { background: var(--bg-2); font-weight: 700; }
   .qtable tfoot .total { color: var(--primary); font-size: 16px; }
   .qtable .del-btn { background: transparent; color: #f87171; border: none; cursor: pointer; font-size: 13px; padding: 2px 6px; }
-  .qtable .del-btn:hover { color: #ef4444; }
   .empty-line { padding: 30px; text-align: center; color: var(--text-faint); font-size: 12px; }
-  /* Quote total card */
   .total-card { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; padding: 20px; border-radius: 10px; text-align: center; margin-top: 14px; box-shadow: 0 8px 20px rgba(99,102,241,0.25); }
   .total-card .label { font-size: 12px; opacity: 0.85; }
   .total-card .amount { font-size: 36px; font-weight: 800; margin-top: 4px; font-family: monospace; }
   .total-card .note { font-size: 11px; opacity: 0.85; margin-top: 4px; }
-  /* Add item form */
   .add-form { display: grid; grid-template-columns: 2fr 0.6fr 0.5fr 0.6fr auto; gap: 6px; margin-bottom: 10px; }
   .add-form input { padding: 7px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
-  /* Toast */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(99,102,241,0.35); opacity: 0; transition: all 0.2s; pointer-events: none; z-index: 1000; font-weight: 500; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  /* Modal */
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
   .modal-bg.active { display: flex; }
   .modal { background: var(--panel); border-radius: 14px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
@@ -112,228 +168,362 @@
   .modal-close { background: transparent; border: none; cursor: pointer; font-size: 20px; color: var(--text-dim); }
   .modal-body { padding: 20px; }
   .modal-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
-  /* Section: history */
   .history-item { padding: 12px 14px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .history-item .info { flex: 1; }
   .history-item .name { font-weight: 600; font-size: 14px; }
   .history-item .meta { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
   .history-item .total { font-family: monospace; font-weight: 700; color: var(--primary); font-size: 16px; }
   @media (max-width: 1100px) { .quote-layout { grid-template-columns: 1fr; } }
-  @media print {
-    .top-bar, .quote-right, .catalog-picker, .empty-line, .toast { display: none !important; }
-    body { background: white; padding: 0; }
-    .main { padding: 0; }
-    .quote-left { box-shadow: none; border: none; }
-  }
+  @media print { body.workbench-mode .top-bar, .quote-right, .catalog-picker, .empty-line, .toast { display: none !important; } body { background: white; padding: 0; } .main { padding: 0; } .quote-left { box-shadow: none; border: none; } }
 </style>
 </head>
 <body>
 
-<!-- ============ 锁屏 ============ -->
-<div class="lock-screen" id="lockScreen">
-  <form class="lock-box" onsubmit="event.preventDefault(); tryUnlock();">
-    <div class="lock-logo"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-    <div class="lock-title">装报价 · 商家工作台</div>
-    <div class="lock-sub">输入密码进入</div>
-    <input type="password" class="lock-input" id="lockPwd" placeholder="• • • • • •" autocomplete="off" required>
-    <button type="submit" class="lock-btn">🔓 进入工作台</button>
-    <div class="lock-hint">💡 默认密码 <code>123456</code> · 进入后可改</div>
-  </form>
+<!-- ============================================ -->
+<!-- ============  LANDING 模式  ============ -->
+<!-- ============================================ -->
+<div class="landing-section">
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="brand">
+        <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <span class="brand-text">装报价</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">功能</a>
+        <a href="#pricing">价格</a>
+        <a href="#workflow">工作流</a>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="btn btn-primary" onclick="enterWorkbench(); return false;">📊 进入工作台</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">装企报价 · 一键生成</div>
+    <h1>报价只需<br><span class="accent">10 分钟</span></h1>
+    <p class="hero-sub">装报价 — 专为装企打造的全案设计施工报价工具。<br>选项目模板 → 改价 → 一键生成报价单 → 微信发给业主。</p>
+
+    <div class="hero-ctas">
+      <a href="#" class="btn btn-primary btn-lg" onclick="enterWorkbench(); return false;">📊 立即进入工作台</a>
+      <a href="#features" class="btn btn-lg">了解功能</a>
+    </div>
+
+    <div class="hero-screenshot">
+      <img src="assets/hero.png" alt="装报价主界面" loading="lazy">
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="section-title">
+      <h2>为什么选装报价</h2>
+      <p>从设计、报价到打印,装报价覆盖装企全流程</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">A</div>
+        <h3>📦 项目模板库</h3>
+        <p>预配置 20+ 装企常见项目(水电/防水/吊顶/橱柜等),默认单价,一键加入报价单。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">B</div>
+        <h3>🧮 现场报价</h3>
+        <p>业主来了,老板打开浏览器选模板 + 调价,10 分钟生成专业报价单。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">C</div>
+        <h3>📤 公开分享</h3>
+        <p>生成的报价单 URL 直接发给业主,业主无需注册,任何设备扫码即看。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">D</div>
+        <h3>📋 客户记录</h3>
+        <p>记录给哪些业主做过报价(只是记录,不是账号),随时回看历史。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">E</div>
+        <h3>🖨 打印 PDF</h3>
+        <p>浏览器原生打印,直接保存为 PDF,或发送到打印机。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">F</div>
+        <h3>💾 数据导出</h3>
+        <p>所有数据可一键导出 JSON 文件,跨设备迁移 / 备份。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="pricing-inner">
+      <div class="section-title">
+        <h2>完全免费 · 无功能限制</h2>
+        <p>我们相信装企值得更好的报价体验</p>
+      </div>
+      <div class="price-card">
+        <div class="badge">永久免费</div>
+        <div class="name">装报价 · 完整功能</div>
+        <div class="price">
+          <span class="num">¥0</span>
+          <span class="unit">/ 永久</span>
+        </div>
+        <div class="tag">完全开源 · 无功能阉割</div>
+        <ul>
+          <li>所有 11+ 报价模块</li>
+          <li>6 主题色 + 自定义</li>
+          <li>无限项目</li>
+          <li>打印预览 + 一键分享</li>
+          <li>多客户 / 模板管理</li>
+          <li>数据本地存储 + 导出</li>
+          <li>Cmd+K 命令面板</li>
+          <li>响应式(桌面 + 移动端)</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-lg" style="width:100%;" onclick="enterWorkbench(); return false;">📊 立即进入工作台</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <h2>10 分钟生成专业报价书</h2>
+    <p>让装企告别 Excel 时代</p>
+    <a href="#" class="btn btn-lg" onclick="enterWorkbench(); return false;">📊 立即进入工作台</a>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="/" class="brand">
+          <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <span class="brand-text">装报价</span>
+        </a>
+        <p>装企(装修企业)报价工具 · 完全免费开源 · 一套茶具,2 个文件</p>
+      </div>
+      <div class="footer-col">
+        <h4>产品</h4>
+        <ul>
+          <li><a href="#features">功能</a></li>
+          <li><a href="#pricing">价格</a></li>
+          <li><a href="#" onclick="enterWorkbench(); return false;">工作台</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>资源</h4>
+        <ul>
+          <li><a href="USER_GUIDE.md">老板手册</a></li>
+          <li><a href="https://github.com/macxiaxia-boop/yunshu-zhuangqi" target="_blank">GitHub 源码</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>关于</h4>
+        <ul>
+          <li><a href="about.html">关于装报价</a></li>
+          <li><a href="terms.html">用户协议</a></li>
+          <li><a href="privacy.html">隐私政策</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 装报价 · Made with ❤️ · 一套茶具 2 个文件</div>
+  </footer>
+
 </div>
 
-<!-- ============ 工作台 ============ -->
-<div class="workbench" id="workbench">
+<!-- ============================================ -->
+<!-- ============  WORKBENCH 模式  ============ -->
+<!-- ============================================ -->
+<div class="workbench-section">
 
-  <div class="top-bar">
-    <div class="brand">
-      <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <span class="brand-name" id="brandName">装报价</span>
+  <!-- 锁屏 -->
+  <div class="lock-screen">
+    <form class="lock-box" onsubmit="event.preventDefault(); tryUnlock();">
+      <div class="brand-logo" style="margin: 0 auto 16px; width:56px; height:56px; border-radius:14px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 20px rgba(99,102,241,0.25);"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <div class="lock-title">装报价 · 商家工作台</div>
+      <div class="lock-sub">输入密码进入</div>
+      <input type="password" class="lock-input" id="lockPwd" placeholder="• • • • • •" autocomplete="off" required>
+      <button type="submit" class="lock-btn">🔓 进入工作台</button>
+      <div class="lock-hint">💡 默认 <code>123456</code> · 进入后可改</div>
+    </form>
+  </div>
+
+  <!-- 工作台主体 -->
+  <div id="workbenchMain">
+    <div class="top-bar">
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <span class="brand-text" id="brandName">装报价</span>
+      </div>
+      <div class="nav-tabs">
+        <div class="nav-tab active" data-sec="quote" onclick="switchSec('quote')">🧮 报价生成</div>
+        <div class="nav-tab" data-sec="catalog" onclick="switchSec('catalog')">📦 项目库</div>
+        <div class="nav-tab" data-sec="clients" onclick="switchSec('clients')">👥 客户记录</div>
+        <div class="nav-tab" data-sec="history" onclick="switchSec('history')">📜 报价历史</div>
+        <div class="nav-tab" data-sec="settings" onclick="switchSec('settings')">⚙️ 设置</div>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="exportWorkspace()">📤 导出数据</button>
+        <button class="btn" onclick="exitToLanding()">🌐 返回主页</button>
+        <button class="btn" onclick="doLogout()">退出</button>
+      </div>
     </div>
-    <div class="nav-tabs">
-      <div class="nav-tab active" data-sec="quote" onclick="switchSec('quote')">🧮 报价生成</div>
-      <div class="nav-tab" data-sec="catalog" onclick="switchSec('catalog')">📦 项目库</div>
-      <div class="nav-tab" data-sec="clients" onclick="switchSec('clients')">👥 客户记录</div>
-      <div class="nav-tab" data-sec="history" onclick="switchSec('history')">📜 报价历史</div>
-      <div class="nav-tab" data-sec="settings" onclick="switchSec('settings')">⚙️ 设置</div>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="exportWorkspace()">📤 导出数据</button>
-      <button class="btn" onclick="doLogout()">退出</button>
+
+    <div class="main">
+
+      <div class="section active" data-sec="quote">
+        <div class="section-title">🧮 报价生成器</div>
+        <div class="section-sub">点项目库模板自动加入 · 改单价调价 · 一键生成报价</div>
+        <div class="quote-layout">
+          <div class="quote-left">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">📦 项目库(选模板)</h3>
+            <div class="catalog-picker">
+              <div class="picker-cat-tabs" id="pickerCatTabs"></div>
+              <div class="picker-grid" id="pickerGrid"></div>
+            </div>
+            <h3 style="font-size:14px;font-weight:700;margin:14px 0 8px">📋 当前报价(可编辑)</h3>
+            <table class="qtable" id="qTable">
+              <thead><tr><th style="width:30px">#</th><th>项目</th><th style="width:60px">单位</th><th style="width:70px" class="num">数量</th><th style="width:80px" class="num">单价</th><th style="width:90px" class="num">小计</th><th style="width:36px"></th></tr></thead>
+              <tbody id="qBody"></tbody>
+              <tfoot><tr><td colspan="5" class="num">合计</td><td colspan="2" class="num total" id="qTotal">¥0.00</td></tr></tfoot>
+            </table>
+            <div class="add-form" style="margin-top:14px">
+              <input id="addName" placeholder="项目名(自定义)">
+              <input id="addUnit" placeholder="单位" value="项">
+              <input id="addQty" type="number" placeholder="数量" value="1">
+              <input id="addPrice" type="number" placeholder="单价" value="0">
+              <button class="btn-primary btn" onclick="addCustom()">+ 加</button>
+            </div>
+          </div>
+          <div class="quote-right">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">👤 业主信息</h3>
+            <div style="margin-bottom:10px">
+              <div class="label">业主姓名</div>
+              <input class="input" id="cName" placeholder="例:张先生">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="label">业主手机</div>
+              <input class="input" id="cPhone" placeholder="例:138 0000 0000" maxlength="11">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="label">装修地址</div>
+              <input class="input" id="cAddress" placeholder="例:朝阳区望京 SOHO 1号楼">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="label">面积(㎡)</div>
+              <input class="input" id="cArea" type="number" placeholder="例:90">
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="label">装修类型</div>
+              <select class="input" id="cType"><option>全包</option><option>半包</option><option>清包</option><option>局装</option></select>
+            </div>
+            <div style="margin-bottom:14px">
+              <div class="label">备注</div>
+              <textarea class="input" id="cNotes" placeholder="业主要求 / 风格偏好"></textarea>
+            </div>
+            <div class="total-card">
+              <div class="label">本次报价总计</div>
+              <div class="amount" id="bigTotal">¥0.00</div>
+              <div class="note" id="bigTotalNote">含管理费及税金</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+              <button class="btn" onclick="window.print()">🖨 打印</button>
+              <button class="btn-primary btn" onclick="generateAndShare()">📤 生成+分享</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" data-sec="catalog">
+        <div class="section-title">📦 项目库管理</div>
+        <div class="section-sub">配置你的产品/服务模板,默认单价 · 报价时一键加入</div>
+        <div class="add-form" style="max-width:800px;margin-bottom:14px;grid-template-columns:2fr 0.8fr 0.8fr 0.8fr auto">
+          <input id="catName" placeholder="项目名(例:水电改造)">
+          <input id="catUnit" placeholder="单位" value="㎡">
+          <input id="catPrice" type="number" placeholder="默认单价" value="0">
+          <select id="catCategory"><option value="基础">基础</option><option value="主材">主材</option><option value="设计">设计</option><option value="其他">其他</option></select>
+          <button class="btn-primary btn" onclick="addCatalogItem()">+ 添加</button>
+        </div>
+        <div id="catalogList"></div>
+      </div>
+
+      <div class="section" data-sec="clients">
+        <div class="section-title">👥 客户记录</div>
+        <div class="section-sub">记录给哪些业主做过报价(只是记录,不是账号)</div>
+        <div class="add-form" style="max-width:800px;margin-bottom:14px;grid-template-columns:1fr 1fr 1fr auto">
+          <input id="cliName" placeholder="业主姓名">
+          <input id="cliPhone" placeholder="手机号" maxlength="11">
+          <input id="cliAddress" placeholder="地址(可选)">
+          <button class="btn-primary btn" onclick="addClient()">+ 添加</button>
+        </div>
+        <div id="clientList"></div>
+      </div>
+
+      <div class="section" data-sec="history">
+        <div class="section-title">📜 报价历史</div>
+        <div class="section-sub">查看/重新生成历史报价</div>
+        <div id="historyList"></div>
+      </div>
+
+      <div class="section" data-sec="settings">
+        <div class="section-title">⚙️ 设置</div>
+        <div class="section-sub">配置你的工作室信息</div>
+        <div class="card" style="max-width:600px">
+          <div style="margin-bottom:12px">
+            <div class="label">工作室名称</div>
+            <input class="input" id="setName" placeholder="例:云上工作室">
+          </div>
+          <div style="margin-bottom:12px">
+            <div class="label">联系电话</div>
+            <input class="input" id="setPhone" placeholder="例:138 0000 0000">
+          </div>
+          <div style="margin-bottom:12px">
+            <div class="label">登录密码</div>
+            <input class="input" type="password" id="setPwd" placeholder="留空保持当前">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn-primary btn" onclick="saveSettings()">💾 保存</button>
+            <button class="btn" onclick="resetData()">🗑 重置所有数据</button>
+          </div>
+          <div style="margin-top:14px;padding:10px;background:var(--bg-2);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.6">
+            💡 <strong>说明</strong>:所有数据存在您本地浏览器(localStorage)。<br>
+            · 业主看到报价只需您生成"分享 URL" → 业主手机点开(无需账号)<br>
+            · "导出数据"按钮 = 下载所有数据的 JSON 备份
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="main">
-
-    <!-- ============ 报价生成 ============ -->
-    <div class="section active" data-sec="quote">
-      <div class="section-title">🧮 报价生成器</div>
-      <div class="section-sub">点项目库模板自动加入 · 改单价调价 · 一键生成报价</div>
-
-      <div class="quote-layout">
-
-        <div class="quote-left">
-          <h3 style="font-size:14px;font-weight:700;margin-bottom:10px">📦 项目库(选模板)</h3>
-          <div class="catalog-picker">
-            <div class="picker-cat-tabs" id="pickerCatTabs"></div>
-            <div class="picker-grid" id="pickerGrid"></div>
-          </div>
-
-          <h3 style="font-size:14px;font-weight:700;margin:14px 0 8px">📋 当前报价(可编辑)</h3>
-          <table class="qtable" id="qTable">
-            <thead><tr>
-              <th style="width:30px">#</th><th>项目</th><th style="width:60px">单位</th>
-              <th style="width:70px" class="num">数量</th><th style="width:80px" class="num">单价</th>
-              <th style="width:90px" class="num">小计</th><th style="width:36px"></th>
-            </tr></thead>
-            <tbody id="qBody"></tbody>
-            <tfoot><tr><td colspan="5" class="num">合计</td><td colspan="2" class="num total" id="qTotal">¥0.00</td></tr></tfoot>
-          </table>
-
-          <div class="add-form" style="margin-top:14px">
-            <input id="addName" placeholder="项目名(自定义)">
-            <input id="addUnit" placeholder="单位" value="项">
-            <input id="addQty" type="number" placeholder="数量" value="1">
-            <input id="addPrice" type="number" placeholder="单价" value="0">
-            <button class="btn-primary btn" onclick="addCustom()">+ 加</button>
-          </div>
-        </div>
-
-        <div class="quote-right">
-          <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">👤 业主信息</h3>
-          <div style="margin-bottom:10px">
-            <div class="label">业主姓名</div>
-            <input class="input" id="cName" placeholder="例:张先生">
-          </div>
-          <div style="margin-bottom:10px">
-            <div class="label">业主手机</div>
-            <input class="input" id="cPhone" placeholder="例:138 0000 0000" maxlength="11">
-          </div>
-          <div style="margin-bottom:10px">
-            <div class="label">装修地址</div>
-            <input class="input" id="cAddress" placeholder="例:朝阳区望京 SOHO 1号楼">
-          </div>
-          <div style="margin-bottom:10px">
-            <div class="label">面积(㎡)</div>
-            <input class="input" id="cArea" type="number" placeholder="例:90">
-          </div>
-          <div style="margin-bottom:10px">
-            <div class="label">装修类型</div>
-            <select class="input" id="cType">
-              <option value="全包">全包</option>
-              <option value="半包">半包</option>
-              <option value="清包">清包</option>
-              <option value="局装">局装</option>
-            </select>
-          </div>
-          <div style="margin-bottom:14px">
-            <div class="label">备注</div>
-            <textarea class="input" id="cNotes" placeholder="业主要求 / 风格偏好 / 备注"></textarea>
-          </div>
-
-          <div class="total-card">
-            <div class="label">本次报价总计</div>
-            <div class="amount" id="bigTotal">¥0.00</div>
-            <div class="note" id="bigTotalNote">含管理费及税金</div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-            <button class="btn" onclick="window.print()">🖨 打印</button>
-            <button class="btn-primary btn" onclick="generateAndShare()">📤 生成+分享</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ 项目库 ============ -->
-    <div class="section" data-sec="catalog">
-      <div class="section-title">📦 项目库管理</div>
-      <div class="section-sub">配置你的产品/服务模板,默认单价 · 报价时一键加入</div>
-
-      <div class="add-form" style="max-width:800px;margin-bottom:14px;grid-template-columns:2fr 0.8fr 0.8fr 0.8fr auto">
-        <input id="catName" placeholder="项目名(例:水电改造)">
-        <input id="catUnit" placeholder="单位" value="㎡">
-        <input id="catPrice" type="number" placeholder="默认单价" value="0">
-        <select id="catCategory"><option value="基础">基础</option><option value="主材">主材</option><option value="设计">设计</option><option value="其他">其他</option></select>
-        <button class="btn-primary btn" onclick="addCatalogItem()">+ 添加</button>
-      </div>
-
-      <div id="catalogList"></div>
-    </div>
-
-    <!-- ============ 客户记录 ============ -->
-    <div class="section" data-sec="clients">
-      <div class="section-title">👥 客户记录</div>
-      <div class="section-sub">记录给哪些业主做过报价(只是记录,不需要业主账号)</div>
-
-      <div class="add-form" style="max-width:800px;margin-bottom:14px;grid-template-columns:1fr 1fr 1fr auto">
-        <input id="cliName" placeholder="业主姓名">
-        <input id="cliPhone" placeholder="手机号" maxlength="11">
-        <input id="cliAddress" placeholder="地址(可选)">
-        <button class="btn-primary btn" onclick="addClient()">+ 添加</button>
-      </div>
-
-      <div id="clientList"></div>
-    </div>
-
-    <!-- ============ 历史 ============ -->
-    <div class="section" data-sec="history">
-      <div class="section-title">📜 报价历史</div>
-      <div class="section-sub">查看/重新生成历史报价</div>
-
-      <div id="historyList"></div>
-    </div>
-
-    <!-- ============ 设置 ============ -->
-    <div class="section" data-sec="settings">
-      <div class="section-title">⚙️ 设置</div>
-      <div class="section-sub">配置你的工作室信息</div>
-
-      <div class="card" style="max-width:600px">
-        <div style="margin-bottom:12px">
-          <div class="label">工作室名称</div>
-          <input class="input" id="setName" placeholder="例:云上工作室">
-        </div>
-        <div style="margin-bottom:12px">
-          <div class="label">联系电话</div>
-          <input class="input" id="setPhone" placeholder="例:138 0000 0000">
-        </div>
-        <div style="margin-bottom:12px">
-          <div class="label">登录密码</div>
-          <input class="input" type="password" id="setPwd" placeholder="留空保持当前">
-        </div>
-        <div style="display:flex;gap:8px;margin-top:14px">
-          <button class="btn-primary btn" onclick="saveSettings()">💾 保存</button>
-          <button class="btn" onclick="resetData()">🗑 重置所有数据</button>
-        </div>
-        <div style="margin-top:14px;padding:10px;background:var(--bg-2);border-radius:6px;font-size:11px;color:var(--text-dim);line-height:1.6">
-          💡 <strong>说明</strong>:所有数据存在您本地浏览器(localStorage)。<br>
-          · 业主看到报价只需您生成"分享 URL" → 业主手机点开(无需账号)<br>
-          · "导出数据"按钮 = 下载所有数据的 JSON 备份
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Settings Modal (改密码等) -->
-<div class="modal-bg" id="settingsModal">
-  <div class="modal">
-    <div class="modal-head"><h3>⚙️ 设置</h3><button class="modal-close" onclick="closeModal('settingsModal')">×</button></div>
-    <div class="modal-body">
-      <div class="label">工作室名称</div>
-      <input class="input" id="mName" placeholder="云上工作室">
-      <div class="label" style="margin-top:10px">联系电话</div>
-      <input class="input" id="mPhone" placeholder="138 0000 0000">
-      <div class="label" style="margin-top:10px">新登录密码</div>
-      <input class="input" type="password" id="mPwd" placeholder="留空保持当前">
+<!-- Share Modal -->
+<div class="modal-bg" id="shareModal">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head" style="background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-radius:14px 14px 0 0">
+      <h3 style="color:#fff">📤 报价已生成 · 分享给业主</h3>
+      <button class="modal-close" onclick="document.getElementById('shareModal').classList.remove('active')" style="color:#fff;background:rgba(255,255,255,0.2);width:32px;height:32px;border-radius:50%">×</button>
     </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal('settingsModal')">取消</button>
-      <button class="btn-primary btn" onclick="saveSettings();closeModal('settingsModal')">保存</button>
+    <div class="modal-body">
+      <div style="background:var(--primary-soft);padding:14px;border-radius:8px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--primary);font-weight:600;margin-bottom:6px">🔗 业主访问链接(只读 · 公开 · 无需账号)</div>
+        <input class="input" id="shareUrlInput" readonly onclick="this.select()" style="font-family:monospace;font-size:11px;background:var(--panel)">
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <button class="btn-primary btn" onclick="navigator.clipboard.writeText(document.getElementById('shareUrlInput').value).then(()=>showToast('已复制'))" style="flex:1">📋 复制</button>
+          <button class="btn" onclick="window.open(document.getElementById('shareUrlInput').value, '_blank')" style="flex:1">👁 预览</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);line-height:1.7;background:var(--bg-2);padding:12px;border-radius:6px">
+        💡 <strong>说明</strong>:<br>
+        · 业主微信收到链接 → 直接看报价(无需注册)<br>
+        · 数据编码在 URL 里 → 跨设备可访问<br>
+        · 业主看到您配置的<b>工作室名</b><br>
+        · 删除这条历史 → 业主链接失效
+      </div>
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">📋 报价预览</div>
+        <div id="sharePreview"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -341,28 +531,42 @@
 <script>
 'use strict';
 
+// ============ MODE SWITCH ============
+function enterWorkbench() {
+  document.body.classList.add('workbench-mode');
+  location.hash = '#workbench';
+}
+function exitToLanding() {
+  document.body.classList.remove('workbench-mode');
+  location.hash = '';
+}
+// 启动时根据 hash 决定模式
+window.addEventListener('DOMContentLoaded', () => {
+  if (location.hash === '#workbench') enterWorkbench();
+});
+
 // ============ 数据模型 ============
 const DEFAULT_CATALOG = [
-  { name: '设计服务费',  unit: '㎡',    price: 200,  category: '设计' },
-  { name: '量房出图',    unit: '次',    price: 0,    category: '设计' },
-  { name: '水电改造',    unit: '㎡',    price: 180,  category: '基础' },
-  { name: '防水工程',    unit: '㎡',    price: 80,   category: '基础' },
-  { name: '墙面处理',    unit: '㎡',    price: 35,   category: '基础' },
-  { name: '地面找平',    unit: '㎡',    price: 25,   category: '基础' },
-  { name: '拆除工程',    unit: '㎡',    price: 45,   category: '基础' },
-  { name: '垃圾清运',    unit: '次',    price: 800,  category: '基础' },
-  { name: '吊顶龙骨',    unit: '㎡',    price: 85,   category: '基础' },
-  { name: '墙地砖铺贴',  unit: '㎡',    price: 120,  category: '基础' },
-  { name: '木作柜子',    unit: '延米',  price: 1800, category: '基础' },
-  { name: '墙面乳胶漆',  unit: '㎡',    price: 38,   category: '基础' },
-  { name: '瓷砖',        unit: '㎡',    price: 180,  category: '主材' },
-  { name: '地板',        unit: '㎡',    price: 280,  category: '主材' },
-  { name: '橱柜',        unit: '延米',  price: 2200, category: '主材' },
-  { name: '卫浴',        unit: '套',    price: 4500, category: '主材' },
-  { name: '灯具',        unit: '套',    price: 3800, category: '主材' },
-  { name: '开关插座',    unit: '套',    price: 1200, category: '主材' },
-  { name: '管理费',      unit: '项',    price: 0,    category: '其他' },
-  { name: '税费(3%)',   unit: '项',    price: 0,    category: '其他' },
+  { name: '设计服务费', unit: '㎡', price: 200, category: '设计' },
+  { name: '量房出图', unit: '次', price: 0, category: '设计' },
+  { name: '水电改造', unit: '㎡', price: 180, category: '基础' },
+  { name: '防水工程', unit: '㎡', price: 80, category: '基础' },
+  { name: '墙面处理', unit: '㎡', price: 35, category: '基础' },
+  { name: '地面找平', unit: '㎡', price: 25, category: '基础' },
+  { name: '拆除工程', unit: '㎡', price: 45, category: '基础' },
+  { name: '垃圾清运', unit: '次', price: 800, category: '基础' },
+  { name: '吊顶龙骨', unit: '㎡', price: 85, category: '基础' },
+  { name: '墙地砖铺贴', unit: '㎡', price: 120, category: '基础' },
+  { name: '木作柜子', unit: '延米', price: 1800, category: '基础' },
+  { name: '墙面乳胶漆', unit: '㎡', price: 38, category: '基础' },
+  { name: '瓷砖', unit: '㎡', price: 180, category: '主材' },
+  { name: '地板', unit: '㎡', price: 280, category: '主材' },
+  { name: '橱柜', unit: '延米', price: 2200, category: '主材' },
+  { name: '卫浴', unit: '套', price: 4500, category: '主材' },
+  { name: '灯具', unit: '套', price: 3800, category: '主材' },
+  { name: '开关插座', unit: '套', price: 1200, category: '主材' },
+  { name: '管理费', unit: '项', price: 0, category: '其他' },
+  { name: '税费(3%)', unit: '项', price: 0, category: '其他' },
 ];
 
 const KEY = {
@@ -381,9 +585,7 @@ function $$(s, p) { return Array.from((p || document).querySelectorAll(s)); }
 function loadJSON(key, def) {
   try { const v = JSON.parse(localStorage.getItem(key) || 'null'); return v == null ? def : v; } catch(e) { return def; }
 }
-function saveJSON(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-}
+function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
 function showToast(msg) {
   const t = $('#toast');
   t.textContent = msg;
@@ -391,7 +593,7 @@ function showToast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 1800);
 }
-function closeModal(id) { $('#' + id).classList.remove('active'); }
+function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c])); }
 
 // ============ 锁屏 ============
 function tryUnlock() {
@@ -399,7 +601,6 @@ function tryUnlock() {
   const correctPwd = localStorage.getItem(KEY.pwd) || '123456';
   if (pwd === correctPwd) {
     $('#lockScreen').style.display = 'none';
-    $('#workbench').classList.add('active');
     init();
   } else {
     showToast('❌ 密码错误');
@@ -409,7 +610,7 @@ function tryUnlock() {
 
 function doLogout() {
   if (!confirm('退出当前工作台?')) return;
-  $('#workbench').classList.remove('active');
+  document.body.classList.remove('workbench-mode');
   $('#lockScreen').style.display = 'flex';
   $('#lockPwd').value = '';
 }
@@ -427,31 +628,18 @@ function switchSec(name) {
 // ============ 项目库 ============
 function getCatalog() {
   let c = loadJSON(KEY.catalog, null);
-  if (!c || !Array.isArray(c) || !c.length) {
-    c = DEFAULT_CATALOG;
-    saveJSON(KEY.catalog, c);
-  }
+  if (!c || !Array.isArray(c) || !c.length) { c = DEFAULT_CATALOG; saveJSON(KEY.catalog, c); }
   return c;
 }
 
 function renderCatalogPicker() {
   const cat = loadJSON('yunshu-picker-cat', '全部');
   const all = ['全部', ...new Set(getCatalog().map(c => c.category || '其他'))];
-  const tabs = $('#pickerCatTabs');
-  tabs.innerHTML = all.map(c => `<div class="picker-cat-tab ${c === cat ? 'active' : ''}" onclick="pickCat('${c}')">${c}</div>`).join('');
+  $('#pickerCatTabs').innerHTML = all.map(c => `<div class="picker-cat-tab ${c === cat ? 'active' : ''}" onclick="pickCat('${c}')">${c}</div>`).join('');
   const items = cat === '全部' ? getCatalog() : getCatalog().filter(c => c.category === cat);
-  $('#pickerGrid').innerHTML = items.map((c, i) => `
-    <div class="picker-item" onclick="addFromCatalog(${i})">
-      <span>${c.name}</span>
-      <b style="color:var(--primary);font-family:monospace;">¥${c.price}/${c.unit}</b>
-    </div>`).join('');
+  $('#pickerGrid').innerHTML = items.map((c, i) => `<div class="picker-item" onclick="addFromCatalog(${i})"><span>${c.name}</span><b style="color:var(--primary);font-family:monospace;">¥${c.price}/${c.unit}</b></div>`).join('');
 }
-
-function pickCat(cat) {
-  saveJSON('yunshu-picker-cat', cat);
-  renderCatalogPicker();
-}
-
+function pickCat(cat) { saveJSON('yunshu-picker-cat', cat); renderCatalogPicker(); }
 function addFromCatalog(i) {
   const cat = loadJSON('yunshu-picker-cat', '全部');
   const items = cat === '全部' ? getCatalog() : getCatalog().filter(c => c.category === cat);
@@ -464,17 +652,7 @@ function renderCatalogList() {
   const list = $('#catalogList');
   const cat = getCatalog();
   if (!cat.length) { list.innerHTML = '<div class="empty-form">还没有项目,上方添加</div>'; return; }
-  list.innerHTML = '<div class="catalog-list">' + cat.map((c, i) => `
-    <div class="cat-item">
-      <div>
-        <div class="name">${c.name}</div>
-        <div style="font-size:11px;color:var(--text-faint);margin-top:2px">${c.category} · ¥${c.price}/${c.unit}</div>
-      </div>
-      <div class="actions">
-        <button class="btn-icon" onclick="editCatalog(${i})">✏️</button>
-        <button class="btn-icon" onclick="deleteCatalog(${i})" style="color:#f87171">🗑</button>
-      </div>
-    </div>`).join('') + '</div>';
+  list.innerHTML = '<div class="grid-3">' + cat.map((c, i) => `<div class="cat-item"><div><div class="name">${c.name}</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px">${c.category} · ¥${c.price}/${c.unit}</div></div><div style="display:flex;gap:4px"><button class="btn-icon" onclick="editCatalog(${i})">✏️</button><button class="btn-icon" onclick="deleteCatalog(${i})" style="color:#f87171">🗑</button></div></div>`).join('') + '</div>';
 }
 
 function addCatalogItem() {
@@ -487,50 +665,30 @@ function addCatalogItem() {
   cat.push({ name, unit, price, category });
   saveJSON(KEY.catalog, cat);
   $('#catName').value = ''; $('#catUnit').value = '项'; $('#catPrice').value = 0;
-  renderCatalogList();
-  renderCatalogPicker();
+  renderCatalogList(); renderCatalogPicker();
   showToast('✓ 已添加:' + name);
 }
 
-function deleteCatalog(i) {
-  if (!confirm('删除这个项目模板?')) return;
-  const cat = getCatalog();
-  cat.splice(i, 1);
-  saveJSON(KEY.catalog, cat);
-  renderCatalogList();
-  renderCatalogPicker();
-  showToast('已删除');
-}
+function deleteCatalog(i) { if (!confirm('删除这个项目模板?')) return; const cat = getCatalog(); cat.splice(i, 1); saveJSON(KEY.catalog, cat); renderCatalogList(); renderCatalogPicker(); showToast('已删除'); }
 
 function editCatalog(i) {
   const cat = getCatalog();
   const c = cat[i];
-  const name = prompt('项目名', c.name);
-  if (name == null) return;
-  const price = prompt('单价', c.price);
-  if (price == null) return;
+  const name = prompt('项目名', c.name); if (name == null) return;
+  const price = prompt('单价', c.price); if (price == null) return;
   c.name = name; c.price = parseFloat(price) || 0;
   saveJSON(KEY.catalog, cat);
-  renderCatalogList();
-  renderCatalogPicker();
+  renderCatalogList(); renderCatalogPicker();
   showToast('✓ 已更新');
 }
 
 // ============ 报价生成器 ============
 let currentQuote = loadJSON(KEY.currentQuote, []);
-let currentCat = loadJSON('yunshu-current-client', { name: '', phone: '', address: '', area: '', type: '全包', notes: '' });
+let currentCat = loadJSON(KEY.currentClient, { name: '', phone: '', address: '', area: '', type: '全包', notes: '' });
 
-function addToQuote(item) {
-  currentQuote.push(item);
-  saveJSON(KEY.currentQuote, currentQuote);
-  renderQuote();
-}
+function addToQuote(item) { currentQuote.push(item); saveJSON(KEY.currentQuote, currentQuote); renderQuote(); }
 
-function removeQuoteItem(i) {
-  currentQuote.splice(i, 1);
-  saveJSON(KEY.currentQuote, currentQuote);
-  renderQuote();
-}
+function removeQuoteItem(i) { currentQuote.splice(i, 1); saveJSON(KEY.currentQuote, currentQuote); renderQuote(); }
 
 function updateQuoteItem(i, field, value) {
   if (!currentQuote[i]) return;
@@ -545,16 +703,7 @@ function renderQuote() {
   if (!currentQuote.length) {
     body.innerHTML = '<tr><td colspan="7" class="empty-line">还没点模板,上方项目库选</td></tr>';
   } else {
-    body.innerHTML = currentQuote.map((it, i) => `
-      <tr>
-        <td>${i + 1}</td>
-        <td class="inp-cell"><input class="inp" value="${escapeHtml(it.name)}" oninput="updateQuoteItem(${i}, 'name', this.value)"></td>
-        <td class="inp-cell"><input class="inp" value="${escapeHtml(it.unit)}" oninput="updateQuoteItem(${i}, 'unit', this.value)"></td>
-        <td class="inp-cell"><input class="inp num" type="number" value="${it.qty}" oninput="updateQuoteItem(${i}, 'qty', this.value)"></td>
-        <td class="inp-cell"><input class="inp num" type="number" value="${it.price}" oninput="updateQuoteItem(${i}, 'price', this.value)"></td>
-        <td class="num">¥${((it.qty || 0) * (it.price || 0)).toFixed(2)}</td>
-        <td><button class="del-btn" onclick="removeQuoteItem(${i})">×</button></td>
-      </tr>`).join('');
+    body.innerHTML = currentQuote.map((it, i) => `<tr><td>${i + 1}</td><td class="inp-cell"><input class="inp" value="${escapeHtml(it.name)}" oninput="updateQuoteItem(${i}, 'name', this.value)"></td><td class="inp-cell"><input class="inp" value="${escapeHtml(it.unit)}" oninput="updateQuoteItem(${i}, 'unit', this.value)"></td><td class="inp-cell"><input class="inp num" type="number" value="${it.qty}" oninput="updateQuoteItem(${i}, 'qty', this.value)"></td><td class="inp-cell"><input class="inp num" type="number" value="${it.price}" oninput="updateQuoteItem(${i}, 'price', this.value)"></td><td class="num">¥${((it.qty || 0) * (it.price || 0)).toFixed(2)}</td><td><button class="del-btn" onclick="removeQuoteItem(${i})">×</button></td></tr>`).join('');
   }
   updateTotal();
 }
@@ -570,11 +719,7 @@ function updateTotal() {
 function addCustom() {
   const name = $('#addName').value.trim();
   if (!name) { showToast('填项目名'); return; }
-  addToQuote({
-    name, unit: $('#addUnit').value.trim() || '项',
-    qty: parseFloat($('#addQty').value) || 1,
-    price: parseFloat($('#addPrice').value) || 0
-  });
+  addToQuote({ name, unit: $('#addUnit').value.trim() || '项', qty: parseFloat($('#addQty').value) || 1, price: parseFloat($('#addPrice').value) || 0 });
   $('#addName').value = ''; $('#addQty').value = 1; $('#addPrice').value = 0;
   showToast('✓ 已加:' + name);
 }
@@ -589,16 +734,11 @@ function saveCurrentClient() {
   saveJSON(KEY.currentClient, currentCat);
 }
 
-// 业主信息改变时保存
 ['cName', 'cPhone', 'cAddress', 'cArea', 'cType', 'cNotes'].forEach(id => {
   document.getElementById(id).addEventListener('input', saveCurrentClient);
 });
 
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
-}
-
-// ============ 生成 + 分享(公开 URL) ============
+// ============ 生成 + 分享 ============
 function generateAndShare() {
   if (!currentQuote.length) { alert('请先在项目库选模板,加入报价'); return; }
   saveCurrentClient();
@@ -608,71 +748,28 @@ function generateAndShare() {
   const id = 'Q' + Date.now();
   const createdAt = Date.now();
   const ws = loadJSON(KEY.workspace, { name: '装报价' });
-  const quote = {
-    id, createdAt,
-    workspaceName: ws.name || '装报价',
-    workspacePhone: ws.phone || '',
-    client: { ...currentCat },
-    items: JSON.parse(JSON.stringify(currentQuote)),
-    total, area
-  };
-  // 保存到历史
+  const quote = { id, createdAt, workspaceName: ws.name || '装报价', workspacePhone: ws.phone || '', client: { ...currentCat }, items: JSON.parse(JSON.stringify(currentQuote)), total, area };
   const hist = loadJSON(KEY.history, []);
   hist.unshift(quote);
   saveJSON(KEY.history, hist);
-
-  // 生成公开 URL(view.html?d=base64)
   const json = JSON.stringify(quote);
   const encoded = btoa(encodeURIComponent(json));
-  const baseUrl = location.href.replace(/\/[^\/]*$/, '/');
+  const baseUrl = location.href.split('#')[0].replace(/\/[^\/]*$/, '/');
   const shareUrl = baseUrl + 'view.html?d=' + encoded;
-
-  // 保存到剪贴板 + 弹窗显示
   navigator.clipboard.writeText(shareUrl).catch(() => {});
   showShareModal(quote, shareUrl);
 }
 
 function showShareModal(quote, url) {
-  const itemsHtml = quote.items.map((it, i) => `
-    <tr><td>${i + 1}</td><td>${it.name}</td><td>${it.unit}</td>
-    <td style="text-align:right">${it.qty}</td>
-    <td style="text-align:right">¥${(it.price || 0).toFixed(2)}</td>
-    <td style="text-align:right;font-weight:700;color:#6366f1;">¥${((it.qty || 0) * (it.price || 0)).toFixed(2)}</td></tr>`).join('');
-  const m = document.createElement('div');
-  m.className = 'modal-bg active';
-  m.onclick = e => { if (e.target === m) m.remove(); };
-  m.innerHTML = `<div class="modal" style="max-width:720px">
-    <div class="modal-head" style="background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border-radius:14px 14px 0 0">
-      <h3 style="color:#fff">📤 报价已生成 · 分享给业主</h3>
-      <button class="modal-close" onclick="this.closest('.modal-bg').remove()" style="color:#fff;background:rgba(255,255,255,0.2);width:32px;height:32px;border-radius:50%">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="background:var(--primary-soft);padding:14px;border-radius:8px;margin-bottom:14px">
-        <div style="font-size:12px;color:var(--primary);font-weight:600;margin-bottom:6px">🔗 业主访问链接(只读 · 公开 · 无需账号)</div>
-        <input class="input" readonly value="${url}" onclick="this.select()" style="font-family:monospace;font-size:11px;background:var(--panel)">
-        <div style="margin-top:8px;display:flex;gap:6px">
-          <button class="btn-primary btn" onclick="navigator.clipboard.writeText('${url}').then(()=>showToast('已复制'))" style="flex:1">📋 复制</button>
-          <button class="btn" onclick="window.open('${url}', '_blank')" style="flex:1">👁 预览</button>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--text-dim);line-height:1.7;background:var(--bg-2);padding:12px;border-radius:6px">
-        💡 <strong>说明</strong>:<br>
-        · 业主微信收到链接 → 直接看报价(无需注册)<br>
-        · 数据编码在 URL 里 → 跨设备可访问<br>
-        · 业主看到您配置的<b>工作室名</b><br>
-        · 删除这条历史 → 业主链接失效
-      </div>
-      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">📋 报价预览</div>
-        <table class="qtable" style="font-size:11px">
-          <thead><tr><th>#</th><th>项目</th><th>单位</th><th class="num">数量</th><th class="num">单价</th><th class="num">小计</th></tr></thead>
-          <tbody>${itemsHtml}</tbody>
-          <tfoot><tr><td colspan="5" class="num">合计</td><td colspan="2" class="num total">¥${quote.total.toLocaleString('zh-CN')}</td></tr></tfoot>
-        </table>
-      </div>
-    </div>
-  </div>`;
-  document.body.appendChild(m);
+  const itemsHtml = quote.items.map((it, i) => `<tr><td>${i + 1}</td><td>${it.name}</td><td>${it.unit}</td><td style="text-align:right">${it.qty}</td><td style="text-align:right">¥${(it.price || 0).toFixed(2)}</td><td style="text-align:right;font-weight:700;color:#6366f1;">¥${((it.qty || 0) * (it.price || 0)).toFixed(2)}</td></tr>`).join('');
+  document.getElementById('shareUrlInput').value = url;
+  document.getElementById('sharePreview').innerHTML = `
+    <table class="qtable" style="font-size:11px">
+      <thead><tr><th>#</th><th>项目</th><th>单位</th><th class="num">数量</th><th class="num">单价</th><th class="num">小计</th></tr></thead>
+      <tbody>${itemsHtml}</tbody>
+      <tfoot><tr><td colspan="5" class="num">合计</td><td colspan="2" class="num total">¥${quote.total.toLocaleString('zh-CN')}</td></tr></tfoot>
+    </table>`;
+  document.getElementById('shareModal').classList.add('active');
 }
 
 // ============ 客户记录 ============
@@ -680,19 +777,8 @@ function renderClients() {
   const list = $('#clientList');
   const clients = loadJSON(KEY.clients, []);
   if (!clients.length) { list.innerHTML = '<div class="empty-form">还没有客户记录,上方添加</div>'; return; }
-  list.innerHTML = clients.map((c, i) => `
-    <div class="history-item">
-      <div class="info">
-        <div class="name">${c.name || '(未填)'}</div>
-        <div class="meta">${c.phone || ''}${c.address ? ' · ' + c.address : ''} · ${c.at ? new Date(c.at).toLocaleDateString('zh-CN') : ''}</div>
-      </div>
-      <div style="display:flex;gap:4px">
-        <button class="btn-icon" onclick="loadClient(${i})" title="载入到当前报价">↩</button>
-        <button class="btn-icon" onclick="deleteClient(${i})" style="color:#f87171">🗑</button>
-      </div>
-    </div>`).join('');
+  list.innerHTML = clients.map((c, i) => `<div class="history-item"><div class="info"><div class="name">${c.name || '(未填)'}</div><div class="meta">${c.phone || ''}${c.address ? ' · ' + c.address : ''} · ${c.at ? new Date(c.at).toLocaleDateString('zh-CN') : ''}</div></div><div style="display:flex;gap:4px"><button class="btn-icon" onclick="loadClient(${i})" title="载入到当前报价">↩</button><button class="btn-icon" onclick="deleteClient(${i})" style="color:#f87171">🗑</button></div></div>`).join('');
 }
-
 function addClient() {
   const name = $('#cliName').value.trim();
   const phone = $('#cliPhone').value.trim();
@@ -702,46 +788,22 @@ function addClient() {
   clients.push({ name, phone, address, at: Date.now() });
   saveJSON(KEY.clients, clients);
   $('#cliName').value = ''; $('#cliPhone').value = ''; $('#cliAddress').value = '';
-  renderClients();
-  showToast('✓ 已添加');
+  renderClients(); showToast('✓ 已添加');
 }
-
 function loadClient(i) {
   const c = loadJSON(KEY.clients, [])[i];
   if (!c) return;
-  $('#cName').value = c.name || '';
-  $('#cPhone').value = c.phone || '';
-  $('#cAddress').value = c.address || '';
-  saveCurrentClient();
-  switchSec('quote');
-  showToast('已载入客户:' + c.name);
+  $('#cName').value = c.name || ''; $('#cPhone').value = c.phone || ''; $('#cAddress').value = c.address || '';
+  saveCurrentClient(); switchSec('quote'); showToast('已载入客户:' + c.name);
 }
-
-function deleteClient(i) {
-  if (!confirm('删除此客户记录?')) return;
-  const c = loadJSON(KEY.clients, []);
-  c.splice(i, 1);
-  saveJSON(KEY.clients, c);
-  renderClients();
-}
+function deleteClient(i) { if (!confirm('删除此客户记录?')) return; const c = loadJSON(KEY.clients, []); c.splice(i, 1); saveJSON(KEY.clients, c); renderClients(); }
 
 // ============ 历史 ============
 function renderHistory() {
   const list = $('#historyList');
   const hist = loadJSON(KEY.history, []);
   if (!hist.length) { list.innerHTML = '<div class="empty-form">还没有报价历史</div>'; return; }
-  list.innerHTML = hist.map((q, i) => `
-    <div class="history-item">
-      <div class="info">
-        <div class="name">${q.client.name} · ${q.client.type}${q.client.area ? ' · ' + q.client.area + '㎡' : ''}</div>
-        <div class="meta">ID: ${q.id} · ${new Date(q.createdAt).toLocaleString('zh-CN')} · ${q.items.length} 项 · ${q.workspaceName}</div>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <div class="total">¥${q.total.toLocaleString('zh-CN')}</div>
-        <button class="btn-sm btn" onclick="reshareHistory(${i})">📤 再分享</button>
-        <button class="btn-sm btn" onclick="deleteHistory(${i})" style="color:#f87171;border-color:#f87171">🗑</button>
-      </div>
-    </div>`).join('');
+  list.innerHTML = hist.map((q, i) => `<div class="history-item"><div class="info"><div class="name">${q.client.name} · ${q.client.type}${q.client.area ? ' · ' + q.client.area + '㎡' : ''}</div><div class="meta">ID: ${q.id} · ${new Date(q.createdAt).toLocaleString('zh-CN')} · ${q.items.length} 项 · ${q.workspaceName}</div></div><div style="display:flex;gap:10px;align-items:center"><div class="total">¥${q.total.toLocaleString('zh-CN')}</div><button class="btn-sm btn" onclick="reshareHistory(${i})">📤 再分享</button><button class="btn-sm btn" onclick="deleteHistory(${i})" style="color:#f87171;border-color:#f87171">🗑</button></div></div>`).join('');
 }
 
 function reshareHistory(i) {
@@ -750,37 +812,29 @@ function reshareHistory(i) {
   if (!q) return;
   const json = JSON.stringify(q);
   const encoded = btoa(encodeURIComponent(json));
-  const baseUrl = location.href.replace(/\/[^\/]*$/, '/');
+  const baseUrl = location.href.split('#')[0].replace(/\/[^\/]*$/, '/');
   const url = baseUrl + 'view.html?d=' + encoded;
   navigator.clipboard.writeText(url).catch(() => {});
   showToast('✓ 链接已复制');
   alert('分享链接:\n\n' + url + '\n\n（已自动复制）');
 }
 
-function deleteHistory(i) {
-  if (!confirm('删除这条历史?已分享的链接也会失效。')) return;
-  const hist = loadJSON(KEY.history, []);
-  hist.splice(i, 1);
-  saveJSON(KEY.history, hist);
-  renderHistory();
-}
+function deleteHistory(i) { if (!confirm('删除这条历史?已分享的链接也会失效。')) return; const hist = loadJSON(KEY.history, []); hist.splice(i, 1); saveJSON(KEY.history, hist); renderHistory(); }
 
 // ============ 设置 ============
 function loadSettingsForm() {
   const ws = loadJSON(KEY.workspace, { name: '装报价' });
-  $('#setName').value = ws.name || '';
-  $('#setPhone').value = ws.phone || '';
+  $('#setName').value = ws.name || ''; $('#setPhone').value = ws.phone || '';
 }
 
 function saveSettings() {
-  const name = ($('#setName') || {}).value || $('#mName').value || '';
-  const phone = ($('#setPhone') || {}).value || $('#mPhone').value || '';
-  saveJSON(KEY.workspace, { name: name || '装报价', phone });
-  const newPwd = ($('#setPwd') || {}).value || $('#mPwd').value || '';
+  const name = $('#setName').value.trim() || '装报价';
+  const phone = $('#setPhone').value.trim();
+  saveJSON(KEY.workspace, { name, phone });
+  const newPwd = $('#setPwd').value.trim();
   if (newPwd) { localStorage.setItem(KEY.pwd, newPwd); showToast('✓ 密码已更新'); }
-  $('#brandName').textContent = name || '装报价';
-  if ($('#mName')) { $('#mName').value = ''; $('#mPhone').value = ''; $('#mPwd').value = ''; }
-  if ($('#setPwd')) $('#setPwd').value = '';
+  $('#brandName').textContent = name;
+  $('#setPwd').value = '';
 }
 
 function resetData() {
@@ -791,10 +845,8 @@ function resetData() {
 
 function exportWorkspace() {
   const data = {
-    catalog: getCatalog(),
-    workspace: loadJSON(KEY.workspace, {}),
-    clients: loadJSON(KEY.clients, []),
-    history: loadJSON(KEY.history, [])
+    catalog: getCatalog(), workspace: loadJSON(KEY.workspace, {}),
+    clients: loadJSON(KEY.clients, []), history: loadJSON(KEY.history, [])
   };
   downloadFile(JSON.stringify(data, null, 2), `装报价备份_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
   showToast('✓ 已下载备份');
@@ -815,10 +867,10 @@ function downloadFile(content, filename, mime) {
 function init() {
   renderCatalogPicker();
   renderQuote();
-  // 业主信息回填
   const c = loadJSON(KEY.currentClient, {});
   ['cName', 'cPhone', 'cAddress', 'cArea', 'cType', 'cNotes'].forEach(id => {
-    const v = c[id.replace('c', '').toLowerCase()] || '';
+    const key = id.replace('c', '').toLowerCase();
+    const v = c[key] || '';
     const el = $('#' + id); if (el) el.value = v;
   });
   $('#cArea').addEventListener('input', updateTotal);
