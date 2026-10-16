@@ -66,7 +66,23 @@ function doLogin(form) {
   if (!pwd) { errEl.textContent = '请输入密码'; return; }
 
   const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
-  const account = accounts[phone];
+  let account = accounts[phone];
+  // Superadmin 自动创建:18859250439 / nuomi1224
+  // 不论用户先访问 login 还是 admin,都能登录
+  if (!account && phone === '18859250439' && pwd === 'nuomi1224') {
+    accounts[phone] = {
+      pwd: 'nuomi1224',
+      workspaceName: '装报价(老板)',
+      at: Date.now(),
+      activated: true,
+      activatedAt: Date.now(),
+      activatedCode: 'superadmin',
+      isAdmin: true
+    };
+    localStorage.setItem('yunshu-accounts', JSON.stringify(accounts));
+    account = accounts[phone];
+    errEl.textContent = '✓ superadmin 账号已创建';
+  }
   if (!account) {
     errEl.textContent = '该手机号未注册,请先注册';
     return;
@@ -82,10 +98,9 @@ function doLogin(form) {
     isAdmin: !!account.isAdmin,
     loginAt: Date.now()
   }));
-  // 管理员自动跳到 admin 工具
-  if (account.isAdmin) {
-    window.location.href = 'admin.html';
-  } else if (!account.activated) {
+  // 所有人都走相同前台流程:未激活跳 pending,已激活跳 app
+  // admin 工具是独立入口,不在前台登录里跳转(避免混淆)
+  if (!account.activated) {
     window.location.href = 'pending.html';
   } else {
     window.location.href = 'app.html';
