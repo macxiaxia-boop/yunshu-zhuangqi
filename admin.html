@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<title>装报价 · 后台管理</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #1a1d2e; color: #e8eaf0; font-size: 14px; margin: 0; padding: 20px; }
+  .lock { max-width: 400px; margin: 100px auto; background: #232738; padding: 40px; border-radius: 12px; text-align: center; border: 1px solid #2a3454; }
+  .lock h1 { font-size: 20px; margin-bottom: 16px; }
+  .lock input { width: 100%; padding: 10px 12px; background: #0d111a; border: 1px solid #2a3454; border-radius: 6px; color: #e8eaf0; margin-bottom: 12px; font-size: 14px; }
+  .lock button { width: 100%; padding: 10px; background: #B50029; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .lock button:hover { background: #8B0029; }
+  .lock-hint { margin-top: 12px; font-size: 11px; color: #5a6485; }
+  .panel { display: none; max-width: 1280px; margin: 0 auto; }
+  .panel.active { display: block; }
+  .header { background: #232738; padding: 14px 20px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2a3454; }
+  .header h1 { font-size: 16px; font-weight: 700; }
+  .header .actions button { padding: 6px 12px; background: #1a1d2e; color: #e8eaf0; border: 1px solid #2a3454; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  .tabs { background: #232738; padding: 8px; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 4px; border: 1px solid #2a3454; }
+  .tab { padding: 8px 16px; background: transparent; color: #8a93b0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .tab.active { background: #B50029; color: #fff; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+  .stat { background: #232738; padding: 14px; border-radius: 8px; text-align: center; border: 1px solid #2a3454; }
+  .stat .num { font-size: 24px; font-weight: 700; color: #818cf8; }
+  .stat .label { font-size: 11px; color: #5a6485; margin-top: 4px; }
+  .tab-content { display: none; background: #232738; padding: 18px; border-radius: 8px; border: 1px solid #2a3454; }
+  .tab-content.active { display: block; }
+  .form-row { display: grid; grid-template-columns: 2fr 0.6fr 0.5fr 0.6fr auto; gap: 6px; margin-bottom: 12px; }
+  .form-row input, .form-row select { padding: 8px; background: #1a1d2e; border: 1px solid #2a3454; border-radius: 4px; color: #e8eaf0; font-size: 13px; }
+  .form-row button { padding: 8px 12px; background: #16a34a; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+  .item-list { background: #0d111a; padding: 10px; border-radius: 6px; }
+  .item-row { padding: 10px; background: #1a1d2e; border: 1px solid #2a3454; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .empty { padding: 30px; text-align: center; color: #5a6485; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="lock-panel" id="lockPanel">
+  <form class="lock" onsubmit="event.preventDefault(); tryUnlock();">
+    <h1>🔒 后台管理</h1>
+    <input type="password" id="adminPwd" placeholder="管理员密码" autocomplete="off" required>
+    <button type="submit">进入</button>
+    <div class="lock-hint">默认 <code>yunshu-admin-2026</code> · 首次登录后请改</div>
+  </form>
+</div>
+
+<div class="panel" id="mainPanel">
+  <div class="header">
+    <h1>👑 装报价 · 后台管理</h1>
+    <div class="actions">
+      <button onclick="window.open('index.html', '_blank')">前台</button>
+      <button onclick="logout()">退出</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="clients" onclick="switchTab('clients', this)">👥 客户管理</div>
+    <div class="tab" data-tab="projects" onclick="switchTab('projects', this)">📋 项目管理</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="num" id="statClients">0</div><div class="label">业主账号</div></div>
+    <div class="stat"><div class="num" id="statProjects">0</div><div class="label">报价项目</div></div>
+    <div class="stat"><div class="num" id="statTotal">¥0</div><div class="label">报价总额</div></div>
+  </div>
+
+  <div class="tab-content active" data-tab-content="clients">
+    <h3 style="margin-bottom:12px;font-size:14px;">新建业主账号</h3>
+    <div class="form-row" style="grid-template-columns:1fr 1fr 2fr auto;">
+      <input id="cName" placeholder="业主姓名">
+      <input id="cPhone" placeholder="手机号" maxlength="11">
+      <input id="cAddress" placeholder="装修地址">
+      <button onclick="addClient()">+ 添加</button>
+    </div>
+    <div id="clientList" style="margin-top:14px;"></div>
+  </div>
+
+  <div class="tab-content" data-tab-content="projects">
+    <h3 style="margin-bottom:12px;font-size:14px;">新建报价项目</h3>
+    <div class="form-row">
+      <input id="pName" placeholder="项目名(例:望京 SOHO)">
+      <input id="pUnit" placeholder="单位" value="㎡">
+      <input id="pQty" type="number" placeholder="数量" value="1">
+      <input id="pPrice" type="number" placeholder="单价" value="0">
+      <button onclick="addProjectItem()">+ 加项</button>
+    </div>
+    <div class="item-list" id="pItemList"></div>
+    <div style="margin-top:8px;padding:8px;background:#1a1d2e;border-radius:4px;font-size:12px;color:#16a34a;">总额: <span id="pTotal">¥0.00</span></div>
+    <div style="margin-top:14px;display:flex;gap:6px;">
+      <button onclick="createProject()" style="padding:8px 16px;background:#B50029;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;">✓ 创建项目并分配</button>
+      <button onclick="clearProjectForm()" style="padding:8px 16px;background:#1a1d2e;color:#e8eaf0;border:1px solid #2a3454;border-radius:4px;cursor:pointer;font-size:13px;">清空</button>
+    </div>
+    <div id="projectList" style="margin-top:18px;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#B50029;color:#fff;padding:8px 18px;border-radius:6px;font-size:13px;box-shadow:0 6px 18px rgba(181,0,41,0.35);opacity:0;transition:all 0.2s;pointer-events:none;z-index:1000;font-weight:500;"></div>
+
+<script>
+const ADMIN_PWD = 'yunshu-admin-2026';
+const KEY = { clients: 'yunshu-clients', projects: 'yunshu-projects' };
+function $(s) { return document.querySelector(s); }
+function loadJSON(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch(e) { return d; } }
+function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+function showToast(m) { const t = $('#toast'); t.textContent = m; t.style.opacity = 1; t.style.transform = 'translateX(-50%) translateY(0)'; clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = 0; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 1800); }
+
+function tryUnlock() {
+  if ($('#adminPwd').value === ADMIN_PWD) {
+    $('#lockPanel').style.display = 'none';
+    $('#mainPanel').classList.add('active');
+    renderAll();
+  } else { showToast('❌ 密码错误'); $('#adminPwd').value = ''; }
+}
+
+function logout() {
+  $('#mainPanel').classList.remove('active');
+  $('#lockPanel').style.display = 'block';
+  $('#adminPwd').value = '';
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === el));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.dataset.tabContent === name));
+}
+
+function renderClients() {
+  const list = $('#clientList');
+  const clients = loadJSON(KEY.clients, []);
+  if (!clients.length) { list.innerHTML = '<div class="empty">还没有业主账号</div>'; return; }
+  list.innerHTML = clients.map((c, i) => `<div class="item-row"><div><b>${c.name}</b> · ${c.phone}<br><span style="color:#5a6485;font-size:11px;">${c.address || ''}</span></div><button class="header actions" onclick="delClient(${i})" style="padding:3px 8px;background:transparent;color:#f87171;border:1px solid #f87171;border-radius:3px;cursor:pointer;font-size:11px;">删除</button></div>`).join('');
+}
+
+function addClient() {
+  const name = $('#cName').value.trim();
+  const phone = $('#cPhone').value.trim();
+  const address = $('#cAddress').value.trim();
+  if (!name || !phone) { showToast('填姓名 + 手机'); return; }
+  const clients = loadJSON(KEY.clients, []);
+  clients.push({ name, phone, address, at: Date.now() });
+  saveJSON(KEY.clients, clients);
+  $('#cName').value = ''; $('#cPhone').value = ''; $('#cAddress').value = '';
+  renderAll();
+  showToast('✓ 已添加');
+}
+
+function delClient(i) {
+  if (!confirm('删除?')) return;
+  const clients = loadJSON(KEY.clients, []);
+  clients.splice(i, 1); saveJSON(KEY.clients, clients);
+  renderAll();
+}
+
+// Project items in create form
+let newItems = [];
+function addProjectItem() {
+  newItems.push({ name: $('#pName').value.trim(), unit: $('#pUnit').value.trim() || '项', qty: parseFloat($('#pQty').value) || 1, price: parseFloat($('#pPrice').value) || 0 });
+  $('#pName').value = '';
+  renderNewItems();
+}
+
+function renderNewItems() {
+  const list = $('#pItemList');
+  if (!newItems.length) { list.innerHTML = '<div style="color:#5a6485;font-size:11px;padding:6px;">还没加项目 · 上面填好点"+ 加项"</div>'; $('#pTotal').textContent = '¥0.00'; return; }
+  list.innerHTML = newItems.map((it, i) => `<div class="item-row"><div><b>${it.name}</b> · ¥${it.price}/${it.unit}</div><button onclick="removeNewItem(${i})" style="padding:2px 6px;background:transparent;color:#f87171;border:none;cursor:pointer;font-size:11px;">×</button></div>`).join('');
+  const total = newItems.reduce((s, it) => s + (it.qty * it.price), 0);
+  $('#pTotal').textContent = '¥' + total.toFixed(2);
+}
+
+function removeNewItem(i) { newItems.splice(i, 1); renderNewItems(); }
+
+function clearProjectForm() { newItems = []; $('#pName').value = ''; $('#pUnit').value = '㎡'; $('#pQty').value = 1; $('#pPrice').value = 0; renderNewItems(); }
+
+function createProject() {
+  if (!newItems.length) { showToast('加至少一项'); return; }
+  const id = 'P' + Date.now();
+  const total = newItems.reduce((s, it) => s + (it.qty * it.price), 0);
+  const projects = loadJSON(KEY.projects, {});
+  projects[id] = { id, name: newItems[0].name + ' 等', items: [...newItems], total, status: 'active', createdAt: Date.now(), updatedAt: Date.now() };
+  saveJSON(KEY.projects, projects);
+  clearProjectForm();
+  renderAll();
+  showToast('✓ 项目已创建 (ID: ' + id + ')');
+}
+
+function renderProjects() {
+  const list = $('#projectList');
+  const projects = loadJSON(KEY.projects, {});
+  const entries = Object.entries(projects);
+  if (!entries.length) { list.innerHTML = '<div class="empty">还没有报价项目</div>'; return; }
+  list.innerHTML = entries.map(([id, p]) => `<div class="item-row"><div><b>${p.name}</b> · ${p.items.length} 项 · <span style="color:#16a34a;font-weight:700;">¥${p.total.toFixed(2)}</span><br><span style="color:#5a6485;font-size:11px;">ID: ${id}</span></div><button onclick="delProject('${id}')" style="padding:2px 6px;background:transparent;color:#f87171;border:none;cursor:pointer;font-size:11px;">删除</button></div>`).join('');
+}
+
+function delProject(id) {
+  if (!confirm('删除项目?')) return;
+  const projects = loadJSON(KEY.projects, {});
+  delete projects[id]; saveJSON(KEY.projects, projects);
+  renderAll();
+}
+
+function renderAll() {
+  const clients = loadJSON(KEY.clients, []);
+  const projects = loadJSON(KEY.projects, {});
+  const total = Object.values(projects).reduce((s, p) => s + (p.total || 0), 0);
+  $('#statClients').textContent = clients.length;
+  $('#statProjects').textContent = Object.keys(projects).length;
+  $('#statTotal').textContent = '¥' + total.toFixed(0);
+  renderClients();
+  renderProjects();
+  renderNewItems();
+}
+</script>
+
+</body>
+</html>

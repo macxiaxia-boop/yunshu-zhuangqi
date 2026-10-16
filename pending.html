@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#B50029">
+<title>等待开通 · 装报价</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fafaff 0%, #f5f5fb 100%); color: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; margin: 0; }
+  .box { width: 100%; max-width: 540px; background: #fff; border: 1px solid #e8e8ef; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(181,0,41,0.08); }
+  .icon-circle { width: 64px; height: 64px; background: linear-gradient(135deg, #B50029, #8B0029); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 14px; box-shadow: 0 8px 20px rgba(181,0,41,0.25); }
+  h1 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .lead { color: #5e5e7a; font-size: 14px; text-align: center; margin-bottom: 24px; line-height: 1.7; }
+  .steps { background: #fafaff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .step { padding: 8px 0; border-bottom: 1px solid #e8e8ef; display: flex; align-items: flex-start; gap: 12px; font-size: 13px; }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 22px; height: 22px; background: #B50029; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .step-text { color: #1a1a2e; line-height: 1.6; }
+  .step-text b { color: #B50029; }
+  .qrcode-area { background: #fafaff; border-radius: 12px; padding: 20px; margin-bottom: 18px; text-align: center; border: 1px solid #e8e8ef; }
+  .qrcode-label { font-size: 14px; color: #5e5e7a; margin-bottom: 12px; font-weight: 500; }
+  .qrcode-img { width: 200px; height: 200px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
+  .qrcode-img img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+  .amount-row { margin-top: 16px; }
+  .amount { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #B50029, #8B0029); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .amount-tag { font-size: 13px; color: #5e5e7a; margin-top: 2px; }
+  .contact { background: linear-gradient(135deg, rgba(181,0,41,0.05), rgba(181,0,41,0.02)); border: 1px solid #B50029; border-radius: 12px; padding: 18px; margin-bottom: 20px; font-size: 14px; color: #1a1a2e; text-align: center; }
+  .contact b { color: #B50029; }
+  .refresh-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #B50029, #8B0029); color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 12px rgba(181,0,41,0.25); }
+  .refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(181,0,41,0.35); }
+  .status-check { font-size: 12px; color: #5e5e7a; text-align: center; margin-top: 14px; line-height: 1.6; }
+  .alt-actions { display: flex; gap: 14px; justify-content: center; margin-top: 18px; font-size: 13px; }
+  .alt-actions a { color: #5e5e7a; text-decoration: none; }
+  .alt-actions a:hover { color: #B50029; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="icon-circle">¥</div>
+  <h1>正在为您开通权限</h1>
+  <p class="lead">完成支付后,把付款凭证发给客服<br>我们会在 <b style="color:#B50029">30 分钟内</b> 开通您的账号</p>
+
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><span class="step-text">扫码支付 <b>¥198</b>(一次性 · 终身使用)</span></div>
+    <div class="step"><span class="step-num">2</span><span class="step-text">微信加客服,告知您的<span id="userPhone" style="color:#5e5e7a;font-size:11px;"></span>手机号</span></div>
+    <div class="step"><span class="step-num">3</span><span class="step-text">客服审核 → 在下方输入<b>激活码</b> → 解锁全部功能</span></div>
+  </div>
+
+  <div class="qrcode-area">
+    <div class="qrcode-label">微信扫码支付 ¥198</div>
+    <div class="qrcode-img">
+      <img src="assets/qrcode.jpg" alt="微信收款码" onerror="this.parentElement.innerHTML='<div style=padding:20px;color:#888;text-align:center;font-size:12px>收款码待上传</div>'">
+    </div>
+    <div class="amount-row">
+      <div class="amount">¥198</div>
+      <div class="amount-tag">一次性 · 终身使用</div>
+    </div>
+  </div>
+
+  <div class="contact">
+    <div><b>客服微信:</b> xinsh (示例)</div>
+    <div><b>客服邮箱:</b> hello@yunshu.cn</div>
+    <div style="margin-top:6px; font-size:11px; color:#9595ad;">工作时间 9:00-22:00 · 通常 30 分钟内激活</div>
+  </div>
+
+  <button class="refresh-btn" onclick="checkActivation()">我已付款 · 检查开通状态</button>
+  <div class="status-check" id="statusCheck"></div>
+
+  <div class="alt-actions">
+    <a href="login.html">切换账号</a>
+    <a href="index.html">返回首页</a>
+  </div>
+</div>
+
+<script>
+(async function() {
+  try {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    const el = document.getElementById('userPhone');
+    if (user.phone) {
+      const masked = user.phone.replace(/^(\d{3})\d{4}/, '$1****');
+      el.textContent = `(${masked})`;
+    }
+    if (!user.phone) window.location.replace('login.html');
+  } catch (e) { window.location.replace('login.html'); }
+  setInterval(checkActivation, 30000);
+})();
+
+function checkActivation() {
+  try {
+    const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+    const accounts = JSON.parse(localStorage.getItem('yunshu-accounts') || '{}');
+    const acc = accounts[user.phone];
+    const el = document.getElementById('statusCheck');
+    if (acc && acc.activated) {
+      user.activated = true;
+      user.activatedAt = acc.activatedAt || Date.now();
+      localStorage.setItem('yunshu-user', JSON.stringify(user));
+      el.innerHTML = '<span style="color:#16a34a;font-weight:600">✓ 已开通!正在跳转...</span>';
+      setTimeout(() => window.location.href = 'app.html', 800);
+    } else {
+      el.innerHTML = '还没开通?请联系客服开通。';
+    }
+  } catch (e) {}
+}
+</script>
+</body>
+</html>

@@ -1,8 +1,32 @@
-# Dependencies
+# ============ Dependencies ============
 **/node_modules/
 **/package-lock.json
+.npm/
 
-# OS / Editor
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ============ 应用源码 PUSH ============
+# index.html / manifest.json / favicon.* / *.md / start.bat / .github/workflows/ / assets/ 保留
+# .nojekyll 也保留
+
+# ============ 不要 PUSH（原始素材 / 备份 / 抽帧 / 打包） ============
+xhs-source.mp4
+xhs-audio.mp3
+xhs-transcript.txt
+xhs-transcript-large.txt
+
+frames/
+frames-xhs/
+
+yunshu-zhuangqi-v1.0.zip
+xhs-quote-app-v1.zip
+faster-whitespace-*.tar.gz
+
+# ============ OS / Editor ============
 .DS_Store
 Thumbs.db
 .vscode/
@@ -11,26 +35,31 @@ Thumbs.db
 *.swo
 *~
 
-# Logs
+# ============ Logs ============
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build outputs (none for yunshu - all hand-rolled)
+# ============ Build outputs ============
 dist/
 build/
 .tmp/
 .cache/
 
-# Local env
+# ============ Local env ============
 .env
 .env.local
 .env.*.local
 
-# Test outputs
+# ============ Test outputs ============
 coverage/
 .nyc_output/
 
-# R31202 sandbox residue (在 _modules 子目录保留 — 仅排除 npm)
+# ============ R31202 sandbox residue ============
+# 仅在 _modules 子目录排除 npm 元数据，源代码保留
 _modules/**/package-lock.json
+
+# ============ 临时文件 ============
+*.tmp
+*.bak

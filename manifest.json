@@ -1,0 +1,42 @@
+{
+  "name": "云数装企报价系统",
+  "short_name": "云数装企",
+  "description": "面向装企(装修企业)的全案设计施工报价工作台 SaaS — 让设计源自生活",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1d2e",
+  "theme_color": "#B50029",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/hero.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "云数装企报价系统主界面"
+    }
+  ]
+}
