@@ -1,0 +1,90 @@
+name: 🧪 R31202 All Modules Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths: ['_modules/**']
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Run V1 unit tests (01-04)
+        run: |
+          set +e
+          echo '=== 01-pwa test ==='
+          node _modules/01-pwa/pwa.test.js 2>&1 | tail -3
+          echo '=== 03-clone-zip test ==='
+          node _modules/03-clone-zip/clone-zip.test.js 2>&1 | tail -5
+          echo '=== 04-ref-reverse test ==='
+          cd _modules/04-ref-reverse && node test.js 2>&1 | tail -10
+          echo '=== 13-blockchain-cert test ==='
+          cd /d/yunshu-zhuangqi-live && node -e "
+            const window = globalThis;
+            window.crypto = require('crypto').webcrypto;
+            // IndexedDB mock
+            let _store = {};
+            window.indexedDB = { 
+              open: () => { 
+                const req = {
+                  result: { 
+                    objectStoreNames: { contains: () => false },
+                    createObjectStore: () => {},
+                    close: () => {},
+                    transaction: (name, mode) => ({
+                      objectStore: () => ({
+                        put: (v) => { _store[v.id] = v; return { onsuccess: null }; },
+                        get: (k) => { const r = { result: _store[k], onsuccess: null }; setImmediate(() => r.onsuccess?.({target:{result:_store[k]}})); return r; },
+                        openCursor: (range, dir) => {
+                          const keys = Object.keys(_store).sort().reverse();
+                          let i = 0;
+                          const req = { 
+                            onsuccess: null, 
+                            source: null,
+                            continue: function() {
+                              i++;
+                              if(i < keys.length) {
+                                setImmediate(() => this.onsuccess?.({target:{result:{value:_store[keys[i]],continue:this.continue}}}));
+                              } else {
+                                setImmediate(() => this.onsuccess?.({target:{result:null}}));
+                              }
+                            }
+                          };
+                          setImmediate(() => req.onsuccess?.({target:{result: keys.length>0 ? {value:_store[keys[0]],continue:req.continue} : null}}));
+                          return req;
+                        },
+                        getAll: () => {
+                          const r = { result: Object.values(_store), onsuccess: null };
+                          setImmediate(() => r.onsuccess?.({target:{result:Object.values(_store)}}));
+                          return r;
+                        }
+                      }),
+                      oncomplete: () => {},
+                      onerror: () => {}
+                    }
+                  }, 
+                  onupgradeneeded: null, 
+                  onsuccess: null, 
+                  onerror: null 
+                };
+                setImmediate(() => req.onsuccess?.({target:{result:req.result}}));
+                return req;
+              } 
+            };
+            // load cert
+            require('fs').readFileSync('./_modules/13-blockchain-cert/cert-core.js', 'utf-8');
+            eval(require('fs').readFileSync('./_modules/13-blockchain-cert/cert-core.js', 'utf-8').replace(/window\.YSCert/g, 'YSCert'));
+            (async () => {
+              const h = await YSCert.sha256('test');
+              console.log('T1 sha256:', h.slice(0,32) + '...', /^[0-9a-f]{64}$/.test(h) ? '✅' : '❌');
+              const cert = await YSCert.createCertificate({projectData: {projectInfo: {name: 'CI-Test'}, categories: []}});
+              console.log('T4 createCert:', cert.id ? '✅' : '❌');
+              console.log('T5 metadata:', cert.metadata?.projectName === 'CI-Test' ? '✅' : '❌');
+              const v = await YSCert.verifyCertificate({...cert, fullData:{projectInfo: {name: 'CI-Test'}, categories: []}});
+              console.log('T7 verifyOK:', v.ok ? '✅' : '❌');
+            })();
+          " 2>&1 | tail -10
