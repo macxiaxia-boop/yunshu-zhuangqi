@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>装报价 · 报价工作台</title>
+<link rel="stylesheet" href="./engine.css">
+</head>
+<body>
+
+<!-- ══ 顶栏 ══ -->
+<header id="topbar">
+  <div class="brand">
+    <div class="logo">报价</div>
+    <div>
+      <div class="brand-name" id="prjNameTop">未命名工程</div>
+      <div class="brand-sub" id="prjCodeTop">—</div>
+    </div>
+  </div>
+  <div class="top-metrics" id="topMetrics"></div>
+  <div class="top-actions">
+    <button class="btn" id="btnProjects">档案</button>
+    <button class="btn" id="btnInfo">项目资料</button>
+    <button class="btn" id="btnFees">费率</button>
+    <button class="btn" id="btnQuota">定额库</button>
+    <button class="btn" id="btnChanges">增减项<span class="badge" id="chgBadge">0</span></button>
+    <button class="btn" id="btnExport">导出</button>
+    <button class="btn primary" id="btnSave">保存</button>
+  </div>
+</header>
+
+<div id="dirtyDot" class="dirty-dot" title="有未保存修改"></div>
+
+<!-- ══ 侧栏：分类 ══ -->
+<aside id="sidebar">
+  <div class="side-sec">
+    <div class="side-title">基装工程<span class="count" id="cntConstruction">0</span></div>
+    <nav id="navConstruction"></nav>
+  </div>
+  <div class="side-sec">
+    <div class="side-title">主材软装<span class="count" id="cntMaterial">0</span></div>
+    <nav id="navMaterial"></nav>
+  </div>
+  <div class="side-foot" id="quotaStat">定额库未加载</div>
+</aside>
+
+<!-- ══ 主区 ══ -->
+<main id="main">
+  <div class="crumb" id="crumb">报价</div>
+  <section class="panel" id="summaryPanel">
+    <div class="panel-head"><h1>项目报价工作台</h1>
+      <div class="head-meta" id="headMeta"></div>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="hint">💡 左侧选分类 → 从「定额库」搜索加入，或手动「添加行」；金额实时计算。</div>
+  </section>
+
+  <section class="panel hidden" id="tablePanel">
+    <div class="panel-head">
+      <h1 id="tableTitle">分类</h1>
+      <div class="head-tools">
+        <input type="search" id="tableFilter" placeholder="过滤本分类…">
+        <button class="btn sm" id="btnAddRow">＋ 添加行</button>
+        <button class="btn sm" id="btnAddQuota">🔍 从定额库加</button>
+        <button class="btn sm danger" id="btnClearCat">清空本分类</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="itemTable">
+        <thead><tr>
+          <th style="width:44px">#</th>
+          <th style="min-width:200px">项目名称</th>
+          <th style="width:70px">单位</th>
+          <th style="width:100px">工程量</th>
+          <th style="width:110px">单价</th>
+          <th style="width:110px;text-align:right">金额</th>
+          <th style="min-width:180px">工艺 / 备注</th>
+          <th style="width:92px">操作</th>
+        </tr></thead>
+        <tbody id="itemBody"></tbody>
+        <tfoot id="itemFoot"></tfoot>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- ══ 底部汇总条 ══ -->
+<footer id="totalsBar"></footer>
+
+<!-- ══ 弹窗 ══ -->
+<dialog id="dlgInfo"><div class="dlg">
+  <h3>项目资料</h3>
+  <div class="form-grid" id="infoForm"></div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgInfo')">关闭</button></div>
+</div></dialog>
+
+<dialog id="dlgFees"><div class="dlg">
+  <h3>费率设置</h3>
+  <div class="form-grid" id="feeForm"></div>
+  <div class="fee-preview" id="feePreview"></div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgFees')">关闭</button></div>
+</div></dialog>
+
+<dialog id="dlgQuota"><div class="dlg wide">
+  <h3>定额库<span class="dlg-sub" id="quotaCount"></span></h3>
+  <div class="quota-bar">
+    <input type="search" id="quotaSearch" placeholder="搜索名称 / 工艺 / 品牌 / 规格…">
+    <select id="quotaCat"><option value="">全部分类</option></select>
+    <input type="number" id="quotaQty" value="1" min="0" step="0.01" title="加入数量">
+  </div>
+  <div class="quota-list" id="quotaList"></div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgQuota')">关闭</button></div>
+</div></dialog>
+
+<dialog id="dlgChanges"><div class="dlg wide">
+  <h3>增减项<span class="dlg-sub" id="chgSummary"></span></h3>
+  <div class="table-wrap">
+    <table><thead><tr>
+      <th style="width:80px">类型</th><th style="min-width:180px">变更项目</th>
+      <th style="width:70px">单位</th><th style="width:100px">工程量</th>
+      <th style="width:110px">单价</th><th style="width:110px;text-align:right">金额</th>
+      <th style="min-width:160px">原因</th><th style="width:60px"></th>
+    </tr></thead><tbody id="chgBody"></tbody></table>
+  </div>
+  <div class="row-tools"><button class="btn sm" id="chgAdd">＋ 增项</button><button class="btn sm" id="chgAddR">－ 减项</button></div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgChanges')">关闭</button></div>
+</div></dialog>
+
+<dialog id="dlgProjects"><div class="dlg">
+  <h3>工程档案</h3>
+  <div class="proj-list" id="projList"></div>
+  <div class="row-tools"><button class="btn sm primary" id="projNew">＋ 新建工程</button></div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgProjects')">关闭</button></div>
+</div></dialog>
+
+<dialog id="dlgExport"><div class="dlg">
+  <h3>导出</h3>
+  <div class="export-opts">
+    <button class="btn" data-x="json">工程 JSON</button>
+    <button class="btn" data-x="csv">报价 CSV</button>
+    <button class="btn" data-x="print">打印 / 存 PDF</button>
+    <button class="btn" data-x="import">导入工程…</button>
+  </div>
+  <div class="dlg-foot"><button class="btn" onclick="closeDlg('dlgExport')">关闭</button></div>
+</div></dialog>
+
+<!-- ══ 模块桥（R31202 13 模块入口） ══ -->
+<div id="moduleBar"></div>
+
+<div id="toast"></div>
+
+<script src="./quote-engine.js"></script>
+<script src="./engine-ui.js"></script>
+<script src="./engine-bridge.js"></script>
+<script src="./module-wiring.js"></script>
+</body>
+</html>

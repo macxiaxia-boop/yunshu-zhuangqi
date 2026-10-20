@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>引擎真实数据流验证</title>
+<style>
+body{font-family:ui-monospace,Consolas,monospace;padding:20px;background:#111;color:#ddd;font-size:13px;line-height:1.9}
+h2{color:#7ef;font-size:15px;margin:16px 0 6px}
+.ok{color:#4f4}.bad{color:#f66}.num{color:#fd6}
+pre{background:#1c1c1c;padding:12px;border-radius:6px;overflow-x:auto}
+</style></head>
+<body>
+<h2>yunshu-zhuangqi · 报价引擎真实数据流验证</h2>
+<pre id="out">running…</pre>
+<script src="./quote-engine.js"></script>
+<script>
+(async function(){
+  const out=[]; let pass=0,fail=0;
+  const log=(s)=>out.push(s);
+  const chk=(name,cond,extra)=>{
+    if(cond){pass++;log(`  <span class="ok">PASS</span> ${name}${extra?' · '+extra:''}`);}
+    else{fail++;log(`  <span class="bad">FAIL</span> ${name}${extra?' · '+extra:''}`);}
+  };
+  const near=(a,b,tol=0.02)=>Math.abs(a-b)<=tol;
+  const money=n=>Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // ── 1. 加载真实 REF 定额库 ──
+  log('<h2>1. 加载 REF 定额库（真实数据）</h2>');
+  let q;
+  try{ q = await QE.quota.load('./quota-seed.json'); }catch(e){ log('  LOAD ERROR: '+e.message); }
+  const itemTotal = q.categories.reduce((s,c)=>s+c.items.length,0);
+  chk('定额库加载成功', !!q.categories.length, `${q.categories.length} 类 / ${itemTotal} 条`);
+  chk('定额数 ≥ 250', itemTotal>=250, `${itemTotal} 条`);
+  const firstReal = q.categories.find(c=>c.items.some(i=>i.price>0));
+  const sampleItem = firstReal && firstReal.items.find(i=>i.price>0);
+  chk('存在真实单价数据', !!sampleItem, sampleItem? `${firstReal.cn} / ${sampleItem.name} ¥${sampleItem.price}/${sampleItem.unit}`:'');
+
+  // ── 2. 从真实定额建工程 ──
+  log('<h2>2. 用真实定额建一个工程</h2>');
+  QE.reset();
+  QE.ops.setInfo({ name:'漳州碧湖壹号 3-1802', code:'ZZ-2026-001', ownerName:'张先生',
+                   projectAddress:'漳州市龙文区碧湖壹号', designArea:98, author:'云上', date:'2026-10-20' });
+  const picks=[];
+  // 从泥瓦工程取地砖
+  const niwa = q.categories.find(c=>c.cn==='泥瓦工程');
+  if(niwa) picks.push(niwa.items.find(i=>/地砖铺贴|地砖铺设/.test(i.name)&&i.price>0));
+  // 从拆除取拆除地砖
+  const chai = q.categories.find(c=>c.cn==='拆除工程');
+  if(chai) picks.push(chai.items.find(i=>/拆除地砖/.test(i.name)));
+  // 从木作取吊平顶
+  const muzuo = q.categories.find(c=>c.cn==='木作工程');
+  if(muzuo) picks.push(muzuo.items.find(i=>/吊平顶/.test(i.name)&&i.price>0));
+  // 从瓷砖分类取主材
+  const ci = q.categories.find(c=>c.cn==='瓷砖');
+  if(ci) picks.push(ci.items[0]);
+
+  let added=0;
+  for(const p of picks.filter(Boolean)){
+    const catId = niwa&&p===niwa.items.find(i=>/地砖铺贴|地砖铺设/.test(i.name))?'c07'
+                : chai&&p===chai.items.find(i=>/拆除地砖/.test(i.name))?'c02'
+                : muzuo&&p===muzuo.items.find(i=>/吊平顶/.test(i.name))?'c08'
+                : 'm01';
+    QE.quota.addToQuote(catId, p, catId==='m01'? 60 : (catId==='c08'? 45 : 98));
+    added++;
+    log(`  · 加入 <b>${p.name}</b> → ${QE.catDef(catId).cn} · ¥${p.price}/${p.unit} × ${catId==='m01'?60:(catId==='c08'?45:98)}`);
+  }
+  chk('真实定额已加入报价', added>=3, `${added} 条`);
+
+  // ── 3. 真实计算 ──
+  log('<h2>3. 计算引擎真算</h2>');
+  QE.refreshAll();
+  const c = QE.calc();
+  chk('基装合计 > 0', c.constructionSum>0, `¥${money(c.constructionSum)}`);
+  chk('主材合计 > 0', c.materialSum>0, `¥${money(c.materialSum)}`);
+  chk('管理费 = 基装×5%', near(c.managementFee, c.constructionSum*0.05), `¥${money(c.managementFee)}`);
+  chk('税金 = 小计×3%', near(c.tax, c.subtotal*0.03), `¥${money(c.tax)}`);
+  chk('设计费 = 98㎡×80', near(c.designFee, 98*80), `¥${money(c.designFee)}`);
+  chk('总计 > 0', c.total>0, `¥${money(c.total)}`);
+  log(`  <span class="num">基装 ${money(c.constructionSum)} + 主材 ${money(c.materialSum)} + 管理费 ${money(c.managementFee)} + 主材服务费 ${money(c.materialFee)} + 税 ${money(c.tax)} + 设计费 ${money(c.designFee)} = ¥${money(c.total)}</span>`);
+
+  // ── 4. 改数量 → 金额实时变 ──
+  log('<h2>4. 改工程量 → 金额实时重算</h2>');
+  const cat = QE.data.categories.find(x=>x.id==='c07');
+  const q0 = cat.items[0].qty, p0 = cat.items[0].price, before = cat.items[0]._amount;
+  QE.ops.updateRow('c07', cat.items[0].id, { qty: q0 * 2 });
+  QE.refreshAll();
+  const after = cat.items[0]._amount;
+  chk('数量翻倍 → 金额翻倍', near(after, before*2), `¥${money(before)} → ¥${money(after)} (${q0}→${q0*2} × ¥${p0})`);
+  QE.ops.updateRow('c07', cat.items[0].id, { price: p0 * 2 });
+  QE.refreshAll();
+  chk('单价翻倍 → 金额再翻倍', near(cat.items[0]._amount, before*4), `→ ¥${money(cat.items[0]._amount)}`);
+  QE.ops.updateRow('c07', cat.items[0].id, { qty: q0, price: p0 });
+  QE.refreshAll();
+
+  // ── 5. 费率联动 ──
+  log('<h2>5. 改费率 → 总价变化</h2>');
+  const t0 = QE.calc().total;
+  QE.ops.setFee('managementRate', 10);
+  const t1 = QE.calc().total;
+  chk('管理费 5%→10% 总价上升', t1>t0, `¥${money(t0)} → ¥${money(t1)}`);
+  QE.ops.setFee('discountRate', 90);
+  const t2 = QE.calc().total;
+  chk('折扣 100%→90% 总价下降', t2<t1, `¥${money(t1)} → ¥${money(t2)}`);
+  QE.ops.setFee('managementRate',5); QE.ops.setFee('discountRate',100);
+
+  // ── 6. 增减项联动 ──
+  log('<h2>6. 增减项</h2>');
+  QE.ops.addChange('add', { name:'加装室内门槛石', unit:'米', qty:12, price:85 });
+  QE.ops.addChange('remove', { name:'取消阳台防水', unit:'㎡', qty:6, price:79 });
+  const c2 = QE.calc();
+  chk('增项金额正确', near(c2.changeAdd, 12*85), `¥${money(c2.changeAdd)}`);
+  chk('减项金额正确', near(c2.changeRemove, 6*79), `¥${money(c2.changeRemove)}`);
+  chk('grandTotal 合并', near(c2.grandTotal, c2.total+c2.changeNet), `¥${money(c2.grandTotal)}`);
+
+  // ── 7. 持久化 ──
+  log('<h2>7. 本机持久化（localStorage）</h2>');
+  const id = QE.store.saveProject();
+  const list = QE.store.listProjects();
+  chk('档案已保存', list.length>0, `${list.length} 个工程`);
+  chk('档案带计算总额', list[0].total>0, `¥${money(list[0].total)}`);
+  const saved = JSON.parse(localStorage.getItem('yunshu_projects_v1'))[0];
+  chk('磁盘上有真实明细', saved.categories.some(x=>x.items.length>0), `${saved.categories.filter(x=>x.items.length).length} 个分类有数据`);
+  chk('明细含真实名称', JSON.stringify(saved).includes('地砖')||JSON.stringify(saved).includes('拆除'), '');
+  // 重载验证
+  QE.reset();
+  const blank = QE.calc().total;
+  QE.store.loadProject(id);
+  chk('重载后数据回来', near(QE.calc().total, list[0].total), `空=${blank} → 重载=${QE.calc().total}`);
+
+  // ── 8. 导出 ──
+  log('<h2>8. 导出</h2>');
+  const json = JSON.parse(QE.toJSON());
+  chk('JSON 含 summary', typeof json.summary.total==='number', `total=¥${money(json.summary.total)}`);
+  chk('JSON 含真实条目', json.categories.some(c=>c.items&&c.items.length), '');
+  const csv = QE.toCSV();
+  chk('CSV 含 BOM', csv.charCodeAt(0)===0xFEFF);
+  chk('CSV 含汇总行', csv.includes('折扣后总计'), '');
+  chk('CSV 含真实项目名', /地砖|拆除|吊平顶/.test(csv), '');
+  log(`  CSV 长度 ${csv.length} 字符`);
+
+  document.getElementById('out').innerHTML =
+    out.join('\n') +
+    `\n\n<h2>结果</h2>\n  <span class="${fail?'bad':'ok'}" style="font-size:16px">PASS ${pass} · FAIL ${fail}</span>`;
+  window.__RESULT__ = {pass, fail};
+})();
+</script>
+</body></html>
