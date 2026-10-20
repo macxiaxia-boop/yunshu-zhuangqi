@@ -1,0 +1,7 @@
+{
+  "pages": ["pages/share/share"],
+  "window": {
+    "navigationBarTitleText": "装报价 - 业主公开链接",
+    "navigationBarBackgroundColor": "#6366f1"
+  }
+}

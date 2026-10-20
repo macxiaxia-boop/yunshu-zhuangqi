@@ -1,0 +1,3 @@
+<view class="container">
+  <web-view src="https://macxiaxia-boop.github.io/yunshu-zhuangqi/share.html"></web-view>
+</view>
