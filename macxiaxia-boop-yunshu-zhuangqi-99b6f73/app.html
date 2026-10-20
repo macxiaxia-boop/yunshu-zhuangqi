@@ -145,6 +145,11 @@
   .hbtn:hover { background: var(--panel-2); color: var(--text); border-color: var(--text-faint); }
   .hbtn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
   .hbtn.primary:hover { background: var(--primary-2); border-color: var(--primary-2); }
+  .role-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+  .role-owner { background:rgba(181,0,41,0.2); color:#f0a0b0; }
+  .role-designer { background:rgba(99,102,241,0.2); color:#a5b4fc; }
+  .role-sales { background:rgba(22,163,74,0.2); color:#86efac; }
+  .role-viewer { background:rgba(107,114,128,0.2); color:#9ca3af; }
 
   /* ============ Main 3-column layout ============ */
   .app { display: grid; grid-template-columns: 230px 1fr; height: calc(100vh - 32px - 56px - 36px); }
@@ -1151,6 +1156,7 @@
     <span class="current" id="bcCurrent">总价表</span>
   </div>
   <div class="header-actions">
+    <div id="currentUserBadge" style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg-3);border-radius:5px;font-size:11px;color:var(--text-dim);"></div>
     <a href="index.html" class="hbtn" title="返回首页">🏠 首页</a>
     <button class="hbtn" onclick="doLogout()" title="退出当前账号">退出</button>
     <div style="position:relative;">
@@ -1254,7 +1260,7 @@
     <div class="sidebar-footer">
       <div class="slogan">让设计源自生活</div>
       <div class="en">LET DESIGN RETURN TO LIFE</div>
-      <div class="ver">装报价 V1.0</div>
+      <div class="ver">装报价 V0.5.0</div>
     </div>
   </aside>
 
@@ -2001,7 +2007,7 @@
   <span class="slogan-en">LET DESIGN RETURN TO LIFE</span>
   <span class="sep">·</span>
   <span class="slogan-en" id="footerBrandEn">ZHUANGBAOJIA STUDIO</span>
-  <span class="ver" style="cursor:pointer;" onclick="openChangelog()" title="查看更新日志">V1.0</span>
+  <span class="ver" style="cursor:pointer;" onclick="openChangelog()" title="查看更新日志">V0.5.0</span>
 </footer>
 
 <!-- ===== Toast ===== -->
@@ -2120,6 +2126,7 @@
   </div>
 </div>
 
+<script src="lib/permissions.js"></script>
 <script>
   // ============ View switching ============
   const VIEW_NAMES = {
@@ -2306,7 +2313,7 @@
   setTimeout(() => {
     const user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
     const ws = user.workspaceName || '装报价';
-    showToast('🎉 ' + ws + ' · 装报价 v1.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板');
+    showToast('🎉 ' + ws + ' · 装报价 v0.5.0 已就绪 · 按 ? 查看快捷键 · 按 Ctrl+K 打开命令面板');
   }, 600);
 
   // ============ Multi-tenant brand display ============
@@ -2612,6 +2619,7 @@
   }
 
   function deleteCurrentProject(id) {
+    if (YUNSHU_PERMS.guard('delete_projects', showToast)) return;
     if (!confirm('确认删除这个项目?')) return;
     const projects = JSON.parse(localStorage.getItem('yunshu-projects') || '{}');
     delete projects[id];
@@ -2735,7 +2743,7 @@
     <tr><td>08</td><td>木作工程</td><td class="amount">${p.prices['p8-price']}</td></tr>
   </tbody>
 </table>
-<div class="footer">装报价 · 装报价 · V1.0</div>
+<div class="footer">装报价 · 装报价 · V0.5.0</div>
 </body></html>`;
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -2769,6 +2777,21 @@
       if (map[e.key]) switchView(map[e.key]);
     }
   });
+
+  // ============ Current user badge (v0.5.0) ============
+  (function renderUserBadge() {
+    try {
+      var badge = document.getElementById('currentUserBadge');
+      if (!badge) return;
+      var sub = YUNSHU_PERMS.getCurrentSubAccount();
+      var role = YUNSHU_PERMS.getCurrentRole();
+      var roleLabels = { owner: '所有者', designer: '设计师', sales: '销售', viewer: '查看者' };
+      var user = JSON.parse(localStorage.getItem('yunshu-user') || '{}');
+      var displayName = sub ? sub.name : (user.workspaceName || user.email || '用户');
+      var roleIcon = { owner: '👑', designer: '✏️', sales: '💼', viewer: '👁' }[role] || '👤';
+      badge.innerHTML = '<span>' + displayName + '</span> <span class="role-badge role-' + role + '">' + roleIcon + ' ' + (roleLabels[role] || role) + '</span>';
+    } catch(e) {}
+  })();
 </script>
 
 <!-- Shortcuts Modal -->
@@ -2821,10 +2844,21 @@
 <div class="modal-bg" id="changelogModal">
   <div class="modal" style="width:560px;">
     <div class="modal-head">
-      <h3>📋 更新日志 · V1.0</h3>
+      <h3>📋 更新日志 · V0.5.0</h3>
       <div class="modal-close" onclick="closeChangelog()">×</div>
     </div>
     <div style="padding:18px 20px; max-height:540px; overflow-y:auto; font-size:12px; line-height:1.7;">
+      <div style="border-left:3px solid #16a34a; padding-left:14px; margin-bottom:14px;">
+        <div style="font-weight:600; color:#16a34a; margin-bottom:4px;">🎉 v0.5.0 (2026-10-20) — 多账号协同 + 权限矩阵</div>
+        <div style="font-size:11px; color:var(--text-faint); margin-bottom:8px;">单账号 → 子账号 + 权限矩阵,团队成员可协同管理项目</div>
+        <ul style="padding-left:18px; color:var(--text-dim);">
+          <li><strong>子账号管理</strong> · admin.html 新增「👥 团队」tab,可添加/删除/切换子账号</li>
+          <li><strong>权限矩阵</strong> · viewer(只读) / designer(编辑) / sales(销售) / owner(全部)</li>
+          <li><strong>用户指示器</strong> · app.html 顶部显示当前用户名 + role badge</li>
+          <li><strong>权限检查</strong> · viewer 不可删除项目,designer 不可删除,owner 全权</li>
+          <li><strong>共享 lib</strong> · lib/permissions.js 权限矩阵函数,可复用</li>
+        </ul>
+      </div>
       <div style="border-left:3px solid var(--primary); padding-left:14px; margin-bottom:14px;">
         <div style="font-weight:600; color:var(--primary); margin-bottom:4px;">🎉 v1.0 (2026-10-15) — 首次发布</div>
         <div style="font-size:11px; color:var(--text-faint); margin-bottom:8px;">基于小红书创作者「溜小溜」演示视频逐帧还原</div>

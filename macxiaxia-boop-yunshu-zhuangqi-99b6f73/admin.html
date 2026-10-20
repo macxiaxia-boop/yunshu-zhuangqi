@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#B50029">
-<title>装报价 · 后台管理</title>
+<title>装报价 · 后台管理 v0.5.0</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #1a1d2e; color: #e8eaf0; font-size: 14px; margin: 0; padding: 20px; }
   .lock { max-width: 400px; margin: 100px auto; background: #232738; padding: 40px; border-radius: 12px; text-align: center; border: 1px solid #2a3454; }
@@ -49,7 +49,7 @@
 
 <div class="panel" id="mainPanel">
   <div class="header">
-    <h1>👑 装报价 · 后台管理</h1>
+    <h1>👑 装报价 · 后台管理 v0.5.0</h1>
     <div class="actions">
       <button onclick="window.open('index.html', '_blank')">前台</button>
       <button onclick="logout()">退出</button>
@@ -58,6 +58,7 @@
   <div class="tabs">
     <div class="tab active" data-tab="clients" onclick="switchTab('clients', this)">👥 客户管理</div>
     <div class="tab" data-tab="projects" onclick="switchTab('projects', this)">📋 项目管理</div>
+    <div class="tab" data-tab="team" onclick="switchTab('team', this)">👥 团队</div>
   </div>
   <div class="stats">
     <div class="stat"><div class="num" id="statClients">0</div><div class="label">业主账号</div></div>
@@ -93,13 +94,42 @@
     </div>
     <div id="projectList" style="margin-top:18px;"></div>
   </div>
+
+  <div class="tab-content" data-tab-content="team">
+    <h3 style="margin-bottom:12px;font-size:14px;">添加子账号</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 2fr auto;gap:6px;margin-bottom:12px;">
+      <input id="subName" placeholder="成员姓名">
+      <select id="subRole" style="padding:8px;background:#1a1d2e;border:1px solid #2a3454;border-radius:4px;color:#e8eaf0;font-size:13px;">
+        <option value="designer">设计师</option>
+        <option value="sales">销售</option>
+        <option value="viewer">查看者</option>
+      </select>
+      <input id="subPerms" placeholder="权限(逗号分隔): view_projects,edit_projects,export_pdf">
+      <button onclick="addSubAccount()">+ 添加</button>
+    </div>
+    <div style="margin-bottom:16px;padding:10px 14px;background:#1a1d2e;border-radius:6px;font-size:12px;color:#5a6485;">
+      <b style="color:#818cf8;">权限矩阵:</b>
+      <span style="margin-left:8px;">查看者(viewer)=</span>查看/导出
+      <span style="margin-left:6px;">设计师(designer)=</span>查看+编辑+新建报价+导出
+      <span style="margin-left:6px;">销售(sales)=</span>查看+新建报价+分享链接
+      <span style="margin-left:6px;">所有者(owner)=</span>全部权限
+    </div>
+    <h3 style="margin-bottom:10px;font-size:14px;">子账号列表</h3>
+    <div id="subList" style="margin-bottom:18px;"></div>
+    <h3 style="margin-bottom:10px;font-size:14px;">权限矩阵</h3>
+    <div id="permMatrix" style="overflow-x:auto;"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#B50029;color:#fff;padding:8px 18px;border-radius:6px;font-size:13px;box-shadow:0 6px 18px rgba(181,0,41,0.35);opacity:0;transition:all 0.2s;pointer-events:none;z-index:1000;font-weight:500;"></div>
 
+<script src="lib/permissions.js"></script>
 <script>
 const ADMIN_PWD = 'yunshu-admin-2026';
 const KEY = { clients: 'yunshu-clients', projects: 'yunshu-projects' };
+const KEY_USERS = 'yunshu-users';
+const SUB_ID_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+function genId(len) { var r = ''; for (var i = 0; i < len; i++) r += SUB_ID_CHARS[Math.floor(Math.random() * SUB_ID_CHARS.length)]; return r; }
 function $(s) { return document.querySelector(s); }
 function loadJSON(k, d) { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch(e) { return d; } }
 function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
@@ -208,6 +238,117 @@ function renderAll() {
   renderClients();
   renderProjects();
   renderNewItems();
+  renderSubAccounts();
+  renderPermMatrix();
+}
+
+// ============ Sub-account management ============
+var SUB_ROLE_LABELS = { owner: '所有者', designer: '设计师', sales: '销售', viewer: '查看者' };
+
+function initUsers() {
+  var users = loadJSON(KEY_USERS, null);
+  if (!users) {
+    users = { ownerId: '18859250439', subAccounts: [] };
+    saveJSON(KEY_USERS, users);
+  }
+  return users;
+}
+
+function addSubAccount() {
+  var name = $('#subName').value.trim();
+  var role = $('#subRole').value;
+  var permsRaw = $('#subPerms').value.trim();
+  if (!name) { showToast('填姓名'); return; }
+  var users = initUsers();
+  var perms = permsRaw ? permsRaw.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; }) : (YUNSHU_PERMS.PERMISSION_MATRIX[role] || []);
+  var sub = {
+    id: genId(8),
+    name: name,
+    role: role,
+    permissions: perms,
+    createdAt: new Date().toLocaleDateString('zh-CN'),
+    lastLogin: null
+  };
+  users.subAccounts.push(sub);
+  saveJSON(KEY_USERS, users);
+  $('#subName').value = '';
+  $('#subPerms').value = '';
+  renderSubAccounts();
+  renderPermMatrix();
+  showToast('✓ 已添加子账号: ' + name);
+}
+
+function delSubAccount(id) {
+  if (!confirm('删除该子账号?')) return;
+  var users = loadJSON(KEY_USERS);
+  if (!users) return;
+  users.subAccounts = users.subAccounts.filter(function(s) { return s.id !== id; });
+  saveJSON(KEY_USERS, users);
+  renderSubAccounts();
+  renderPermMatrix();
+  showToast('✓ 已删除');
+}
+
+function switchToSub(id) {
+  var users = loadJSON(KEY_USERS);
+  if (!users) return;
+  var sub = users.subAccounts.find(function(s) { return s.id === id; });
+  if (!sub) return;
+  sub.lastLogin = new Date().toLocaleDateString('zh-CN');
+  saveJSON(KEY_USERS, users);
+  localStorage.setItem('yunshu-current-sub', JSON.stringify(sub));
+  showToast('已切换到: ' + sub.name + ' (' + SUB_ROLE_LABELS[sub.role] + ')');
+  renderSubAccounts();
+}
+
+function renderSubAccounts() {
+  var list = $('#subList');
+  if (!list) return;
+  var users = initUsers();
+  var subs = users.subAccounts || [];
+  var currentSub = null;
+  try { currentSub = JSON.parse(localStorage.getItem('yunshu-current-sub') || 'null'); } catch(e) {}
+  if (!subs.length) {
+    list.innerHTML = '<div class="empty">还没有子账号 · 用上方表单添加</div>';
+    return;
+  }
+  list.innerHTML = subs.map(function(s) {
+    var isActive = currentSub && currentSub.id === s.id;
+    var permStr = s.permissions && s.permissions[0] !== '*' ? s.permissions.join(', ') : '全部权限';
+    var lastLogin = s.lastLogin || '从未登录';
+    return '<div class="item-row" style="' + (isActive ? 'border-color:#6366f1;' : '') + '">' +
+      '<div><b>' + s.name + '</b> <span style="font-size:11px;color:#818cf8;margin-left:6px;">[' + SUB_ROLE_LABELS[s.role] + ']</span>' +
+      (isActive ? ' <span style="font-size:10px;background:#6366f1;color:#fff;padding:1px 5px;border-radius:3px;margin-left:4px;">当前</span>' : '') +
+      '<br><span style="color:#5a6485;font-size:11px;">ID: ' + s.id + ' · 最后登录: ' + lastLogin + '</span>' +
+      '<br><span style="color:#5a6485;font-size:11px;">权限: ' + permStr + '</span></div>' +
+      '<div style="display:flex;gap:4px;">' +
+      '<button class="header actions" onclick="switchToSub(\'' + s.id + '\')" style="padding:3px 8px;background:transparent;color:#818cf8;border:1px solid #818cf8;border-radius:3px;cursor:pointer;font-size:11px;">切换</button>' +
+      '<button class="header actions" onclick="delSubAccount(\'' + s.id + '\')" style="padding:3px 8px;background:transparent;color:#f87171;border:1px solid #f87171;border-radius:3px;cursor:pointer;font-size:11px;">删除</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderPermMatrix() {
+  var box = $('#permMatrix');
+  if (!box) return;
+  var roles = ['viewer', 'designer', 'sales', 'owner'];
+  var actions = ['view_projects', 'view_customers', 'create_quote', 'edit_projects', 'export_pdf', 'send_share_link', 'delete_projects'];
+  var actionLabels = { view_projects: '查看项目', view_customers: '查看客户', create_quote: '新建报价', edit_projects: '编辑项目', export_pdf: '导出PDF', send_share_link: '发送分享', delete_projects: '删除项目' };
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+    '<thead><tr style="background:#1a1d2e;"><th style="padding:8px;text-align:left;border-bottom:1px solid #2a3454;">权限</th>';
+  roles.forEach(function(r) { html += '<th style="padding:8px;text-align:center;border-bottom:1px solid #2a3454;">' + SUB_ROLE_LABELS[r] + '</th>'; });
+  html += '</tr></thead><tbody>';
+  actions.forEach(function(act) {
+    html += '<tr><td style="padding:7px 8px;border-bottom:1px solid #2a3454;">' + (actionLabels[act] || act) + '</td>';
+    roles.forEach(function(r) {
+      var allowed = YUNSHU_PERMS.canDo(act, r);
+      html += '<td style="padding:7px;text-align:center;border-bottom:1px solid #2a3454;">' +
+        (allowed ? '<span style="color:#16a34a;font-size:16px;">✓</span>' : '<span style="color:#f87171;font-size:16px;">✗</span>') + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  box.innerHTML = html;
 }
 </script>
 
